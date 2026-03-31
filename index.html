@@ -1,0 +1,465 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+
+<head>
+    <meta charset="UTF-8">
+    <title>Painel Operacional - P84</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+    <style>
+        :root {
+            --primary: #005c9a;
+            /* Azul do Logo */
+            --secondary: #e87722;
+            /* Laranja do Logo */
+            --light-blue: #f0f6fa;
+            --bg-gray: #f2f2f2;
+        }
+
+        body {
+            font-family: 'Segoe UI', Calibri, sans-serif;
+            margin: 0;
+            background: #fff;
+        }
+
+        /* Header */
+        .header {
+            background: var(--primary);
+            color: white;
+            padding: 20px;
+        }
+
+        .header h1 {
+            margin: 0;
+            font-size: 1.5rem;
+        }
+
+        .subheader {
+            background: var(--secondary);
+            color: white;
+            padding: 5px 20px;
+            font-style: italic;
+            font-size: 0.8rem;
+        }
+
+        .container {
+            padding: 20px;
+        }
+
+        /* Filtros */
+        .section-title {
+            background: var(--light-blue);
+            color: var(--primary);
+            padding: 8px 15px;
+            font-weight: bold;
+            margin: 15px 0;
+            border-radius: 4px;
+        }
+
+        .filter-grid {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 15px;
+            align-items: center;
+            padding: 10px;
+        }
+
+        select,
+        input[type="file"] {
+            padding: 8px;
+            border: 2px solid var(--primary);
+            border-radius: 4px;
+            font-size: 1rem;
+        }
+
+        .btn-update {
+            background: var(--secondary);
+            color: white;
+            border: none;
+            padding: 10px 25px;
+            font-weight: bold;
+            cursor: pointer;
+            border-radius: 4px;
+            transition: 0.3s;
+        }
+
+        .btn-update:hover {
+            background: var(--primary);
+        }
+
+        /* Dashboard */
+        .summary-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+
+        .summary-card {
+            border: 1px solid #ccc;
+            padding: 10px;
+            text-align: center;
+            border-radius: 4px;
+        }
+
+        .summary-card span {
+            display: block;
+            font-size: 0.8rem;
+            color: #666;
+        }
+
+        .summary-card strong {
+            font-size: 1.2rem;
+            color: var(--primary);
+        }
+
+        /* Tabela */
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 10px;
+        }
+
+        th {
+            background: var(--primary);
+            color: white;
+            padding: 12px;
+            font-size: 0.9rem;
+        }
+
+        td {
+            border: 1px solid #ddd;
+            padding: 10px;
+            text-align: center;
+            font-size: 0.9rem;
+        }
+
+        tr:nth-child(even) {
+            background-color: #ebf4ff;
+        }
+
+        .status-green {
+            color: #008200;
+            font-weight: bold;
+        }
+
+        .status-orange {
+            color: #b46400;
+            font-weight: bold;
+        }
+
+        .status-red {
+            color: #b40000;
+            font-weight: bold;
+        }
+
+        .footer {
+            font-size: 0.7rem;
+            color: #999;
+            margin-top: 20px;
+            background: #f2f2f2;
+            padding: 10px;
+        }
+    </style>
+</head>
+
+<body>
+
+    <div class="header" style="display: flex; align-items: center; gap: 20px;">
+        <img src="Logo_Estaleiro_Maua.jpeg" alt="Logo Estaleiro Mauá"
+            style="height: 60px; border-radius: 4px; background: white; padding: 5px;">
+        <h1 style="margin: 0; font-size: 1.5rem;">CONTROLE DE JUNTAS</h1>
+    </div>
+    <div class="subheader">
+        P84 - FPSO | Seatrium | Mauá | <span id="currentDate"></span>
+    </div>
+
+    <div class="container">
+        <div class="section-title">CONFIGURAÇÃO E FILTRO</div>
+        <div class="filter-grid">
+            <input type="file" id="fileInput" accept=".xlsx, .xls, .xlsm">
+
+            <div id="loadingIndicator" style="display: none; align-items: center; gap: 10px;">
+                <span style="font-weight: bold; color: var(--primary); font-size: 0.9rem;">Lendo o arquivo...</span>
+                <div style="width: 150px; background-color: #ddd; border-radius: 4px; height: 10px; overflow: hidden;">
+                    <div id="progressBar"
+                        style="width: 0%; height: 100%; background-color: var(--secondary); transition: width 0.3s ease;">
+                    </div>
+                </div>
+            </div>
+
+            <div id="stageContainer" style="display: none;">
+                <label><strong>ETAPA:</strong></label>
+                <select id="stageFilter">
+                    <option value="TODOS">Todas (Fabricação/Montagem)</option>
+                    <option value="WORKSHOP">Fabricação (Workshop)</option>
+                    <option value="ASSEMBLY">Montagem (Assembly)</option>
+                </select>
+            </div>
+            <div id="assemblyContainer" style="display: none;">
+                <label><strong>DESENHO:</strong></label>
+                <select id="assemblyFilter">
+                    <option value="TODOS">TODOS</option>
+                </select>
+            </div>
+            <button class="btn-update" id="btnUpdate" style="display: none;" onclick="processData()">▶ ATUALIZAR
+                CONTROLE</button>
+        </div>
+
+        <div id="resultsArea" style="display:none;">
+            <div class="section-title">RESUMO GERAL</div>
+            <div class="summary-grid" id="summaryArea"></div>
+
+            <div class="section-title">ANÁLISE POR PEÇA</div>
+            <div style="margin-bottom: 15px; display: flex; align-items: center; gap: 10px;">
+                <label><strong>Buscar Peça:</strong></label>
+                <input type="text" id="pieceFilterInput" list="piecesDatalist"
+                    placeholder="Digite ou selecione a peça para filtrar..." oninput="filterTable()"
+                    style="flex: 1; padding: 8px; border: 2px solid var(--primary); border-radius: 4px; font-size: 1rem;">
+                <datalist id="piecesDatalist"></datalist>
+            </div>
+            <table id="resultsTable">
+                <thead>
+                    <tr>
+                        <th>PEÇA</th>
+                        <th>QTD TOTAL</th>
+                        <th>FIT-UP = P</th>
+                        <th>WELDING = P</th>
+                        <th>% FIT-UP = P</th>
+                        <th>% WELDING = P</th>
+                    </tr>
+                </thead>
+                <tbody id="tableBody"></tbody>
+            </table>
+        </div>
+    </div>
+
+    <div class="footer">
+        Legenda de Pendências: Verde <= 20% | Laranja <=50% | Vermelho> 50% </div>
+
+    <script>
+        let rawData = [];
+        let cols = {}; // Mapeamento dinâmico de colunas A, B, C...
+
+        // Formatação de Data
+        document.getElementById('currentDate').innerText = new Date().toLocaleString();
+
+        // Carregar Arquivo
+        document.getElementById('fileInput').addEventListener('change', function (e) {
+            const file = e.target.files[0];
+            if (!file) return;
+
+            const loadingIndicator = document.getElementById('loadingIndicator');
+            const progressBar = document.getElementById('progressBar');
+
+            loadingIndicator.style.display = 'flex';
+            progressBar.style.width = '20%';
+
+            // Dá um pequeno tempo para o navegador renderizar a barra antes de travar a thread
+            setTimeout(() => {
+                const reader = new FileReader();
+                reader.onload = function (ev) {
+                    progressBar.style.width = '50%';
+
+                    setTimeout(() => {
+                        const data = new Uint8Array(ev.target.result);
+                        const workbook = XLSX.read(data, { type: 'array' });
+                        const sheetName = workbook.SheetNames[0]; // Assume a primeira aba
+
+                        progressBar.style.width = '75%';
+
+                        setTimeout(() => {
+                            // Usando letter-keys (A, B, C...) para acessar colunas com repetidos (ex: RESULT)
+                            const allData = XLSX.utils.sheet_to_json(workbook.Sheets[sheetName], { header: "A", defval: "" });
+
+                            let headerRowIdx = -1;
+                            cols = { site: "", juntas: "", ass: "", item: "", stage: "", fitup: "AN", welding: "AS" };
+
+                            // Busca a linha de cabeçalho
+                            for (let i = 0; i < Math.min(allData.length, 20); i++) {
+                                const r = allData[i];
+                                let foundSite = false;
+                                for (const key in r) {
+                                    const val = normalizeText(r[key]);
+                                    if (val === "SITE") { foundSite = true; cols.site = key; }
+                                    else if (val === "JUNTAS SITE" || val === "JUNTAS_SITE") { cols.juntas = key; }
+                                    else if (val === "ASSEMBLY DRAWING") { cols.ass = key; }
+                                    else if (val === "ITEM_1") { cols.item = key; }
+                                    else if (val === "STAGE") { cols.stage = key; }
+                                }
+                                if (foundSite) {
+                                    headerRowIdx = i;
+                                    break;
+                                }
+                            }
+
+                            // Evita dar crash se não achar cabeça de tabela
+                            if (headerRowIdx === -1) headerRowIdx = 0;
+
+                            rawData = [];
+                            for (let i = headerRowIdx + 1; i < allData.length; i++) {
+                                const row = allData[i];
+                                const site = normalizeText(row[cols.site]);
+                                const juntasSite = normalizeText(row[cols.juntas]);
+                                if (site === "MAUA" && juntasSite === "MAUA") {
+                                    rawData.push(row);
+                                }
+                            }
+
+                            populateFilter();
+
+                            progressBar.style.width = '100%';
+                            setTimeout(() => {
+                                loadingIndicator.style.display = 'none';
+                                progressBar.style.width = '0%';
+                            }, 400);
+
+                        }, 50);
+                    }, 50);
+                };
+                reader.readAsArrayBuffer(file);
+            }, 100);
+        });
+
+        function normalizeText(text) {
+            if (!text) return "";
+            return String(text).normalize("NFD").replace(/[\u0300-\u036f]/g, "").toUpperCase().trim();
+        }
+
+        function populateFilter() {
+            const assemblies = new Set();
+            rawData.forEach(row => {
+                const val = row[cols.ass];
+                if (val) assemblies.add(val.toString().trim());
+            });
+
+            const select = document.getElementById('assemblyFilter');
+            select.innerHTML = '<option value="TODOS">TODOS</option>';
+            Array.from(assemblies).sort().forEach(ass => {
+                const opt = document.createElement('option');
+                opt.value = ass;
+                opt.innerText = ass;
+                select.appendChild(opt);
+            });
+
+            document.getElementById('stageContainer').style.display = 'block';
+            document.getElementById('assemblyContainer').style.display = 'block';
+            document.getElementById('btnUpdate').style.display = 'block';
+        }
+
+        function processData() {
+            if (rawData.length === 0) return alert("Carregue um arquivo primeiro.");
+
+            const filterAss = document.getElementById('assemblyFilter').value;
+            const filterStage = document.getElementById('stageFilter').value;
+            const stats = new Map();
+            let totals = { juntas: 0, fitP: 0, weldP: 0 };
+
+            rawData.forEach(row => {
+                const assembly = String(row[cols.ass] || "").trim();
+                const item1 = String(row[cols.item] || "").trim();
+                const stage = normalizeText(row[cols.stage]);
+
+                let stageMatch = false;
+                if (filterStage === "TODOS") {
+                    stageMatch = true;
+                } else if (filterStage === "WORKSHOP" && stage.includes("WORKSHOP")) {
+                    stageMatch = true;
+                } else if (filterStage === "ASSEMBLY" && stage.includes("ASSEMBLY")) {
+                    stageMatch = true;
+                }
+
+                if ((filterAss === "TODOS" || assembly === filterAss) && stageMatch) {
+
+                    // Lógica da Chave (Remover últimos 2 caracteres conforme VBA)
+                    const chave = item1.length > 2 ? item1.substring(0, item1.length - 2) : item1;
+                    if (!chave) return;
+
+                    if (!stats.has(chave)) {
+                        stats.set(chave, { total: 0, fitP: 0, weldP: 0 });
+                    }
+
+                    const s = stats.get(chave);
+                    const fitVal = normalizeText(row[cols.fitup]); // Lendo a coluna AN como exigido
+                    const weldVal = normalizeText(row[cols.welding]); // Lendo a coluna AS como exigido
+
+                    s.total++;
+                    totals.juntas++;
+
+                    if (fitVal === "P") { s.fitP++; totals.fitP++; }
+                    if (weldVal === "P") { s.weldP++; totals.weldP++; }
+                }
+            });
+
+            renderUI(stats, totals);
+        }
+
+        function getStatusClass(perc) {
+            // Para pendências, menor (mais próximo de 0%) é melhor
+            if (perc <= 0.2) return "status-green";
+            if (perc <= 0.5) return "status-orange";
+            if (perc > 0.5) return "status-red";
+            return "";
+        }
+
+        function renderUI(stats, totals) {
+            document.getElementById('resultsArea').style.display = 'block';
+
+            // Render Resumo
+            const pctFitP = (totals.fitP / totals.juntas) || 0;
+            const pctWeldP = (totals.weldP / totals.juntas) || 0;
+            document.getElementById('summaryArea').innerHTML = `
+            <div class="summary-card"><span>TOTAL JUNTAS</span><strong>${totals.juntas}</strong></div>
+            <div class="summary-card"><span>FIT-UP = P</span><strong>${totals.fitP}</strong></div>
+            <div class="summary-card"><span>WELDING = P</span><strong>${totals.weldP}</strong></div>
+            <div class="summary-card"><span>%FIT-UP =P</span><strong class="${getStatusClass(pctFitP)}">${(pctFitP * 100).toFixed(2)}%</strong></div>
+            <div class="summary-card"><span>% WELDING = P</span><strong class="${getStatusClass(pctWeldP)}">${(pctWeldP * 100).toFixed(2)}%</strong></div>
+        `;
+
+            // Render Tabela e Datalist
+            const tbody = document.getElementById('tableBody');
+            const datalist = document.getElementById('piecesDatalist');
+            tbody.innerHTML = "";
+            datalist.innerHTML = "";
+
+            // Reseta o filtro de peças atual caso exista
+            document.getElementById('pieceFilterInput').value = "";
+
+            Array.from(stats.keys()).sort().forEach(key => {
+                const s = stats.get(key);
+                const pFitP = (s.fitP / s.total) || 0;
+                const pWeldP = (s.weldP / s.total) || 0;
+
+                const row = `<tr>
+                <td style="text-align:left; color:var(--primary); font-weight:bold;">${key}</td>
+                <td>${s.total}</td>
+                <td>${s.fitP}</td>
+                <td>${s.weldP}</td>
+                <td class="${getStatusClass(pFitP)}">${(pFitP * 100).toFixed(2)}%</td>
+                <td class="${getStatusClass(pWeldP)}">${(pWeldP * 100).toFixed(2)}%</td>
+            </tr>`;
+                tbody.innerHTML += row;
+
+                const opt = document.createElement('option');
+                opt.value = key;
+                datalist.appendChild(opt);
+            });
+        }
+
+        function filterTable() {
+            const input = normalizeText(document.getElementById('pieceFilterInput').value);
+            const rows = document.getElementById('tableBody').getElementsByTagName('tr');
+            for (let i = 0; i < rows.length; i++) {
+                const row = rows[i];
+                const cellText = normalizeText(row.getElementsByTagName('td')[0].innerText);
+                if (cellText.includes(input)) {
+                    row.style.display = '';
+                } else {
+                    row.style.display = 'none';
+                }
+            }
+        }
+    </script>
+
+</body>
+
+</html>

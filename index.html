@@ -71,6 +71,27 @@
             font-size: 1rem;
         }
 
+        #dropZone {
+            border: 2px dashed var(--primary);
+            padding: 15px;
+            text-align: center;
+            border-radius: 4px;
+            cursor: pointer;
+            background: #fff;
+            transition: 0.3s;
+            min-width: 280px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.9rem;
+        }
+
+        #dropZone.dragover {
+            background: var(--light-blue);
+            border-color: var(--secondary);
+            color: var(--secondary);
+        }
+
         .btn-update {
             background: var(--secondary);
             color: white;
@@ -176,7 +197,10 @@
     <div class="container">
         <div class="section-title">CONFIGURAÇÃO E FILTRO</div>
         <div class="filter-grid">
-            <input type="file" id="fileInput" accept=".xlsx, .xls, .xlsm">
+            <div id="dropZone">
+                <span id="dropZoneText"><strong>Arraste o arquivo aqui</strong><br>ou clique para selecionar</span>
+                <input type="file" id="fileInput" accept=".xlsx, .xls, .xlsm" style="display: none;">
+            </div>
 
             <div id="loadingIndicator" style="display: none; align-items: center; gap: 10px;">
                 <span style="font-weight: bold; color: var(--primary); font-size: 0.9rem;">Lendo o arquivo...</span>
@@ -222,10 +246,10 @@
                     <tr>
                         <th>PEÇA</th>
                         <th>QTD TOTAL</th>
-                        <th>FIT-UP = P</th>
-                        <th>WELDING = P</th>
-                        <th>% FIT-UP = P</th>
-                        <th>% WELDING = P</th>
+                        <th>FIT-UP = A</th>
+                        <th>WELDING = A</th>
+                        <th>% FIT-UP = A</th>
+                        <th>% WELDING = A</th>
                     </tr>
                 </thead>
                 <tbody id="tableBody"></tbody>
@@ -234,231 +258,259 @@
     </div>
 
     <div class="footer">
-        Legenda de Pendências: Verde <= 20% | Laranja <=50% | Vermelho> 50% </div>
+        Legenda de Aprovadas: Verde >= 80% | Laranja >= 50% | Vermelho < 50% </div>
 
-    <script>
-        let rawData = [];
-        let cols = {}; // Mapeamento dinâmico de colunas A, B, C...
+            <script>
+                let rawData = [];
+                let cols = {}; // Mapeamento dinâmico de colunas A, B, C...
 
-        // Formatação de Data
-        document.getElementById('currentDate').innerText = new Date().toLocaleString();
+                // Formatação de Data
+                document.getElementById('currentDate').innerText = new Date().toLocaleString();
 
-        // Carregar Arquivo
-        document.getElementById('fileInput').addEventListener('change', function (e) {
-            const file = e.target.files[0];
-            if (!file) return;
+                // Configuração Drag and Drop
+                const dropZone = document.getElementById('dropZone');
+                const fileInput = document.getElementById('fileInput');
 
-            const loadingIndicator = document.getElementById('loadingIndicator');
-            const progressBar = document.getElementById('progressBar');
+                dropZone.addEventListener('click', () => fileInput.click());
 
-            loadingIndicator.style.display = 'flex';
-            progressBar.style.width = '20%';
+                dropZone.addEventListener('dragover', (e) => {
+                    e.preventDefault();
+                    dropZone.classList.add('dragover');
+                });
 
-            // Dá um pequeno tempo para o navegador renderizar a barra antes de travar a thread
-            setTimeout(() => {
-                const reader = new FileReader();
-                reader.onload = function (ev) {
-                    progressBar.style.width = '50%';
+                dropZone.addEventListener('dragleave', () => {
+                    dropZone.classList.remove('dragover');
+                });
 
-                    setTimeout(() => {
-                        const data = new Uint8Array(ev.target.result);
-                        const workbook = XLSX.read(data, { type: 'array' });
-                        const sheetName = workbook.SheetNames[0]; // Assume a primeira aba
-
-                        progressBar.style.width = '75%';
-
-                        setTimeout(() => {
-                            // Usando letter-keys (A, B, C...) para acessar colunas com repetidos (ex: RESULT)
-                            const allData = XLSX.utils.sheet_to_json(workbook.Sheets[sheetName], { header: "A", defval: "" });
-
-                            let headerRowIdx = -1;
-                            cols = { site: "", juntas: "", ass: "", item: "", stage: "", fitup: "AN", welding: "AS" };
-
-                            // Busca a linha de cabeçalho
-                            for (let i = 0; i < Math.min(allData.length, 20); i++) {
-                                const r = allData[i];
-                                let foundSite = false;
-                                for (const key in r) {
-                                    const val = normalizeText(r[key]);
-                                    if (val === "SITE") { foundSite = true; cols.site = key; }
-                                    else if (val === "JUNTAS SITE" || val === "JUNTAS_SITE") { cols.juntas = key; }
-                                    else if (val === "ASSEMBLY DRAWING") { cols.ass = key; }
-                                    else if (val === "ITEM_1") { cols.item = key; }
-                                    else if (val === "STAGE") { cols.stage = key; }
-                                }
-                                if (foundSite) {
-                                    headerRowIdx = i;
-                                    break;
-                                }
-                            }
-
-                            // Evita dar crash se não achar cabeça de tabela
-                            if (headerRowIdx === -1) headerRowIdx = 0;
-
-                            rawData = [];
-                            for (let i = headerRowIdx + 1; i < allData.length; i++) {
-                                const row = allData[i];
-                                const site = normalizeText(row[cols.site]);
-                                const juntasSite = normalizeText(row[cols.juntas]);
-                                if (site === "MAUA" && juntasSite === "MAUA") {
-                                    rawData.push(row);
-                                }
-                            }
-
-                            populateFilter();
-
-                            progressBar.style.width = '100%';
-                            setTimeout(() => {
-                                loadingIndicator.style.display = 'none';
-                                progressBar.style.width = '0%';
-                            }, 400);
-
-                        }, 50);
-                    }, 50);
-                };
-                reader.readAsArrayBuffer(file);
-            }, 100);
-        });
-
-        function normalizeText(text) {
-            if (!text) return "";
-            return String(text).normalize("NFD").replace(/[\u0300-\u036f]/g, "").toUpperCase().trim();
-        }
-
-        function populateFilter() {
-            const assemblies = new Set();
-            rawData.forEach(row => {
-                const val = row[cols.ass];
-                if (val) assemblies.add(val.toString().trim());
-            });
-
-            const select = document.getElementById('assemblyFilter');
-            select.innerHTML = '<option value="TODOS">TODOS</option>';
-            Array.from(assemblies).sort().forEach(ass => {
-                const opt = document.createElement('option');
-                opt.value = ass;
-                opt.innerText = ass;
-                select.appendChild(opt);
-            });
-
-            document.getElementById('stageContainer').style.display = 'block';
-            document.getElementById('assemblyContainer').style.display = 'block';
-            document.getElementById('btnUpdate').style.display = 'block';
-        }
-
-        function processData() {
-            if (rawData.length === 0) return alert("Carregue um arquivo primeiro.");
-
-            const filterAss = document.getElementById('assemblyFilter').value;
-            const filterStage = document.getElementById('stageFilter').value;
-            const stats = new Map();
-            let totals = { juntas: 0, fitP: 0, weldP: 0 };
-
-            rawData.forEach(row => {
-                const assembly = String(row[cols.ass] || "").trim();
-                const item1 = String(row[cols.item] || "").trim();
-                const stage = normalizeText(row[cols.stage]);
-
-                let stageMatch = false;
-                if (filterStage === "TODOS") {
-                    stageMatch = true;
-                } else if (filterStage === "WORKSHOP" && stage.includes("WORKSHOP")) {
-                    stageMatch = true;
-                } else if (filterStage === "ASSEMBLY" && stage.includes("ASSEMBLY")) {
-                    stageMatch = true;
-                }
-
-                if ((filterAss === "TODOS" || assembly === filterAss) && stageMatch) {
-
-                    // Lógica da Chave (Remover últimos 2 caracteres conforme VBA)
-                    const chave = item1.length > 2 ? item1.substring(0, item1.length - 2) : item1;
-                    if (!chave) return;
-
-                    if (!stats.has(chave)) {
-                        stats.set(chave, { total: 0, fitP: 0, weldP: 0 });
+                dropZone.addEventListener('drop', (e) => {
+                    e.preventDefault();
+                    dropZone.classList.remove('dragover');
+                    if (e.dataTransfer.files.length) {
+                        fileInput.files = e.dataTransfer.files;
+                        handleFile(e.dataTransfer.files[0]);
                     }
+                });
 
-                    const s = stats.get(chave);
-                    const fitVal = normalizeText(row[cols.fitup]); // Lendo a coluna AN como exigido
-                    const weldVal = normalizeText(row[cols.welding]); // Lendo a coluna AS como exigido
+                fileInput.addEventListener('change', function (e) {
+                    handleFile(e.target.files[0]);
+                });
 
-                    s.total++;
-                    totals.juntas++;
+                function handleFile(file) {
+                    if (!file) return;
 
-                    if (fitVal === "P") { s.fitP++; totals.fitP++; }
-                    if (weldVal === "P") { s.weldP++; totals.weldP++; }
+                    document.getElementById('dropZoneText').innerHTML = `<strong>Arquivo selecionado:</strong><br>${file.name}`;
+
+                    const loadingIndicator = document.getElementById('loadingIndicator');
+                    const progressBar = document.getElementById('progressBar');
+
+                    loadingIndicator.style.display = 'flex';
+                    progressBar.style.width = '20%';
+
+                    // Dá um pequeno tempo para o navegador renderizar a barra antes de travar a thread
+                    setTimeout(() => {
+                        const reader = new FileReader();
+                        reader.onload = function (ev) {
+                            progressBar.style.width = '50%';
+
+                            setTimeout(() => {
+                                const data = new Uint8Array(ev.target.result);
+                                const workbook = XLSX.read(data, { type: 'array' });
+                                const sheetName = workbook.SheetNames[0]; // Assume a primeira aba
+
+                                progressBar.style.width = '75%';
+
+                                setTimeout(() => {
+                                    // Usando letter-keys (A, B, C...) para acessar colunas com repetidos (ex: RESULT)
+                                    const allData = XLSX.utils.sheet_to_json(workbook.Sheets[sheetName], { header: "A", defval: "" });
+
+                                    let headerRowIdx = -1;
+                                    cols = { site: "", juntas: "", ass: "", item: "", stage: "", fitup: "AN", welding: "AS" };
+
+                                    // Busca a linha de cabeçalho
+                                    for (let i = 0; i < Math.min(allData.length, 20); i++) {
+                                        const r = allData[i];
+                                        let foundSite = false;
+                                        for (const key in r) {
+                                            const val = normalizeText(r[key]);
+                                            if (val === "SITE") { foundSite = true; cols.site = key; }
+                                            else if (val === "JUNTAS SITE" || val === "JUNTAS_SITE") { cols.juntas = key; }
+                                            else if (val === "ASSEMBLY DRAWING") { cols.ass = key; }
+                                            else if (val === "ITEM_1") { cols.item = key; }
+                                            else if (val === "STAGE") { cols.stage = key; }
+                                        }
+                                        if (foundSite) {
+                                            headerRowIdx = i;
+                                            break;
+                                        }
+                                    }
+
+                                    // Evita dar crash se não achar cabeça de tabela
+                                    if (headerRowIdx === -1) headerRowIdx = 0;
+
+                                    rawData = [];
+                                    for (let i = headerRowIdx + 1; i < allData.length; i++) {
+                                        const row = allData[i];
+                                        const site = normalizeText(row[cols.site]);
+                                        const juntasSite = normalizeText(row[cols.juntas]);
+                                        if (site === "MAUA" && juntasSite === "MAUA") {
+                                            rawData.push(row);
+                                        }
+                                    }
+
+                                    populateFilter();
+
+                                    progressBar.style.width = '100%';
+                                    setTimeout(() => {
+                                        loadingIndicator.style.display = 'none';
+                                        progressBar.style.width = '0%';
+                                    }, 400);
+
+                                }, 50);
+                            }, 50);
+                        };
+                        reader.readAsArrayBuffer(file);
+                    }, 100);
                 }
-            });
 
-            renderUI(stats, totals);
-        }
+                function normalizeText(text) {
+                    if (!text) return "";
+                    return String(text).normalize("NFD").replace(/[\u0300-\u036f]/g, "").toUpperCase().trim();
+                }
 
-        function getStatusClass(perc) {
-            // Para pendências, menor (mais próximo de 0%) é melhor
-            if (perc <= 0.2) return "status-green";
-            if (perc <= 0.5) return "status-orange";
-            if (perc > 0.5) return "status-red";
-            return "";
-        }
+                function populateFilter() {
+                    const assemblies = new Set();
+                    rawData.forEach(row => {
+                        const val = row[cols.ass];
+                        if (val) assemblies.add(val.toString().trim());
+                    });
 
-        function renderUI(stats, totals) {
-            document.getElementById('resultsArea').style.display = 'block';
+                    const select = document.getElementById('assemblyFilter');
+                    select.innerHTML = '<option value="TODOS">TODOS</option>';
+                    Array.from(assemblies).sort().forEach(ass => {
+                        const opt = document.createElement('option');
+                        opt.value = ass;
+                        opt.innerText = ass;
+                        select.appendChild(opt);
+                    });
 
-            // Render Resumo
-            const pctFitP = (totals.fitP / totals.juntas) || 0;
-            const pctWeldP = (totals.weldP / totals.juntas) || 0;
-            document.getElementById('summaryArea').innerHTML = `
+                    document.getElementById('stageContainer').style.display = 'block';
+                    document.getElementById('assemblyContainer').style.display = 'block';
+                    document.getElementById('btnUpdate').style.display = 'block';
+                }
+
+                function processData() {
+                    if (rawData.length === 0) return alert("Carregue um arquivo primeiro.");
+
+                    const filterAss = document.getElementById('assemblyFilter').value;
+                    const filterStage = document.getElementById('stageFilter').value;
+                    const stats = new Map();
+                    let totals = { juntas: 0, fitA: 0, weldA: 0 };
+
+                    rawData.forEach(row => {
+                        const assembly = String(row[cols.ass] || "").trim();
+                        const item1 = String(row[cols.item] || "").trim();
+                        const stage = normalizeText(row[cols.stage]);
+
+                        let stageMatch = false;
+                        if (filterStage === "TODOS") {
+                            stageMatch = true;
+                        } else if (filterStage === "WORKSHOP" && stage.includes("WORKSHOP")) {
+                            stageMatch = true;
+                        } else if (filterStage === "ASSEMBLY" && stage.includes("ASSEMBLY")) {
+                            stageMatch = true;
+                        }
+
+                        if ((filterAss === "TODOS" || assembly === filterAss) && stageMatch) {
+
+                            // Lógica da Chave (Remover últimos 2 caracteres conforme VBA)
+                            const chave = item1.length > 2 ? item1.substring(0, item1.length - 2) : item1;
+                            if (!chave) return;
+
+                            if (!stats.has(chave)) {
+                                stats.set(chave, { total: 0, fitA: 0, weldA: 0 });
+                            }
+
+                            const s = stats.get(chave);
+                            const fitVal = normalizeText(row[cols.fitup]); // Lendo a coluna AN como exigido
+                            const weldVal = normalizeText(row[cols.welding]); // Lendo a coluna AS como exigido
+
+                            s.total++;
+                            totals.juntas++;
+
+                            if (fitVal === "A") { s.fitA++; totals.fitA++; }
+                            if (weldVal === "A") { s.weldA++; totals.weldA++; }
+                        }
+                    });
+
+                    renderUI(stats, totals);
+                }
+
+                function getStatusClass(perc) {
+                    // Para aprovadas, maior (mais próximo de 100%) é melhor
+                    if (perc >= 0.8) return "status-green";
+                    if (perc >= 0.5) return "status-orange";
+                    if (perc < 0.5) return "status-red";
+                    return "";
+                }
+
+                function renderUI(stats, totals) {
+                    document.getElementById('resultsArea').style.display = 'block';
+
+                    // Render Resumo
+                    const pctFitA = (totals.fitA / totals.juntas) || 0;
+                    const pctWeldA = (totals.weldA / totals.juntas) || 0;
+                    document.getElementById('summaryArea').innerHTML = `
             <div class="summary-card"><span>TOTAL JUNTAS</span><strong>${totals.juntas}</strong></div>
-            <div class="summary-card"><span>FIT-UP = P</span><strong>${totals.fitP}</strong></div>
-            <div class="summary-card"><span>WELDING = P</span><strong>${totals.weldP}</strong></div>
-            <div class="summary-card"><span>%FIT-UP =P</span><strong class="${getStatusClass(pctFitP)}">${(pctFitP * 100).toFixed(2)}%</strong></div>
-            <div class="summary-card"><span>% WELDING = P</span><strong class="${getStatusClass(pctWeldP)}">${(pctWeldP * 100).toFixed(2)}%</strong></div>
+            <div class="summary-card"><span>FIT-UP = A</span><strong>${totals.fitA}</strong></div>
+            <div class="summary-card"><span>WELDING = A</span><strong>${totals.weldA}</strong></div>
+            <div class="summary-card"><span>% FIT-UP = A</span><strong class="${getStatusClass(pctFitA)}">${(pctFitA * 100).toFixed(2)}%</strong></div>
+            <div class="summary-card"><span>% WELDING = A</span><strong class="${getStatusClass(pctWeldA)}">${(pctWeldA * 100).toFixed(2)}%</strong></div>
         `;
 
-            // Render Tabela e Datalist
-            const tbody = document.getElementById('tableBody');
-            const datalist = document.getElementById('piecesDatalist');
-            tbody.innerHTML = "";
-            datalist.innerHTML = "";
+                    // Render Tabela e Datalist
+                    const tbody = document.getElementById('tableBody');
+                    const datalist = document.getElementById('piecesDatalist');
+                    tbody.innerHTML = "";
+                    datalist.innerHTML = "";
 
-            // Reseta o filtro de peças atual caso exista
-            document.getElementById('pieceFilterInput').value = "";
+                    // Reseta o filtro de peças atual caso exista
+                    document.getElementById('pieceFilterInput').value = "";
 
-            Array.from(stats.keys()).sort().forEach(key => {
-                const s = stats.get(key);
-                const pFitP = (s.fitP / s.total) || 0;
-                const pWeldP = (s.weldP / s.total) || 0;
+                    Array.from(stats.keys()).sort().forEach(key => {
+                        const s = stats.get(key);
+                        const pFitA = (s.fitA / s.total) || 0;
+                        const pWeldA = (s.weldA / s.total) || 0;
 
-                const row = `<tr>
+                        const row = `<tr>
                 <td style="text-align:left; color:var(--primary); font-weight:bold;">${key}</td>
                 <td>${s.total}</td>
-                <td>${s.fitP}</td>
-                <td>${s.weldP}</td>
-                <td class="${getStatusClass(pFitP)}">${(pFitP * 100).toFixed(2)}%</td>
-                <td class="${getStatusClass(pWeldP)}">${(pWeldP * 100).toFixed(2)}%</td>
+                <td>${s.fitA}</td>
+                <td>${s.weldA}</td>
+                <td class="${getStatusClass(pFitA)}">${(pFitA * 100).toFixed(2)}%</td>
+                <td class="${getStatusClass(pWeldA)}">${(pWeldA * 100).toFixed(2)}%</td>
             </tr>`;
-                tbody.innerHTML += row;
+                        tbody.innerHTML += row;
 
-                const opt = document.createElement('option');
-                opt.value = key;
-                datalist.appendChild(opt);
-            });
-        }
-
-        function filterTable() {
-            const input = normalizeText(document.getElementById('pieceFilterInput').value);
-            const rows = document.getElementById('tableBody').getElementsByTagName('tr');
-            for (let i = 0; i < rows.length; i++) {
-                const row = rows[i];
-                const cellText = normalizeText(row.getElementsByTagName('td')[0].innerText);
-                if (cellText.includes(input)) {
-                    row.style.display = '';
-                } else {
-                    row.style.display = 'none';
+                        const opt = document.createElement('option');
+                        opt.value = key;
+                        datalist.appendChild(opt);
+                    });
                 }
-            }
-        }
-    </script>
+
+                function filterTable() {
+                    const input = normalizeText(document.getElementById('pieceFilterInput').value);
+                    const rows = document.getElementById('tableBody').getElementsByTagName('tr');
+                    for (let i = 0; i < rows.length; i++) {
+                        const row = rows[i];
+                        const cellText = normalizeText(row.getElementsByTagName('td')[0].innerText);
+                        if (cellText.includes(input)) {
+                            row.style.display = '';
+                        } else {
+                            row.style.display = 'none';
+                        }
+                    }
+                }
+            </script>
 
 </body>
 

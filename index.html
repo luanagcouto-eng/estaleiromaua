@@ -3,514 +3,604 @@
 
 <head>
     <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Painel Operacional - P84</title>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
-    <style>
-        :root {
-            --primary: #005c9a;
-            /* Azul do Logo */
-            --secondary: #e87722;
-            /* Laranja do Logo */
-            --light-blue: #f0f6fa;
-            --bg-gray: #f2f2f2;
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        primary: '#005c9a',
+                        secondary: '#e87722',
+                        'light-blue': '#f0f6fa',
+                    }
+                }
+            }
         }
-
+    </script>
+    <style>
         body {
             font-family: 'Segoe UI', Calibri, sans-serif;
-            margin: 0;
-            background: #fff;
         }
 
-        /* Header */
-        .header {
-            background: var(--primary);
-            color: white;
-            padding: 20px;
-        }
-
-        .header h1 {
-            margin: 0;
-            font-size: 1.5rem;
-        }
-
-        .subheader {
-            background: var(--secondary);
-            color: white;
-            padding: 5px 20px;
-            font-style: italic;
-            font-size: 0.8rem;
-        }
-
-        .container {
-            padding: 20px;
-        }
-
-        /* Filtros */
-        .section-title {
-            background: var(--light-blue);
-            color: var(--primary);
-            padding: 8px 15px;
-            font-weight: bold;
-            margin: 15px 0;
-            border-radius: 4px;
-        }
-
-        .filter-grid {
-            display: flex;
-            flex-wrap: wrap;
-            gap: 15px;
-            align-items: center;
-            padding: 10px;
-        }
-
-        select,
-        input[type="file"] {
-            padding: 8px;
-            border: 2px solid var(--primary);
-            border-radius: 4px;
-            font-size: 1rem;
-        }
-
-        #dropZone {
-            border: 2px dashed var(--primary);
-            padding: 15px;
-            text-align: center;
-            border-radius: 4px;
-            cursor: pointer;
-            background: #fff;
-            transition: 0.3s;
-            min-width: 280px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 0.9rem;
-        }
-
-        #dropZone.dragover {
-            background: var(--light-blue);
-            border-color: var(--secondary);
-            color: var(--secondary);
-        }
-
-        .btn-update {
-            background: var(--secondary);
-            color: white;
-            border: none;
-            padding: 10px 25px;
-            font-weight: bold;
-            cursor: pointer;
-            border-radius: 4px;
-            transition: 0.3s;
-        }
-
-        .btn-update:hover {
-            background: var(--primary);
-        }
-
-        /* Dashboard */
-        .summary-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
-            gap: 10px;
-            margin-bottom: 20px;
-        }
-
-        .summary-card {
-            border: 1px solid #ccc;
-            padding: 10px;
-            text-align: center;
-            border-radius: 4px;
-        }
-
-        .summary-card span {
-            display: block;
-            font-size: 0.8rem;
-            color: #666;
-        }
-
-        .summary-card strong {
-            font-size: 1.2rem;
-            color: var(--primary);
-        }
-
-        /* Tabela */
-        table {
-            width: 100%;
-            border-collapse: collapse;
-            margin-top: 10px;
-        }
-
-        th {
-            background: var(--primary);
-            color: white;
-            padding: 12px;
-            font-size: 0.9rem;
-        }
-
-        td {
-            border: 1px solid #ddd;
-            padding: 10px;
-            text-align: center;
-            font-size: 0.9rem;
-        }
-
-        tr:nth-child(even) {
-            background-color: #ebf4ff;
-        }
-
+        /* Status de aprovação */
         .status-green {
             color: #008200;
-            font-weight: bold;
+            font-weight: 700;
         }
 
         .status-orange {
             color: #b46400;
-            font-weight: bold;
+            font-weight: 700;
         }
 
         .status-red {
             color: #b40000;
-            font-weight: bold;
+            font-weight: 700;
         }
 
-        .footer {
-            font-size: 0.7rem;
-            color: #999;
-            margin-top: 20px;
-            background: #f2f2f2;
-            padding: 10px;
+        /* Drop zone */
+        #dropZone.dragover {
+            background-color: #f0f6fa;
+            border-color: #e87722;
+            color: #e87722;
+        }
+
+        /* Linha alternada da tabela */
+        #tableBody tr:nth-child(even) {
+            background-color: #ebf4ff;
+        }
+
+        /* Aba ativa */
+        .tab-btn.active {
+            border-bottom: 3px solid #e87722;
+            background: white;
+            color: #e87722;
+        }
+
+        /* Painel oculto/visível */
+        .tab-panel {
+            display: none;
+        }
+
+        .tab-panel.active {
+            display: block;
         }
     </style>
 </head>
 
-<body>
+<body class="bg-white min-h-screen">
 
-    <div class="header" style="display: flex; align-items: center; gap: 20px;">
-        <img src="Logo_Estaleiro_Maua.jpeg" alt="Logo Estaleiro Mauá"
-            style="height: 60px; border-radius: 4px; background: white; padding: 5px;">
-        <h1 style="margin: 0; font-size: 1.5rem;">CONTROLE DE JUNTAS</h1>
+    <!-- HEADER -->
+    <div class="bg-primary text-white px-6 py-4 flex items-center gap-5 shadow-md">
+        <img src="Logo_Estaleiro_Maua.jpeg" alt="Logo Estaleiro Mauá" class="h-14 rounded bg-white p-1 shadow">
+        <h1 class="text-2xl font-bold tracking-wide uppercase">Controle de Juntas</h1>
     </div>
-    <div class="subheader">
+
+    <!-- SUBHEADER -->
+    <div class="bg-secondary text-white text-xs italic px-6 py-1.5">
         P84 - FPSO | Seatrium | Mauá | <span id="currentDate"></span>
     </div>
 
-    <div class="container">
-        <div class="section-title">CONFIGURAÇÃO E FILTRO</div>
-        <div class="filter-grid">
-            <div id="dropZone">
-                <span id="dropZoneText"><strong>Arraste o arquivo aqui</strong><br>ou clique para selecionar</span>
-                <input type="file" id="fileInput" accept=".xlsx, .xls, .xlsm" style="display: none;">
+    <!-- NAVEGAÇÃO DE ABAS -->
+    <div class="flex gap-1 px-6 bg-light-blue border-b-2 border-primary">
+        <button class="tab-btn active px-6 py-3 font-bold text-primary text-sm border-b-[3px] border-transparent
+                       hover:bg-blue-100 transition-colors duration-150 cursor-pointer"
+            onclick="showTab('tab-dashboard')">
+            DASHBOARD
+        </button>
+        <button class="tab-btn px-6 py-3 font-bold text-primary text-sm border-b-[3px] border-transparent
+                       hover:bg-blue-100 transition-colors duration-150 cursor-pointer"
+            onclick="showTab('tab-graficos')">
+            GRÁFICOS
+        </button>
+    </div>
+
+    <!-- ══════════ ABA 1: DASHBOARD ══════════ -->
+    <div id="tab-dashboard" class="tab-panel active">
+        <div class="px-6 py-5 max-w-[1800px] mx-auto">
+
+            <!-- Seção: Configuração e Filtro -->
+            <div class="bg-light-blue text-primary font-bold px-4 py-2 rounded mb-4 uppercase text-sm tracking-wide">
+                Configuração e Filtro
             </div>
 
-            <div id="loadingIndicator" style="display: none; align-items: center; gap: 10px;">
-                <span style="font-weight: bold; color: var(--primary); font-size: 0.9rem;">Lendo o arquivo...</span>
-                <div style="width: 150px; background-color: #ddd; border-radius: 4px; height: 10px; overflow: hidden;">
-                    <div id="progressBar"
-                        style="width: 0%; height: 100%; background-color: var(--secondary); transition: width 0.3s ease;">
+            <div
+                class="flex flex-wrap gap-4 items-center bg-gray-50 border border-gray-200 rounded-lg p-4 mb-6 shadow-sm">
+
+                <!-- Drop Zone -->
+                <div id="dropZone" class="border-2 border-dashed border-primary rounded-lg px-6 py-4 text-center cursor-pointer
+                            bg-white min-w-[280px] flex items-center justify-center text-sm
+                            hover:bg-light-blue transition-colors duration-200">
+                    <span id="dropZoneText">
+                        <strong class="block text-primary">Arraste o arquivo aqui</strong>
+                        <span class="text-gray-400 text-xs">ou clique para selecionar</span>
+                    </span>
+                    <input type="file" id="fileInput" accept=".xlsx, .xls, .xlsm" class="hidden">
+                </div>
+
+                <!-- Loading -->
+                <div id="loadingIndicator" class="hidden items-center gap-3">
+                    <span class="font-bold text-primary text-sm">Lendo o arquivo...</span>
+                    <div class="w-36 bg-gray-200 rounded-full h-2.5 overflow-hidden">
+                        <div id="progressBar" class="h-full bg-secondary rounded-full transition-all duration-300"
+                            style="width:0%"></div>
                     </div>
                 </div>
+
+                <!-- Filtro Etapa -->
+                <div id="stageContainer" class="hidden flex items-center gap-2">
+                    <label class="font-bold text-primary text-sm">ETAPA:</label>
+                    <select id="stageFilter"
+                        class="border-2 border-primary rounded px-3 py-1.5 text-sm focus:outline-none focus:ring-2 focus:ring-primary/40">
+                        <option value="TODOS">Todas (Fabricação/Montagem)</option>
+                        <option value="WORKSHOP">Fabricação (Workshop)</option>
+                        <option value="ASSEMBLY">Montagem (Assembly)</option>
+                        <option value="PRIMARIA">Primária (102 / 103 / 172)</option>
+                        <option value="SECUNDARIA">Secundária (202 / 203)</option>
+                    </select>
+                </div>
+
+                <!-- Filtro Desenho -->
+                <div id="assemblyContainer" class="hidden flex items-center gap-2">
+                    <label class="font-bold text-primary text-sm">DESENHO:</label>
+                    <select id="assemblyFilter"
+                        class="border-2 border-primary rounded px-3 py-1.5 text-sm focus:outline-none focus:ring-2 focus:ring-primary/40">
+                        <option value="TODOS">TODOS</option>
+                    </select>
+                </div>
+
+                <!-- Botão Atualizar -->
+                <button id="btnUpdate" class="hidden bg-secondary hover:bg-primary text-white font-bold
+                                              px-6 py-2 rounded transition-colors duration-200 text-sm shadow"
+                    onclick="processData()">
+                    ▶ ATUALIZAR CONTROLE
+                </button>
             </div>
 
-            <div id="stageContainer" style="display: none;">
-                <label><strong>ETAPA:</strong></label>
-                <select id="stageFilter">
-                    <option value="TODOS">Todas (Fabricação/Montagem)</option>
-                    <option value="WORKSHOP">Fabricação (Workshop)</option>
-                    <option value="ASSEMBLY">Montagem (Assembly)</option>
-                </select>
-            </div>
-            <div id="assemblyContainer" style="display: none;">
-                <label><strong>DESENHO:</strong></label>
-                <select id="assemblyFilter">
-                    <option value="TODOS">TODOS</option>
-                </select>
-            </div>
-            <button class="btn-update" id="btnUpdate" style="display: none;" onclick="processData()">▶ ATUALIZAR
-                CONTROLE</button>
-        </div>
+            <!-- Área de Resultados -->
+            <div id="resultsArea" class="hidden">
 
-        <div id="resultsArea" style="display:none;">
-            <div class="section-title">RESUMO GERAL</div>
-            <div class="summary-grid" id="summaryArea"></div>
+                <!-- Resumo Geral -->
+                <div
+                    class="bg-light-blue text-primary font-bold px-4 py-2 rounded mb-4 uppercase text-sm tracking-wide">
+                    Resumo Geral
+                </div>
+                <div id="summaryArea" class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-7 gap-3 mb-6"></div>
 
-            <div class="section-title">ANÁLISE POR PEÇA</div>
-            <div style="margin-bottom: 15px; display: flex; align-items: center; gap: 10px;">
-                <label><strong>Buscar Peça:</strong></label>
-                <input type="text" id="pieceFilterInput" list="piecesDatalist"
-                    placeholder="Digite ou selecione a peça para filtrar..." oninput="filterTable()"
-                    style="flex: 1; padding: 8px; border: 2px solid var(--primary); border-radius: 4px; font-size: 1rem;">
-                <datalist id="piecesDatalist"></datalist>
+                <!-- Análise por Peça -->
+                <div
+                    class="bg-light-blue text-primary font-bold px-4 py-2 rounded mb-4 uppercase text-sm tracking-wide">
+                    Análise por Peça
+                </div>
+
+                <!-- Busca de Peça -->
+                <div class="flex items-center gap-3 mb-4">
+                    <label class="font-bold text-primary text-sm whitespace-nowrap">Buscar Peça:</label>
+                    <input type="text" id="pieceFilterInput" list="piecesDatalist"
+                        placeholder="Digite ou selecione a peça para filtrar..." oninput="filterTable()" class="flex-1 border-2 border-primary rounded px-3 py-2 text-sm
+                                  focus:outline-none focus:ring-2 focus:ring-primary/40">
+                    <datalist id="piecesDatalist"></datalist>
+                </div>
+
+                <!-- Tabela -->
+                <div class="overflow-x-auto rounded-lg shadow border border-gray-200">
+                    <table id="resultsTable" class="w-full border-collapse text-sm">
+                        <thead>
+                            <tr class="bg-primary text-white">
+                                <th class="px-4 py-3 text-left font-semibold">PEÇA</th>
+                                <th class="px-4 py-3 font-semibold">QTD TOTAL</th>
+                                <th class="px-4 py-3 font-semibold">FIT-UP = A</th>
+                                <th class="px-4 py-3 font-semibold">WELDING = A</th>
+                                <th class="px-4 py-3 font-semibold">VISUAL TEST = A</th>
+                                <th class="px-4 py-3 font-semibold">% FIT-UP = A</th>
+                                <th class="px-4 py-3 font-semibold">% WELDING = A</th>
+                                <th class="px-4 py-3 font-semibold">% VISUAL TEST = A</th>
+                            </tr>
+                        </thead>
+                        <tbody id="tableBody"></tbody>
+                    </table>
+                </div>
             </div>
-            <table id="resultsTable">
-                <thead>
-                    <tr>
-                        <th>PEÇA</th>
-                        <th>QTD TOTAL</th>
-                        <th>FIT-UP = A</th>
-                        <th>WELDING = A</th>
-                        <th>% FIT-UP = A</th>
-                        <th>% WELDING = A</th>
-                    </tr>
-                </thead>
-                <tbody id="tableBody"></tbody>
-            </table>
         </div>
     </div>
 
-    <div class="footer">
-        Legenda de Aprovadas: Verde >= 80% | Laranja >= 50% | Vermelho < 50% </div>
+    <!-- ══════════ ABA 2: GRÁFICOS ══════════ -->
+    <div id="tab-graficos" class="tab-panel">
+        <div class="px-6 py-5 max-w-[1800px] mx-auto">
 
-            <script>
-                let rawData = [];
-                let cols = {}; // Mapeamento dinâmico de colunas A, B, C...
+            <div class="bg-light-blue text-primary font-bold px-4 py-2 rounded mb-4 uppercase text-sm tracking-wide">
+                Gráficos — Análise Geral
+            </div>
 
-                // Formatação de Data
-                document.getElementById('currentDate').innerText = new Date().toLocaleString();
+            <p id="chartsPlaceholder" class="text-gray-400 italic px-2 py-4">
+                Carregue e processe um arquivo na aba Dashboard para visualizar os gráficos.
+            </p>
 
-                // Configuração Drag and Drop
-                const dropZone = document.getElementById('dropZone');
-                const fileInput = document.getElementById('fileInput');
+            <div id="chartsGrid" class="hidden grid grid-cols-1 xl:grid-cols-2 gap-6">
+                <div class="bg-white border border-gray-200 rounded-xl p-5 shadow-sm">
+                    <h3 class="text-primary font-bold text-sm mb-4 uppercase tracking-wide">
+                        Total de Aprovadas por Inspeção (Resumo)
+                    </h3>
+                    <canvas id="chartResumo"></canvas>
+                </div>
+                <div class="bg-white border border-gray-200 rounded-xl p-5 shadow-sm">
+                    <h3 class="text-primary font-bold text-sm mb-4 uppercase tracking-wide">
+                        % Aprovação por Peça — FIT-UP
+                    </h3>
+                    <canvas id="chartFitup"></canvas>
+                </div>
+                <div class="bg-white border border-gray-200 rounded-xl p-5 shadow-sm">
+                    <h3 class="text-primary font-bold text-sm mb-4 uppercase tracking-wide">
+                        % Aprovação por Peça — WELDING
+                    </h3>
+                    <canvas id="chartWelding"></canvas>
+                </div>
+                <div class="bg-white border border-gray-200 rounded-xl p-5 shadow-sm">
+                    <h3 class="text-primary font-bold text-sm mb-4 uppercase tracking-wide">
+                        % Aprovação por Peça — VISUAL TEST
+                    </h3>
+                    <canvas id="chartVisual"></canvas>
+                </div>
+            </div>
+        </div>
+    </div>
 
-                dropZone.addEventListener('click', () => fileInput.click());
+    <!-- FOOTER -->
+    <footer class="mt-8 bg-gray-100 text-gray-400 text-xs px-6 py-3 border-t border-gray-200">
+        Legenda de Aprovadas: <span class="text-green-700 font-semibold">Verde ≥ 80%</span> |
+        <span class="text-yellow-700 font-semibold">Laranja ≥ 50%</span> |
+        <span class="text-red-700 font-semibold">Vermelho &lt; 50%</span> |
+        Filtro ativo: JUNTAS_SITE = MAUÁ
+    </footer>
 
-                dropZone.addEventListener('dragover', (e) => {
-                    e.preventDefault();
-                    dropZone.classList.add('dragover');
-                });
+    <script>
+        let rawData = [];
+        let cols = {};
+        let lastStats = null;
+        let lastTotals = null;
+        let chartInstances = {};
 
-                dropZone.addEventListener('dragleave', () => {
-                    dropZone.classList.remove('dragover');
-                });
+        // Formatação de Data
+        document.getElementById('currentDate').innerText = new Date().toLocaleString();
 
-                dropZone.addEventListener('drop', (e) => {
-                    e.preventDefault();
-                    dropZone.classList.remove('dragover');
-                    if (e.dataTransfer.files.length) {
-                        fileInput.files = e.dataTransfer.files;
-                        handleFile(e.dataTransfer.files[0]);
-                    }
-                });
+        // ── Navegação de Abas ──────────────────────────────────────────
+        function showTab(id) {
+            document.querySelectorAll('.tab-panel').forEach(p => p.classList.remove('active'));
+            document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+            document.getElementById(id).classList.add('active');
+            event.target.classList.add('active');
+            if (id === 'tab-graficos' && lastStats) renderCharts(lastStats, lastTotals);
+        }
 
-                fileInput.addEventListener('change', function (e) {
-                    handleFile(e.target.files[0]);
-                });
+        // Configuração Drag and Drop
+        const dropZone = document.getElementById('dropZone');
+        const fileInput = document.getElementById('fileInput');
 
-                function handleFile(file) {
-                    if (!file) return;
+        dropZone.addEventListener('click', () => fileInput.click());
 
-                    document.getElementById('dropZoneText').innerHTML = `<strong>Arquivo selecionado:</strong><br>${file.name}`;
+        dropZone.addEventListener('dragover', (e) => {
+            e.preventDefault();
+            dropZone.classList.add('dragover');
+        });
 
-                    const loadingIndicator = document.getElementById('loadingIndicator');
-                    const progressBar = document.getElementById('progressBar');
+        dropZone.addEventListener('dragleave', () => {
+            dropZone.classList.remove('dragover');
+        });
 
-                    loadingIndicator.style.display = 'flex';
-                    progressBar.style.width = '20%';
+        dropZone.addEventListener('drop', (e) => {
+            e.preventDefault();
+            dropZone.classList.remove('dragover');
+            if (e.dataTransfer.files.length) {
+                fileInput.files = e.dataTransfer.files;
+                handleFile(e.dataTransfer.files[0]);
+            }
+        });
 
-                    // Dá um pequeno tempo para o navegador renderizar a barra antes de travar a thread
+        fileInput.addEventListener('change', function (e) {
+            handleFile(e.target.files[0]);
+        });
+
+        function handleFile(file) {
+            if (!file) return;
+
+            document.getElementById('dropZoneText').innerHTML =
+                `<strong class="block text-primary">Arquivo selecionado:</strong>
+                 <span class="text-gray-500 text-xs">${file.name}</span>`;
+
+            const loadingIndicator = document.getElementById('loadingIndicator');
+            const progressBar = document.getElementById('progressBar');
+
+            loadingIndicator.style.display = 'flex';
+            progressBar.style.width = '20%';
+
+            setTimeout(() => {
+                const reader = new FileReader();
+                reader.onload = function (ev) {
+                    progressBar.style.width = '50%';
+
                     setTimeout(() => {
-                        const reader = new FileReader();
-                        reader.onload = function (ev) {
-                            progressBar.style.width = '50%';
+                        const data = new Uint8Array(ev.target.result);
+                        const workbook = XLSX.read(data, { type: 'array' });
+                        const sheetName = workbook.SheetNames[0];
 
-                            setTimeout(() => {
-                                const data = new Uint8Array(ev.target.result);
-                                const workbook = XLSX.read(data, { type: 'array' });
-                                const sheetName = workbook.SheetNames[0]; // Assume a primeira aba
+                        progressBar.style.width = '75%';
 
-                                progressBar.style.width = '75%';
+                        setTimeout(() => {
+                            const allData = XLSX.utils.sheet_to_json(workbook.Sheets[sheetName], { header: "A", defval: "" });
 
-                                setTimeout(() => {
-                                    // Usando letter-keys (A, B, C...) para acessar colunas com repetidos (ex: RESULT)
-                                    const allData = XLSX.utils.sheet_to_json(workbook.Sheets[sheetName], { header: "A", defval: "" });
+                            let headerRowIdx = -1;
+                            cols = { juntas: "", ass: "", item: "", stage: "", fitup: "AN", welding: "AS", visual: "" };
 
-                                    let headerRowIdx = -1;
-                                    cols = { site: "", juntas: "", ass: "", item: "", stage: "", fitup: "AN", welding: "AS" };
-
-                                    // Busca a linha de cabeçalho
-                                    for (let i = 0; i < Math.min(allData.length, 20); i++) {
-                                        const r = allData[i];
-                                        let foundSite = false;
-                                        for (const key in r) {
-                                            const val = normalizeText(r[key]);
-                                            if (val === "SITE") { foundSite = true; cols.site = key; }
-                                            else if (val === "JUNTAS SITE" || val === "JUNTAS_SITE") { cols.juntas = key; }
-                                            else if (val === "ASSEMBLY DRAWING") { cols.ass = key; }
-                                            else if (val === "ITEM_1") { cols.item = key; }
-                                            else if (val === "STAGE") { cols.stage = key; }
-                                        }
-                                        if (foundSite) {
-                                            headerRowIdx = i;
-                                            break;
-                                        }
-                                    }
-
-                                    // Evita dar crash se não achar cabeça de tabela
-                                    if (headerRowIdx === -1) headerRowIdx = 0;
-
-                                    rawData = [];
-                                    for (let i = headerRowIdx + 1; i < allData.length; i++) {
-                                        const row = allData[i];
-                                        const site = normalizeText(row[cols.site]);
-                                        const juntasSite = normalizeText(row[cols.juntas]);
-                                        if (site === "MAUA" && juntasSite === "MAUA") {
-                                            rawData.push(row);
-                                        }
-                                    }
-
-                                    populateFilter();
-
-                                    progressBar.style.width = '100%';
-                                    setTimeout(() => {
-                                        loadingIndicator.style.display = 'none';
-                                        progressBar.style.width = '0%';
-                                    }, 400);
-
-                                }, 50);
-                            }, 50);
-                        };
-                        reader.readAsArrayBuffer(file);
-                    }, 100);
-                }
-
-                function normalizeText(text) {
-                    if (!text) return "";
-                    return String(text).normalize("NFD").replace(/[\u0300-\u036f]/g, "").toUpperCase().trim();
-                }
-
-                function populateFilter() {
-                    const assemblies = new Set();
-                    rawData.forEach(row => {
-                        const val = row[cols.ass];
-                        if (val) assemblies.add(val.toString().trim());
-                    });
-
-                    const select = document.getElementById('assemblyFilter');
-                    select.innerHTML = '<option value="TODOS">TODOS</option>';
-                    Array.from(assemblies).sort().forEach(ass => {
-                        const opt = document.createElement('option');
-                        opt.value = ass;
-                        opt.innerText = ass;
-                        select.appendChild(opt);
-                    });
-
-                    document.getElementById('stageContainer').style.display = 'block';
-                    document.getElementById('assemblyContainer').style.display = 'block';
-                    document.getElementById('btnUpdate').style.display = 'block';
-                }
-
-                function processData() {
-                    if (rawData.length === 0) return alert("Carregue um arquivo primeiro.");
-
-                    const filterAss = document.getElementById('assemblyFilter').value;
-                    const filterStage = document.getElementById('stageFilter').value;
-                    const stats = new Map();
-                    let totals = { juntas: 0, fitA: 0, weldA: 0 };
-
-                    rawData.forEach(row => {
-                        const assembly = String(row[cols.ass] || "").trim();
-                        const item1 = String(row[cols.item] || "").trim();
-                        const stage = normalizeText(row[cols.stage]);
-
-                        let stageMatch = false;
-                        if (filterStage === "TODOS") {
-                            stageMatch = true;
-                        } else if (filterStage === "WORKSHOP" && stage.includes("WORKSHOP")) {
-                            stageMatch = true;
-                        } else if (filterStage === "ASSEMBLY" && stage.includes("ASSEMBLY")) {
-                            stageMatch = true;
-                        }
-
-                        if ((filterAss === "TODOS" || assembly === filterAss) && stageMatch) {
-
-                            // Lógica da Chave (Remover últimos 2 caracteres conforme VBA)
-                            const chave = item1.length > 2 ? item1.substring(0, item1.length - 2) : item1;
-                            if (!chave) return;
-
-                            if (!stats.has(chave)) {
-                                stats.set(chave, { total: 0, fitA: 0, weldA: 0 });
+                            // Busca a linha de cabeçalho pelo campo JUNTAS_SITE
+                            for (let i = 0; i < Math.min(allData.length, 20); i++) {
+                                const r = allData[i];
+                                let foundJuntas = false;
+                                for (const key in r) {
+                                    const val = normalizeText(r[key]);
+                                    if (val === "JUNTAS SITE" || val === "JUNTAS_SITE") { foundJuntas = true; cols.juntas = key; }
+                                    else if (val === "ASSEMBLY DRAWING") { cols.ass = key; }
+                                    else if (val === "ITEM_1") { cols.item = key; }
+                                    else if (val === "STAGE") { cols.stage = key; }
+                                    else if (val === "VISUAL TEST" || val === "VISUAL") { cols.visual = key; }
+                                }
+                                if (foundJuntas) {
+                                    headerRowIdx = i;
+                                    break;
+                                }
                             }
 
-                            const s = stats.get(chave);
-                            const fitVal = normalizeText(row[cols.fitup]); // Lendo a coluna AN como exigido
-                            const weldVal = normalizeText(row[cols.welding]); // Lendo a coluna AS como exigido
+                            if (headerRowIdx === -1) headerRowIdx = 0;
 
-                            s.total++;
-                            totals.juntas++;
+                            // Filtro: apenas JUNTAS_SITE = MAUA
+                            rawData = [];
+                            for (let i = headerRowIdx + 1; i < allData.length; i++) {
+                                const row = allData[i];
+                                const juntasSite = normalizeText(row[cols.juntas]);
+                                if (juntasSite === "MAUA") {
+                                    rawData.push(row);
+                                }
+                            }
 
-                            if (fitVal === "A") { s.fitA++; totals.fitA++; }
-                            if (weldVal === "A") { s.weldA++; totals.weldA++; }
-                        }
-                    });
+                            populateFilter();
 
-                    renderUI(stats, totals);
+                            progressBar.style.width = '100%';
+                            setTimeout(() => {
+                                loadingIndicator.style.display = 'none';
+                                progressBar.style.width = '0%';
+                            }, 400);
+
+                        }, 50);
+                    }, 50);
+                };
+                reader.readAsArrayBuffer(file);
+            }, 100);
+        }
+
+        function normalizeText(text) {
+            if (!text) return "";
+            return String(text).normalize("NFD").replace(/[\u0300-\u036f]/g, "").toUpperCase().trim();
+        }
+
+        function populateFilter() {
+            const assemblies = new Set();
+            rawData.forEach(row => {
+                const val = row[cols.ass];
+                if (val) assemblies.add(val.toString().trim());
+            });
+
+            const select = document.getElementById('assemblyFilter');
+            select.innerHTML = '<option value="TODOS">TODOS</option>';
+            Array.from(assemblies).sort().forEach(ass => {
+                const opt = document.createElement('option');
+                opt.value = ass;
+                opt.innerText = ass;
+                select.appendChild(opt);
+            });
+
+            document.getElementById('stageContainer').style.display = 'flex';
+            document.getElementById('assemblyContainer').style.display = 'flex';
+            document.getElementById('btnUpdate').style.display = 'inline-block';
+        }
+
+        function processData() {
+            if (rawData.length === 0) return alert("Carregue um arquivo primeiro.");
+
+            const filterAss = document.getElementById('assemblyFilter').value;
+            const filterStage = document.getElementById('stageFilter').value;
+            const stats = new Map();
+            let totals = { juntas: 0, fitA: 0, weldA: 0, visualA: 0 };
+
+            rawData.forEach(row => {
+                const assembly = String(row[cols.ass] || "").trim();
+                const item1 = String(row[cols.item] || "").trim();
+                const stage = normalizeText(row[cols.stage]);
+
+                const assLast3 = assembly.slice(-3); // últimos 3 chars do ASSEMBLY DRAWING
+
+                let stageMatch = false;
+                if (filterStage === "TODOS") {
+                    stageMatch = true;
+                } else if (filterStage === "WORKSHOP" && stage.includes("WORKSHOP")) {
+                    stageMatch = true;
+                } else if (filterStage === "ASSEMBLY" && stage.includes("ASSEMBLY")) {
+                    stageMatch = true;
+                } else if (filterStage === "PRIMARIA" && ["103", "102", "172"].includes(assLast3)) {
+                    stageMatch = true;
+                } else if (filterStage === "SECUNDARIA" && ["202", "203"].includes(assLast3)) {
+                    stageMatch = true;
                 }
 
-                function getStatusClass(perc) {
-                    // Para aprovadas, maior (mais próximo de 100%) é melhor
-                    if (perc >= 0.8) return "status-green";
-                    if (perc >= 0.5) return "status-orange";
-                    if (perc < 0.5) return "status-red";
-                    return "";
+                if ((filterAss === "TODOS" || assembly === filterAss) && stageMatch) {
+                    const chave = item1.length > 2 ? item1.substring(0, item1.length - 2) : item1;
+                    if (!chave) return;
+
+                    if (!stats.has(chave)) {
+                        stats.set(chave, { total: 0, fitA: 0, weldA: 0, visualA: 0 });
+                    }
+
+                    const s = stats.get(chave);
+                    const fitVal = normalizeText(row[cols.fitup]);
+                    const weldVal = normalizeText(row[cols.welding]);
+                    const visualVal = cols.visual ? normalizeText(row[cols.visual]) : "";
+
+                    s.total++;
+                    totals.juntas++;
+
+                    if (fitVal === "A") { s.fitA++; totals.fitA++; }
+                    if (weldVal === "A") { s.weldA++; totals.weldA++; }
+                    if (visualVal === "A") { s.visualA++; totals.visualA++; }
                 }
+            });
 
-                function renderUI(stats, totals) {
-                    document.getElementById('resultsArea').style.display = 'block';
+            lastStats = stats;
+            lastTotals = totals;
+            renderUI(stats, totals);
+        }
 
-                    // Render Resumo
-                    const pctFitA = (totals.fitA / totals.juntas) || 0;
-                    const pctWeldA = (totals.weldA / totals.juntas) || 0;
-                    document.getElementById('summaryArea').innerHTML = `
-            <div class="summary-card"><span>TOTAL JUNTAS</span><strong>${totals.juntas}</strong></div>
-            <div class="summary-card"><span>FIT-UP = A</span><strong>${totals.fitA}</strong></div>
-            <div class="summary-card"><span>WELDING = A</span><strong>${totals.weldA}</strong></div>
-            <div class="summary-card"><span>% FIT-UP = A</span><strong class="${getStatusClass(pctFitA)}">${(pctFitA * 100).toFixed(2)}%</strong></div>
-            <div class="summary-card"><span>% WELDING = A</span><strong class="${getStatusClass(pctWeldA)}">${(pctWeldA * 100).toFixed(2)}%</strong></div>
-        `;
+        function getStatusClass(perc) {
+            if (perc >= 0.8) return "status-green";
+            if (perc >= 0.5) return "status-orange";
+            if (perc < 0.5) return "status-red";
+            return "";
+        }
 
-                    // Render Tabela e Datalist
-                    const tbody = document.getElementById('tableBody');
-                    const datalist = document.getElementById('piecesDatalist');
-                    tbody.innerHTML = "";
-                    datalist.innerHTML = "";
+        function renderUI(stats, totals) {
+            document.getElementById('resultsArea').style.display = 'block';
 
-                    // Reseta o filtro de peças atual caso exista
-                    document.getElementById('pieceFilterInput').value = "";
+            const pctFitA = (totals.fitA / totals.juntas) || 0;
+            const pctWeldA = (totals.weldA / totals.juntas) || 0;
+            const pctVisualA = (totals.visualA / totals.juntas) || 0;
 
-                    Array.from(stats.keys()).sort().forEach(key => {
-                        const s = stats.get(key);
-                        const pFitA = (s.fitA / s.total) || 0;
-                        const pWeldA = (s.weldA / s.total) || 0;
+            const card = (label, value, cls = "") =>
+                `<div class="border border-gray-200 rounded-lg p-3 text-center shadow-sm bg-white">
+                    <span class="block text-xs text-gray-500 mb-1">${label}</span>
+                    <strong class="text-xl ${cls || 'text-primary'}">${value}</strong>
+                 </div>`;
 
-                        const row = `<tr>
-                <td style="text-align:left; color:var(--primary); font-weight:bold;">${key}</td>
-                <td>${s.total}</td>
-                <td>${s.fitA}</td>
-                <td>${s.weldA}</td>
-                <td class="${getStatusClass(pFitA)}">${(pFitA * 100).toFixed(2)}%</td>
-                <td class="${getStatusClass(pWeldA)}">${(pWeldA * 100).toFixed(2)}%</td>
-            </tr>`;
-                        tbody.innerHTML += row;
+            document.getElementById('summaryArea').innerHTML =
+                card("TOTAL JUNTAS", totals.juntas) +
+                card("FIT-UP = A", totals.fitA) +
+                card("WELDING = A", totals.weldA) +
+                card("VISUAL TEST = A", totals.visualA) +
+                card("% FIT-UP = A", `${(pctFitA * 100).toFixed(2)}%`, getStatusClass(pctFitA)) +
+                card("% WELDING = A", `${(pctWeldA * 100).toFixed(2)}%`, getStatusClass(pctWeldA)) +
+                card("% VISUAL TEST = A", `${(pctVisualA * 100).toFixed(2)}%`, getStatusClass(pctVisualA));
 
-                        const opt = document.createElement('option');
-                        opt.value = key;
-                        datalist.appendChild(opt);
-                    });
+            const tbody = document.getElementById('tableBody');
+            const datalist = document.getElementById('piecesDatalist');
+            tbody.innerHTML = "";
+            datalist.innerHTML = "";
+            document.getElementById('pieceFilterInput').value = "";
+
+            Array.from(stats.keys()).sort().forEach(key => {
+                const s = stats.get(key);
+                const pFitA = (s.fitA / s.total) || 0;
+                const pWeldA = (s.weldA / s.total) || 0;
+                const pVisualA = (s.visualA / s.total) || 0;
+
+                tbody.innerHTML += `<tr>
+                    <td class="border border-gray-200 px-4 py-2 text-left font-bold text-primary">${key}</td>
+                    <td class="border border-gray-200 px-4 py-2 text-center">${s.total}</td>
+                    <td class="border border-gray-200 px-4 py-2 text-center">${s.fitA}</td>
+                    <td class="border border-gray-200 px-4 py-2 text-center">${s.weldA}</td>
+                    <td class="border border-gray-200 px-4 py-2 text-center">${s.visualA}</td>
+                    <td class="border border-gray-200 px-4 py-2 text-center ${getStatusClass(pFitA)}">${(pFitA * 100).toFixed(2)}%</td>
+                    <td class="border border-gray-200 px-4 py-2 text-center ${getStatusClass(pWeldA)}">${(pWeldA * 100).toFixed(2)}%</td>
+                    <td class="border border-gray-200 px-4 py-2 text-center ${getStatusClass(pVisualA)}">${(pVisualA * 100).toFixed(2)}%</td>
+                </tr>`;
+
+                const opt = document.createElement('option');
+                opt.value = key;
+                datalist.appendChild(opt);
+            });
+        }
+
+        function filterTable() {
+            const input = normalizeText(document.getElementById('pieceFilterInput').value);
+            const rows = document.getElementById('tableBody').getElementsByTagName('tr');
+            for (let i = 0; i < rows.length; i++) {
+                const cellText = normalizeText(rows[i].getElementsByTagName('td')[0].innerText);
+                rows[i].style.display = cellText.includes(input) ? '' : 'none';
+            }
+        }
+
+        // ── Gráficos ─────────────────────────────────────────────────────
+        function destroyChart(id) {
+            if (chartInstances[id]) {
+                chartInstances[id].destroy();
+                delete chartInstances[id];
+            }
+        }
+
+        function renderCharts(stats, totals) {
+            document.getElementById('chartsPlaceholder').style.display = 'none';
+            document.getElementById('chartsGrid').style.display = 'grid';
+
+            const AZUL = '#005c9a';
+            const LARANJA = '#e87722';
+            const VERDE = '#2e8b57';
+
+            // 1. Resumo geral
+            destroyChart('chartResumo');
+            chartInstances['chartResumo'] = new Chart(document.getElementById('chartResumo'), {
+                type: 'bar',
+                data: {
+                    labels: ['FIT-UP = A', 'WELDING = A', 'VISUAL TEST = A'],
+                    datasets: [{
+                        label: 'Qtd Aprovadas',
+                        data: [totals.fitA, totals.weldA, totals.visualA],
+                        backgroundColor: [AZUL, LARANJA, VERDE],
+                        borderRadius: 6
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    plugins: { legend: { display: false } },
+                    scales: { y: { beginAtZero: true } }
                 }
+            });
 
-                function filterTable() {
-                    const input = normalizeText(document.getElementById('pieceFilterInput').value);
-                    const rows = document.getElementById('tableBody').getElementsByTagName('tr');
-                    for (let i = 0; i < rows.length; i++) {
-                        const row = rows[i];
-                        const cellText = normalizeText(row.getElementsByTagName('td')[0].innerText);
-                        if (cellText.includes(input)) {
-                            row.style.display = '';
-                        } else {
-                            row.style.display = 'none';
-                        }
+            const labels = Array.from(stats.keys()).sort();
+            const fitPcts = labels.map(k => +((stats.get(k).fitA / stats.get(k).total * 100) || 0).toFixed(2));
+            const weldPcts = labels.map(k => +((stats.get(k).weldA / stats.get(k).total * 100) || 0).toFixed(2));
+            const visualPcts = labels.map(k => +((stats.get(k).visualA / stats.get(k).total * 100) || 0).toFixed(2));
+
+            const hBar = (label, color) => ({
+                type: 'bar',
+                data: {
+                    labels,
+                    datasets: [{ label, data: [], backgroundColor: color, borderRadius: 4 }]
+                },
+                options: {
+                    indexAxis: 'y',
+                    responsive: true,
+                    plugins: { legend: { display: false } },
+                    scales: {
+                        x: { beginAtZero: true, max: 100, ticks: { callback: v => v + '%' } }
                     }
                 }
-            </script>
+            });
+
+            destroyChart('chartFitup');
+            const cfg2 = hBar('% FIT-UP = A', AZUL);
+            cfg2.data.datasets[0].data = fitPcts;
+            chartInstances['chartFitup'] = new Chart(document.getElementById('chartFitup'), cfg2);
+
+            destroyChart('chartWelding');
+            const cfg3 = hBar('% WELDING = A', LARANJA);
+            cfg3.data.datasets[0].data = weldPcts;
+            chartInstances['chartWelding'] = new Chart(document.getElementById('chartWelding'), cfg3);
+
+            destroyChart('chartVisual');
+            const cfg4 = hBar('% VISUAL TEST = A', VERDE);
+            cfg4.data.datasets[0].data = visualPcts;
+            chartInstances['chartVisual'] = new Chart(document.getElementById('chartVisual'), cfg4);
+        }
+    </script>
 
 </body>
 

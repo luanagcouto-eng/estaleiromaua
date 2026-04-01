@@ -8,6 +8,7 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <script>
         tailwind.config = {
             theme: {
@@ -73,18 +74,15 @@
 </head>
 
 <body class="bg-white min-h-screen">
-
     <!-- HEADER -->
     <div class="bg-primary text-white px-6 py-4 flex items-center gap-5 shadow-md">
         <img src="Logo_Estaleiro_Maua.jpeg" alt="Logo Estaleiro Mauá" class="h-14 rounded bg-white p-1 shadow">
         <h1 class="text-2xl font-bold tracking-wide uppercase">Controle de Juntas</h1>
     </div>
-
     <!-- SUBHEADER -->
     <div class="bg-secondary text-white text-xs italic px-6 py-1.5">
         P84 - FPSO | Seatrium | Mauá | <span id="currentDate"></span>
     </div>
-
     <!-- NAVEGAÇÃO DE ABAS -->
     <div class="flex gap-1 px-6 bg-light-blue border-b-2 border-primary">
         <button class="tab-btn active px-6 py-3 font-bold text-primary text-sm border-b-[3px] border-transparent
@@ -98,19 +96,15 @@
             GRÁFICOS
         </button>
     </div>
-
     <!-- ══════════ ABA 1: DASHBOARD ══════════ -->
     <div id="tab-dashboard" class="tab-panel active">
         <div class="px-6 py-5 max-w-[1800px] mx-auto">
-
             <!-- Seção: Configuração e Filtro -->
             <div class="bg-light-blue text-primary font-bold px-4 py-2 rounded mb-4 uppercase text-sm tracking-wide">
                 Configuração e Filtro
             </div>
-
             <div
                 class="flex flex-wrap gap-4 items-center bg-gray-50 border border-gray-200 rounded-lg p-4 mb-6 shadow-sm">
-
                 <!-- Drop Zone -->
                 <div id="dropZone" class="border-2 border-dashed border-primary rounded-lg px-6 py-4 text-center cursor-pointer
                             bg-white min-w-[280px] flex items-center justify-center text-sm
@@ -121,18 +115,16 @@
                     </span>
                     <input type="file" id="fileInput" accept=".xlsx, .xls, .xlsm" class="hidden">
                 </div>
-
                 <!-- Loading -->
-                <div id="loadingIndicator" class="hidden items-center gap-3">
+                <div id="loadingIndicator" style="display:none" class="flex items-center gap-3">
                     <span class="font-bold text-primary text-sm">Lendo o arquivo...</span>
                     <div class="w-36 bg-gray-200 rounded-full h-2.5 overflow-hidden">
                         <div id="progressBar" class="h-full bg-secondary rounded-full transition-all duration-300"
                             style="width:0%"></div>
                     </div>
                 </div>
-
                 <!-- Filtro Etapa -->
-                <div id="stageContainer" class="hidden flex items-center gap-2">
+                <div id="stageContainer" style="display:none" class="flex items-center gap-2">
                     <label class="font-bold text-primary text-sm">ETAPA:</label>
                     <select id="stageFilter"
                         class="border-2 border-primary rounded px-3 py-1.5 text-sm focus:outline-none focus:ring-2 focus:ring-primary/40">
@@ -143,40 +135,34 @@
                         <option value="SECUNDARIA">Secundária (202 / 203)</option>
                     </select>
                 </div>
-
                 <!-- Filtro Desenho -->
-                <div id="assemblyContainer" class="hidden flex items-center gap-2">
+                <div id="assemblyContainer" style="display:none" class="flex items-center gap-2">
                     <label class="font-bold text-primary text-sm">DESENHO:</label>
                     <select id="assemblyFilter"
                         class="border-2 border-primary rounded px-3 py-1.5 text-sm focus:outline-none focus:ring-2 focus:ring-primary/40">
                         <option value="TODOS">TODOS</option>
                     </select>
                 </div>
-
                 <!-- Botão Atualizar -->
-                <button id="btnUpdate" class="hidden bg-secondary hover:bg-primary text-white font-bold
+                <button id="btnUpdate" style="display:none" class="bg-secondary hover:bg-primary text-white font-bold
                                               px-6 py-2 rounded transition-colors duration-200 text-sm shadow"
                     onclick="processData()">
                     ▶ ATUALIZAR CONTROLE
                 </button>
             </div>
-
             <!-- Área de Resultados -->
-            <div id="resultsArea" class="hidden">
-
+            <div id="resultsArea" style="display:none">
                 <!-- Resumo Geral -->
                 <div
                     class="bg-light-blue text-primary font-bold px-4 py-2 rounded mb-4 uppercase text-sm tracking-wide">
                     Resumo Geral
                 </div>
-                <div id="summaryArea" class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-7 gap-3 mb-6"></div>
-
+                <div id="summaryArea" class="grid grid-cols-2 sm:grid-cols-4 lg:grid-cols-8 gap-3 mb-6"></div>
                 <!-- Análise por Peça -->
                 <div
                     class="bg-light-blue text-primary font-bold px-4 py-2 rounded mb-4 uppercase text-sm tracking-wide">
                     Análise por Peça
                 </div>
-
                 <!-- Busca de Peça -->
                 <div class="flex items-center gap-3 mb-4">
                     <label class="font-bold text-primary text-sm whitespace-nowrap">Buscar Peça:</label>
@@ -185,7 +171,6 @@
                                   focus:outline-none focus:ring-2 focus:ring-primary/40">
                     <datalist id="piecesDatalist"></datalist>
                 </div>
-
                 <!-- Tabela -->
                 <div class="overflow-x-auto rounded-lg shadow border border-gray-200">
                     <table id="resultsTable" class="w-full border-collapse text-sm">
@@ -199,6 +184,7 @@
                                 <th class="px-4 py-3 font-semibold">% FIT-UP = A</th>
                                 <th class="px-4 py-3 font-semibold">% WELDING = A</th>
                                 <th class="px-4 py-3 font-semibold">% VISUAL TEST = A</th>
+                                <th class="px-4 py-3 font-semibold">% AVANÇO TON TOTAL</th>
                             </tr>
                         </thead>
                         <tbody id="tableBody"></tbody>
@@ -207,19 +193,15 @@
             </div>
         </div>
     </div>
-
     <!-- ══════════ ABA 2: GRÁFICOS ══════════ -->
     <div id="tab-graficos" class="tab-panel">
         <div class="px-6 py-5 max-w-[1800px] mx-auto">
-
             <div class="bg-light-blue text-primary font-bold px-4 py-2 rounded mb-4 uppercase text-sm tracking-wide">
                 Gráficos — Análise Geral
             </div>
-
             <p id="chartsPlaceholder" class="text-gray-400 italic px-2 py-4">
                 Carregue e processe um arquivo na aba Dashboard para visualizar os gráficos.
             </p>
-
             <div id="chartsGrid" class="hidden grid grid-cols-1 xl:grid-cols-2 gap-6">
                 <div class="bg-white border border-gray-200 rounded-xl p-5 shadow-sm">
                     <h3 class="text-primary font-bold text-sm mb-4 uppercase tracking-wide">
@@ -248,7 +230,6 @@
             </div>
         </div>
     </div>
-
     <!-- FOOTER -->
     <footer class="mt-8 bg-gray-100 text-gray-400 text-xs px-6 py-3 border-t border-gray-200">
         Legenda de Aprovadas: <span class="text-green-700 font-semibold">Verde ≥ 80%</span> |
@@ -256,17 +237,42 @@
         <span class="text-red-700 font-semibold">Vermelho &lt; 50%</span> |
         Filtro ativo: JUNTAS_SITE = MAUÁ
     </footer>
-
     <script>
         let rawData = [];
         let cols = {};
         let lastStats = null;
         let lastTotals = null;
         let chartInstances = {};
-
+        let pesosSupabase = {}; // Mapa: Item_1 -> { FABRICACAO: num, MONTAGEM: num }
+        // Supabase config
+        const SUPABASE_URL = 'https://oiizamllbghzijrwhpxu.supabase.co';
+        const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im9paXphbWxsYmdoemlqcndocHh1Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzUwNDAzOTcsImV4cCI6MjA5MDYxNjM5N30.mPXO4wiQg1Bvd5bRO0crhKBJ-VaUBuQqEFt7j56vzXc';
+        const supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+        async function carregarPesos() {
+            try {
+                const { data, error } = await supabaseClient
+                    .from('EstaticoPesoP84')
+                    .select('Item_1, Peso, Stage');
+                if (error) throw error;
+                data.forEach(row => {
+                    const item = String(row.Item_1 || '').trim();
+                    const stage = normalizeText(row.Stage || '');
+                    const peso = parseFloat(row.Peso) || 0;
+                    if (!item) return;
+                    if (!pesosSupabase[item]) pesosSupabase[item] = { FABRICACAO: 0, MONTAGEM: 0 };
+                    if (stage.includes('WORKSHOP') || stage.includes('FABRICACAO')) {
+                        pesosSupabase[item].FABRICACAO = peso;
+                    } else if (stage.includes('ASSEMBLY') || stage.includes('MONTAGEM')) {
+                        pesosSupabase[item].MONTAGEM = peso;
+                    }
+                });
+            } catch (err) {
+                console.error("Erro ao carregar pesos do Supabase: ", err);
+            }
+        }
+        window.addEventListener('DOMContentLoaded', carregarPesos);
         // Formatação de Data
         document.getElementById('currentDate').innerText = new Date().toLocaleString();
-
         // ── Navegação de Abas ──────────────────────────────────────────
         function showTab(id) {
             document.querySelectorAll('.tab-panel').forEach(p => p.classList.remove('active'));
@@ -275,22 +281,17 @@
             event.target.classList.add('active');
             if (id === 'tab-graficos' && lastStats) renderCharts(lastStats, lastTotals);
         }
-
         // Configuração Drag and Drop
         const dropZone = document.getElementById('dropZone');
         const fileInput = document.getElementById('fileInput');
-
         dropZone.addEventListener('click', () => fileInput.click());
-
         dropZone.addEventListener('dragover', (e) => {
             e.preventDefault();
             dropZone.classList.add('dragover');
         });
-
         dropZone.addEventListener('dragleave', () => {
             dropZone.classList.remove('dragover');
         });
-
         dropZone.addEventListener('drop', (e) => {
             e.preventDefault();
             dropZone.classList.remove('dragover');
@@ -299,62 +300,69 @@
                 handleFile(e.dataTransfer.files[0]);
             }
         });
-
         fileInput.addEventListener('change', function (e) {
             handleFile(e.target.files[0]);
         });
-
         function handleFile(file) {
             if (!file) return;
-
             document.getElementById('dropZoneText').innerHTML =
                 `<strong class="block text-primary">Arquivo selecionado:</strong>
                  <span class="text-gray-500 text-xs">${file.name}</span>`;
-
             const loadingIndicator = document.getElementById('loadingIndicator');
             const progressBar = document.getElementById('progressBar');
-
             loadingIndicator.style.display = 'flex';
             progressBar.style.width = '20%';
-
             setTimeout(() => {
                 const reader = new FileReader();
                 reader.onload = function (ev) {
                     progressBar.style.width = '50%';
-
                     setTimeout(() => {
                         const data = new Uint8Array(ev.target.result);
                         const workbook = XLSX.read(data, { type: 'array' });
                         const sheetName = workbook.SheetNames[0];
-
                         progressBar.style.width = '75%';
-
                         setTimeout(() => {
                             const allData = XLSX.utils.sheet_to_json(workbook.Sheets[sheetName], { header: "A", defval: "" });
-
                             let headerRowIdx = -1;
                             cols = { juntas: "", ass: "", item: "", stage: "", fitup: "AN", welding: "AS", visual: "" };
-
-                            // Busca a linha de cabeçalho pelo campo JUNTAS_SITE
+                            // Busca a linha de cabeçalho — aceita variações de nome de coluna
                             for (let i = 0; i < Math.min(allData.length, 20); i++) {
                                 const r = allData[i];
                                 let foundJuntas = false;
                                 for (const key in r) {
                                     const val = normalizeText(r[key]);
-                                    if (val === "JUNTAS SITE" || val === "JUNTAS_SITE") { foundJuntas = true; cols.juntas = key; }
-                                    else if (val === "ASSEMBLY DRAWING") { cols.ass = key; }
-                                    else if (val === "ITEM_1") { cols.item = key; }
-                                    else if (val === "STAGE") { cols.stage = key; }
-                                    else if (val === "VISUAL TEST" || val === "VISUAL") { cols.visual = key; }
+                                    if (val.includes("JUNTAS") && (val.includes("SITE") || val.includes("_SITE"))) {
+                                        foundJuntas = true; cols.juntas = key;
+                                    } else if (val.includes("ASSEMBLY") && val.includes("DRAWING")) {
+                                        cols.ass = key;
+                                    } else if (val.includes("ITEM") && (val.includes("_1") || val === "ITEM_1" || val === "ITEM 1")) {
+                                        cols.item = key;
+                                    } else if (val === "STAGE" || val === "ETAPA") {
+                                        cols.stage = key;
+                                    } else if (val.includes("VISUAL") && val.includes("TEST")) {
+                                        cols.visual = key;
+                                    } else if (val === "VISUAL") {
+                                        cols.visual = key;
+                                    }
                                 }
                                 if (foundJuntas) {
                                     headerRowIdx = i;
                                     break;
                                 }
                             }
-
-                            if (headerRowIdx === -1) headerRowIdx = 0;
-
+                            progressBar.style.width = '100%';
+                            setTimeout(() => {
+                                loadingIndicator.style.display = 'none';
+                                progressBar.style.width = '0%';
+                            }, 400);
+                            // Se não achou o cabeçalho, informa o usuário
+                            if (headerRowIdx === -1 || !cols.juntas) {
+                                alert(
+                                    'Coluna "JUNTAS_SITE" não encontrada nas primeiras 20 linhas do arquivo.\n\n' +
+                                    'Verifique se a planilha está no formato correto (a coluna deve conter o texto "JUNTAS SITE" ou "JUNTAS_SITE").'
+                                );
+                                return;
+                            }
                             // Filtro: apenas JUNTAS_SITE = MAUA
                             rawData = [];
                             for (let i = headerRowIdx + 1; i < allData.length; i++) {
@@ -364,34 +372,31 @@
                                     rawData.push(row);
                                 }
                             }
-
+                            if (rawData.length === 0) {
+                                alert(
+                                    'Arquivo lido, mas nenhuma linha com JUNTAS_SITE = "MAUÁ" foi encontrada.\n\n' +
+                                    'Coluna detectada: "' + cols.juntas + '"\n' +
+                                    'Verifique o conteúdo da planilha.'
+                                );
+                                return;
+                            }
                             populateFilter();
-
-                            progressBar.style.width = '100%';
-                            setTimeout(() => {
-                                loadingIndicator.style.display = 'none';
-                                progressBar.style.width = '0%';
-                            }, 400);
-
                         }, 50);
                     }, 50);
                 };
                 reader.readAsArrayBuffer(file);
             }, 100);
         }
-
         function normalizeText(text) {
             if (!text) return "";
             return String(text).normalize("NFD").replace(/[\u0300-\u036f]/g, "").toUpperCase().trim();
         }
-
         function populateFilter() {
             const assemblies = new Set();
             rawData.forEach(row => {
                 const val = row[cols.ass];
-                if (val) assemblies.add(val.toString().trim());
+                if (val && String(val).trim() !== "") assemblies.add(String(val).trim());
             });
-
             const select = document.getElementById('assemblyFilter');
             select.innerHTML = '<option value="TODOS">TODOS</option>';
             Array.from(assemblies).sort().forEach(ass => {
@@ -400,27 +405,21 @@
                 opt.innerText = ass;
                 select.appendChild(opt);
             });
-
             document.getElementById('stageContainer').style.display = 'flex';
             document.getElementById('assemblyContainer').style.display = 'flex';
             document.getElementById('btnUpdate').style.display = 'inline-block';
         }
-
         function processData() {
             if (rawData.length === 0) return alert("Carregue um arquivo primeiro.");
-
             const filterAss = document.getElementById('assemblyFilter').value;
             const filterStage = document.getElementById('stageFilter').value;
             const stats = new Map();
             let totals = { juntas: 0, fitA: 0, weldA: 0, visualA: 0 };
-
             rawData.forEach(row => {
                 const assembly = String(row[cols.ass] || "").trim();
                 const item1 = String(row[cols.item] || "").trim();
                 const stage = normalizeText(row[cols.stage]);
-
                 const assLast3 = assembly.slice(-3); // últimos 3 chars do ASSEMBLY DRAWING
-
                 let stageMatch = false;
                 if (filterStage === "TODOS") {
                     stageMatch = true;
@@ -433,75 +432,67 @@
                 } else if (filterStage === "SECUNDARIA" && ["202", "203"].includes(assLast3)) {
                     stageMatch = true;
                 }
-
                 if ((filterAss === "TODOS" || assembly === filterAss) && stageMatch) {
                     const chave = item1.length > 2 ? item1.substring(0, item1.length - 2) : item1;
-                    if (!chave) return;
-
+                    if (!chave || chave === "") return;
                     if (!stats.has(chave)) {
                         stats.set(chave, { total: 0, fitA: 0, weldA: 0, visualA: 0 });
                     }
-
                     const s = stats.get(chave);
                     const fitVal = normalizeText(row[cols.fitup]);
                     const weldVal = normalizeText(row[cols.welding]);
                     const visualVal = cols.visual ? normalizeText(row[cols.visual]) : "";
-
                     s.total++;
                     totals.juntas++;
-
                     if (fitVal === "A") { s.fitA++; totals.fitA++; }
                     if (weldVal === "A") { s.weldA++; totals.weldA++; }
                     if (visualVal === "A") { s.visualA++; totals.visualA++; }
                 }
             });
-
             lastStats = stats;
             lastTotals = totals;
-            renderUI(stats, totals);
+            renderUI(stats, totals, filterStage);
         }
-
         function getStatusClass(perc) {
             if (perc >= 0.8) return "status-green";
             if (perc >= 0.5) return "status-orange";
             if (perc < 0.5) return "status-red";
             return "";
         }
-
-        function renderUI(stats, totals) {
+        function renderUI(stats, totals, filterStage = 'TODOS') {
             document.getElementById('resultsArea').style.display = 'block';
-
             const pctFitA = (totals.fitA / totals.juntas) || 0;
             const pctWeldA = (totals.weldA / totals.juntas) || 0;
             const pctVisualA = (totals.visualA / totals.juntas) || 0;
-
             const card = (label, value, cls = "") =>
                 `<div class="border border-gray-200 rounded-lg p-3 text-center shadow-sm bg-white">
                     <span class="block text-xs text-gray-500 mb-1">${label}</span>
                     <strong class="text-xl ${cls || 'text-primary'}">${value}</strong>
                  </div>`;
-
-            document.getElementById('summaryArea').innerHTML =
-                card("TOTAL JUNTAS", totals.juntas) +
-                card("FIT-UP = A", totals.fitA) +
-                card("WELDING = A", totals.weldA) +
-                card("VISUAL TEST = A", totals.visualA) +
-                card("% FIT-UP = A", `${(pctFitA * 100).toFixed(2)}%`, getStatusClass(pctFitA)) +
-                card("% WELDING = A", `${(pctWeldA * 100).toFixed(2)}%`, getStatusClass(pctWeldA)) +
-                card("% VISUAL TEST = A", `${(pctVisualA * 100).toFixed(2)}%`, getStatusClass(pctVisualA));
-
             const tbody = document.getElementById('tableBody');
             const datalist = document.getElementById('piecesDatalist');
             tbody.innerHTML = "";
             datalist.innerHTML = "";
             document.getElementById('pieceFilterInput').value = "";
-
+            let totalAvancoTonGeral = 0;
             Array.from(stats.keys()).sort().forEach(key => {
                 const s = stats.get(key);
                 const pFitA = (s.fitA / s.total) || 0;
                 const pWeldA = (s.weldA / s.total) || 0;
                 const pVisualA = (s.visualA / s.total) || 0;
-
+                let pesoDaPeca = 0;
+                const pesosItem = pesosSupabase[key] || { FABRICACAO: 0, MONTAGEM: 0 };
+                if (filterStage === "Workshop") {
+                    pesoDaPeca = pesosItem.FABRICACAO;
+                } else if (filterStage === "Assembly") {
+                    pesoDaPeca = pesosItem.MONTAGEM;
+                } else {
+                    pesoDaPeca = pesosItem.MONTAGEM || pesosItem.FABRICACAO;
+                }
+                const avancoFitupTon = (pFitA) * 0.4 * pesoDaPeca;
+                const avancoWeldingTon = (pWeldA) * 0.5 * pesoDaPeca;
+                const avancoTotalTon = avancoFitupTon + avancoWeldingTon;
+                totalAvancoTonGeral += avancoTotalTon;
                 tbody.innerHTML += `<tr>
                     <td class="border border-gray-200 px-4 py-2 text-left font-bold text-primary">${key}</td>
                     <td class="border border-gray-200 px-4 py-2 text-center">${s.total}</td>
@@ -511,14 +502,22 @@
                     <td class="border border-gray-200 px-4 py-2 text-center ${getStatusClass(pFitA)}">${(pFitA * 100).toFixed(2)}%</td>
                     <td class="border border-gray-200 px-4 py-2 text-center ${getStatusClass(pWeldA)}">${(pWeldA * 100).toFixed(2)}%</td>
                     <td class="border border-gray-200 px-4 py-2 text-center ${getStatusClass(pVisualA)}">${(pVisualA * 100).toFixed(2)}%</td>
+                    <td class="border border-gray-200 px-4 py-2 text-center font-semibold text-primary">${avancoTotalTon.toFixed(2)}</td>
                 </tr>`;
-
                 const opt = document.createElement('option');
                 opt.value = key;
                 datalist.appendChild(opt);
             });
+            document.getElementById('summaryArea').innerHTML =
+                card("TOTAL JUNTAS", totals.juntas) +
+                card("FIT-UP = A", totals.fitA) +
+                card("WELDING = A", totals.weldA) +
+                card("VISUAL TEST = A", totals.visualA) +
+                card("% FIT-UP = A", `${(pctFitA * 100).toFixed(2)}%`, getStatusClass(pctFitA)) +
+                card("% WELDING = A", `${(pctWeldA * 100).toFixed(2)}%`, getStatusClass(pctWeldA)) +
+                card("% VISUAL TEST = A", `${(pctVisualA * 100).toFixed(2)}%`, getStatusClass(pctVisualA)) +
+                card("% AVANÇO TON TOTAL", totalAvancoTonGeral.toFixed(2), "text-primary");
         }
-
         function filterTable() {
             const input = normalizeText(document.getElementById('pieceFilterInput').value);
             const rows = document.getElementById('tableBody').getElementsByTagName('tr');
@@ -527,7 +526,6 @@
                 rows[i].style.display = cellText.includes(input) ? '' : 'none';
             }
         }
-
         // ── Gráficos ─────────────────────────────────────────────────────
         function destroyChart(id) {
             if (chartInstances[id]) {
@@ -535,15 +533,12 @@
                 delete chartInstances[id];
             }
         }
-
         function renderCharts(stats, totals) {
             document.getElementById('chartsPlaceholder').style.display = 'none';
             document.getElementById('chartsGrid').style.display = 'grid';
-
             const AZUL = '#005c9a';
             const LARANJA = '#e87722';
             const VERDE = '#2e8b57';
-
             // 1. Resumo geral
             destroyChart('chartResumo');
             chartInstances['chartResumo'] = new Chart(document.getElementById('chartResumo'), {
@@ -563,12 +558,10 @@
                     scales: { y: { beginAtZero: true } }
                 }
             });
-
             const labels = Array.from(stats.keys()).sort();
             const fitPcts = labels.map(k => +((stats.get(k).fitA / stats.get(k).total * 100) || 0).toFixed(2));
             const weldPcts = labels.map(k => +((stats.get(k).weldA / stats.get(k).total * 100) || 0).toFixed(2));
             const visualPcts = labels.map(k => +((stats.get(k).visualA / stats.get(k).total * 100) || 0).toFixed(2));
-
             const hBar = (label, color) => ({
                 type: 'bar',
                 data: {
@@ -584,24 +577,20 @@
                     }
                 }
             });
-
             destroyChart('chartFitup');
             const cfg2 = hBar('% FIT-UP = A', AZUL);
             cfg2.data.datasets[0].data = fitPcts;
             chartInstances['chartFitup'] = new Chart(document.getElementById('chartFitup'), cfg2);
-
             destroyChart('chartWelding');
             const cfg3 = hBar('% WELDING = A', LARANJA);
             cfg3.data.datasets[0].data = weldPcts;
             chartInstances['chartWelding'] = new Chart(document.getElementById('chartWelding'), cfg3);
-
             destroyChart('chartVisual');
             const cfg4 = hBar('% VISUAL TEST = A', VERDE);
             cfg4.data.datasets[0].data = visualPcts;
             chartInstances['chartVisual'] = new Chart(document.getElementById('chartVisual'), cfg4);
         }
     </script>
-
 </body>
 
 </html>

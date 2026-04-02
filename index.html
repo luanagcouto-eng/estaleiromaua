@@ -96,60 +96,69 @@
             GRÁFICOS
         </button>
     </div>
+    <!-- ══════════ ÁREA DE CONFIGURAÇÃO E FILTRO (GLOBAL) ══════════ -->
+    <div class="px-6 pt-5 max-w-[1800px] mx-auto">
+        <div class="bg-light-blue text-primary font-bold px-4 py-2 rounded mb-4 uppercase text-sm tracking-wide">
+            Configuração e Filtro
+        </div>
+        <div class="flex flex-wrap gap-4 items-center bg-gray-50 border border-gray-200 rounded-lg p-4 mb-6 shadow-sm">
+            <!-- Drop Zone -->
+            <div id="dropZone" class="border-2 border-dashed border-primary rounded-lg px-6 py-4 text-center cursor-pointer
+                        bg-white min-w-[280px] flex items-center justify-center text-sm
+                        hover:bg-light-blue transition-colors duration-200">
+                <span id="dropZoneText">
+                    <strong class="block text-primary">Arraste o arquivo aqui</strong>
+                    <span class="text-gray-400 text-xs">ou clique para selecionar</span>
+                </span>
+                <input type="file" id="fileInput" accept=".xlsx, .xls, .xlsm" class="hidden">
+            </div>
+            <!-- Loading -->
+            <div id="loadingIndicator" style="display:none" class="flex items-center gap-3">
+                <span class="font-bold text-primary text-sm">Lendo o arquivo...</span>
+                <div class="w-36 bg-gray-200 rounded-full h-2.5 overflow-hidden">
+                    <div id="progressBar" class="h-full bg-secondary rounded-full transition-all duration-300"
+                        style="width:0%"></div>
+                </div>
+            </div>
+            <!-- Filtro Etapa -->
+            <div id="stageContainer" style="display:none" class="flex items-center gap-2">
+                <label class="font-bold text-primary text-sm">ETAPA:</label>
+                <select id="stageFilter"
+                    class="border-2 border-primary rounded px-3 py-1.5 text-sm focus:outline-none focus:ring-2 focus:ring-primary/40">
+                    <option value="TODOS">Todas (Fabricação/Montagem)</option>
+                    <option value="WORKSHOP">Fabricação (Workshop)</option>
+                    <option value="ASSEMBLY">Montagem (Assembly)</option>
+                    <option value="PRIMARIA">Primária (102 / 103 / 172)</option>
+                    <option value="SECUNDARIA">Secundária (202 / 203)</option>
+                </select>
+            </div>
+            <!-- Filtro Desenho -->
+            <div id="assemblyContainer" style="display:none" class="flex items-center gap-2">
+                <label class="font-bold text-primary text-sm">DESENHO:</label>
+                <select id="assemblyFilter"
+                    class="border-2 border-primary rounded px-3 py-1.5 text-sm focus:outline-none focus:ring-2 focus:ring-primary/40">
+                    <option value="TODOS">TODOS</option>
+                </select>
+            </div>
+            <!-- Busca de Peça -->
+            <div id="pieceContainer" style="display:none" class="flex items-center gap-2">
+                <label class="font-bold text-primary text-sm whitespace-nowrap">PEÇA:</label>
+                <input type="text" id="pieceFilterInput" list="piecesDatalist" placeholder="Filtrar peça..."
+                    oninput="onPieceFilter()"
+                    class="border-2 border-primary rounded px-3 py-1.5 text-sm focus:outline-none focus:ring-2 focus:ring-primary/40 w-48">
+                <datalist id="piecesDatalist"></datalist>
+            </div>
+            <!-- Botão Atualizar -->
+            <button id="btnUpdate" style="display:none" class="bg-secondary hover:bg-primary text-white font-bold
+                                          px-6 py-2 rounded transition-colors duration-200 text-sm shadow"
+                onclick="processData()">
+                ▶ ATUALIZAR CONTROLE
+            </button>
+        </div>
+    </div>
     <!-- ══════════ ABA 1: DASHBOARD ══════════ -->
     <div id="tab-dashboard" class="tab-panel active">
-        <div class="px-6 py-5 max-w-[1800px] mx-auto">
-            <!-- Seção: Configuração e Filtro -->
-            <div class="bg-light-blue text-primary font-bold px-4 py-2 rounded mb-4 uppercase text-sm tracking-wide">
-                Configuração e Filtro
-            </div>
-            <div
-                class="flex flex-wrap gap-4 items-center bg-gray-50 border border-gray-200 rounded-lg p-4 mb-6 shadow-sm">
-                <!-- Drop Zone -->
-                <div id="dropZone" class="border-2 border-dashed border-primary rounded-lg px-6 py-4 text-center cursor-pointer
-                            bg-white min-w-[280px] flex items-center justify-center text-sm
-                            hover:bg-light-blue transition-colors duration-200">
-                    <span id="dropZoneText">
-                        <strong class="block text-primary">Arraste o arquivo aqui</strong>
-                        <span class="text-gray-400 text-xs">ou clique para selecionar</span>
-                    </span>
-                    <input type="file" id="fileInput" accept=".xlsx, .xls, .xlsm" class="hidden">
-                </div>
-                <!-- Loading -->
-                <div id="loadingIndicator" style="display:none" class="flex items-center gap-3">
-                    <span class="font-bold text-primary text-sm">Lendo o arquivo...</span>
-                    <div class="w-36 bg-gray-200 rounded-full h-2.5 overflow-hidden">
-                        <div id="progressBar" class="h-full bg-secondary rounded-full transition-all duration-300"
-                            style="width:0%"></div>
-                    </div>
-                </div>
-                <!-- Filtro Etapa -->
-                <div id="stageContainer" style="display:none" class="flex items-center gap-2">
-                    <label class="font-bold text-primary text-sm">ETAPA:</label>
-                    <select id="stageFilter"
-                        class="border-2 border-primary rounded px-3 py-1.5 text-sm focus:outline-none focus:ring-2 focus:ring-primary/40">
-                        <option value="TODOS">Todas (Fabricação/Montagem)</option>
-                        <option value="WORKSHOP">Fabricação (Workshop)</option>
-                        <option value="ASSEMBLY">Montagem (Assembly)</option>
-                        <option value="PRIMARIA">Primária (102 / 103 / 172)</option>
-                        <option value="SECUNDARIA">Secundária (202 / 203)</option>
-                    </select>
-                </div>
-                <!-- Filtro Desenho -->
-                <div id="assemblyContainer" style="display:none" class="flex items-center gap-2">
-                    <label class="font-bold text-primary text-sm">DESENHO:</label>
-                    <select id="assemblyFilter"
-                        class="border-2 border-primary rounded px-3 py-1.5 text-sm focus:outline-none focus:ring-2 focus:ring-primary/40">
-                        <option value="TODOS">TODOS</option>
-                    </select>
-                </div>
-                <!-- Botão Atualizar -->
-                <button id="btnUpdate" style="display:none" class="bg-secondary hover:bg-primary text-white font-bold
-                                              px-6 py-2 rounded transition-colors duration-200 text-sm shadow"
-                    onclick="processData()">
-                    ▶ ATUALIZAR CONTROLE
-                </button>
-            </div>
+        <div class="px-6 pb-5 max-w-[1800px] mx-auto">
             <!-- Área de Resultados -->
             <div id="resultsArea" style="display:none">
                 <!-- Resumo Geral -->
@@ -162,14 +171,6 @@
                 <div
                     class="bg-light-blue text-primary font-bold px-4 py-2 rounded mb-4 uppercase text-sm tracking-wide">
                     Análise por Peça
-                </div>
-                <!-- Busca de Peça -->
-                <div class="flex items-center gap-3 mb-4">
-                    <label class="font-bold text-primary text-sm whitespace-nowrap">Buscar Peça:</label>
-                    <input type="text" id="pieceFilterInput" list="piecesDatalist"
-                        placeholder="Digite ou selecione a peça para filtrar..." oninput="filterTable()" class="flex-1 border-2 border-primary rounded px-3 py-2 text-sm
-                                  focus:outline-none focus:ring-2 focus:ring-primary/40">
-                    <datalist id="piecesDatalist"></datalist>
                 </div>
                 <!-- Tabela -->
                 <div class="overflow-x-auto rounded-lg shadow border border-gray-200">
@@ -195,12 +196,12 @@
     </div>
     <!-- ══════════ ABA 2: GRÁFICOS ══════════ -->
     <div id="tab-graficos" class="tab-panel">
-        <div class="px-6 py-5 max-w-[1800px] mx-auto">
+        <div class="px-6 pb-5 max-w-[1800px] mx-auto">
             <div class="bg-light-blue text-primary font-bold px-4 py-2 rounded mb-4 uppercase text-sm tracking-wide">
                 Gráficos — Análise Geral
             </div>
             <p id="chartsPlaceholder" class="text-gray-400 italic px-2 py-4">
-                Carregue e processe um arquivo na aba Dashboard para visualizar os gráficos.
+                Carregue e processe um arquivo para visualizar os gráficos.
             </p>
             <div id="chartsGrid" class="hidden grid grid-cols-1 xl:grid-cols-2 gap-6">
                 <div class="bg-white border border-gray-200 rounded-xl p-5 shadow-sm">
@@ -211,21 +212,27 @@
                 </div>
                 <div class="bg-white border border-gray-200 rounded-xl p-5 shadow-sm">
                     <h3 class="text-primary font-bold text-sm mb-4 uppercase tracking-wide">
-                        % Aprovação por Peça — FIT-UP
+                        TOP 10: % Aprovação por Peça — FIT-UP
                     </h3>
                     <canvas id="chartFitup"></canvas>
                 </div>
                 <div class="bg-white border border-gray-200 rounded-xl p-5 shadow-sm">
                     <h3 class="text-primary font-bold text-sm mb-4 uppercase tracking-wide">
-                        % Aprovação por Peça — WELDING
+                        TOP 10: % Aprovação por Peça — WELDING
                     </h3>
                     <canvas id="chartWelding"></canvas>
                 </div>
                 <div class="bg-white border border-gray-200 rounded-xl p-5 shadow-sm">
                     <h3 class="text-primary font-bold text-sm mb-4 uppercase tracking-wide">
-                        % Aprovação por Peça — VISUAL TEST
+                        TOP 10: % Aprovação por Peça — VISUAL TEST
                     </h3>
                     <canvas id="chartVisual"></canvas>
+                </div>
+                <div class="bg-white border border-gray-200 rounded-xl p-5 shadow-sm xl:col-span-2">
+                    <h3 class="text-primary font-bold text-sm mb-4 uppercase tracking-wide">
+                        TOP 10: Avanço Total em Toneladas por Peça
+                    </h3>
+                    <canvas id="chartAvancoTon"></canvas>
                 </div>
             </div>
         </div>
@@ -252,12 +259,13 @@
             try {
                 const { data, error } = await supabaseClient
                     .from('EstaticoPesoP84')
-                    .select('Item_1, Peso, Stage');
+                    .select('ITEM_1, Peso, Stage');
                 if (error) throw error;
                 data.forEach(row => {
-                    const item = String(row.Item_1 || '').trim();
+                    const item = String(row.ITEM_1 || '').trim();
                     const stage = normalizeText(row.Stage || '');
-                    const peso = parseFloat(row.Peso) || 0;
+                    const pesoStr = String(row.Peso || '0').replace(',', '.');
+                    const peso = parseFloat(pesoStr) || 0;
                     if (!item) return;
                     if (!pesosSupabase[item]) pesosSupabase[item] = { FABRICACAO: 0, MONTAGEM: 0 };
                     if (stage.includes('WORKSHOP') || stage.includes('FABRICACAO')) {
@@ -407,6 +415,7 @@
             });
             document.getElementById('stageContainer').style.display = 'flex';
             document.getElementById('assemblyContainer').style.display = 'flex';
+            document.getElementById('pieceContainer').style.display = 'flex';
             document.getElementById('btnUpdate').style.display = 'inline-block';
         }
         function processData() {
@@ -452,6 +461,7 @@
             lastStats = stats;
             lastTotals = totals;
             renderUI(stats, totals, filterStage);
+            onPieceFilter();
         }
         function getStatusClass(perc) {
             if (perc >= 0.8) return "status-green";
@@ -473,7 +483,6 @@
             const datalist = document.getElementById('piecesDatalist');
             tbody.innerHTML = "";
             datalist.innerHTML = "";
-            document.getElementById('pieceFilterInput').value = "";
             let totalAvancoTonGeral = 0;
             Array.from(stats.keys()).sort().forEach(key => {
                 const s = stats.get(key);
@@ -482,9 +491,9 @@
                 const pVisualA = (s.visualA / s.total) || 0;
                 let pesoDaPeca = 0;
                 const pesosItem = pesosSupabase[key] || { FABRICACAO: 0, MONTAGEM: 0 };
-                if (filterStage === "Workshop") {
+                if (filterStage === "WORKSHOP") {
                     pesoDaPeca = pesosItem.FABRICACAO;
-                } else if (filterStage === "Assembly") {
+                } else if (filterStage === "ASSEMBLY") {
                     pesoDaPeca = pesosItem.MONTAGEM;
                 } else {
                     pesoDaPeca = pesosItem.MONTAGEM || pesosItem.FABRICACAO;
@@ -526,6 +535,12 @@
                 rows[i].style.display = cellText.includes(input) ? '' : 'none';
             }
         }
+        function onPieceFilter() {
+            filterTable();
+            if (document.getElementById('tab-graficos').classList.contains('active') && lastStats) {
+                renderCharts(lastStats, lastTotals);
+            }
+        }
         // ── Gráficos ─────────────────────────────────────────────────────
         function destroyChart(id) {
             if (chartInstances[id]) {
@@ -539,6 +554,23 @@
             const AZUL = '#005c9a';
             const LARANJA = '#e87722';
             const VERDE = '#2e8b57';
+
+            const input = normalizeText(document.getElementById('pieceFilterInput').value);
+            const allLabels = Array.from(stats.keys()).filter(k => normalizeText(k).includes(input));
+
+            let filteredTotals = { fitA: 0, weldA: 0, visualA: 0 };
+            allLabels.forEach(k => {
+                const s = stats.get(k);
+                filteredTotals.fitA += s.fitA;
+                filteredTotals.weldA += s.weldA;
+                filteredTotals.visualA += s.visualA;
+            });
+
+            // TOP 10 labels by total joints for individual charts
+            const labels = [...allLabels]
+                .sort((a, b) => stats.get(b).total - stats.get(a).total)
+                .slice(0, 10);
+
             // 1. Resumo geral
             destroyChart('chartResumo');
             chartInstances['chartResumo'] = new Chart(document.getElementById('chartResumo'), {
@@ -547,7 +579,7 @@
                     labels: ['FIT-UP = A', 'WELDING = A', 'VISUAL TEST = A'],
                     datasets: [{
                         label: 'Qtd Aprovadas',
-                        data: [totals.fitA, totals.weldA, totals.visualA],
+                        data: [filteredTotals.fitA, filteredTotals.weldA, filteredTotals.visualA],
                         backgroundColor: [AZUL, LARANJA, VERDE],
                         borderRadius: 6
                     }]
@@ -558,11 +590,28 @@
                     scales: { y: { beginAtZero: true } }
                 }
             });
-            const labels = Array.from(stats.keys()).sort();
             const fitPcts = labels.map(k => +((stats.get(k).fitA / stats.get(k).total * 100) || 0).toFixed(2));
             const weldPcts = labels.map(k => +((stats.get(k).weldA / stats.get(k).total * 100) || 0).toFixed(2));
             const visualPcts = labels.map(k => +((stats.get(k).visualA / stats.get(k).total * 100) || 0).toFixed(2));
-            const hBar = (label, color) => ({
+
+            const filterStage = document.getElementById('stageFilter').value;
+            const avancoTonPcts = labels.map(k => {
+                const s = stats.get(k);
+                const pFitA = (s.fitA / s.total) || 0;
+                const pWeldA = (s.weldA / s.total) || 0;
+                let pesoDaPeca = 0;
+                const pesosItem = pesosSupabase[k] || { FABRICACAO: 0, MONTAGEM: 0 };
+                if (filterStage === "WORKSHOP") {
+                    pesoDaPeca = pesosItem.FABRICACAO;
+                } else if (filterStage === "ASSEMBLY") {
+                    pesoDaPeca = pesosItem.MONTAGEM;
+                } else {
+                    pesoDaPeca = pesosItem.MONTAGEM || pesosItem.FABRICACAO;
+                }
+                return +((pFitA * 0.4 * pesoDaPeca) + (pWeldA * 0.5 * pesoDaPeca)).toFixed(2);
+            });
+
+            const hBar = (label, color, isTon = false) => ({
                 type: 'bar',
                 data: {
                     labels,
@@ -573,7 +622,7 @@
                     responsive: true,
                     plugins: { legend: { display: false } },
                     scales: {
-                        x: { beginAtZero: true, max: 100, ticks: { callback: v => v + '%' } }
+                        x: { beginAtZero: true, max: isTon ? undefined : 100, ticks: { callback: v => isTon ? v + ' t' : v + '%' } }
                     }
                 }
             });
@@ -589,6 +638,10 @@
             const cfg4 = hBar('% VISUAL TEST = A', VERDE);
             cfg4.data.datasets[0].data = visualPcts;
             chartInstances['chartVisual'] = new Chart(document.getElementById('chartVisual'), cfg4);
+            destroyChart('chartAvancoTon');
+            const cfg5 = hBar('Avanço (Ton)', '#805ad5', true);
+            cfg5.data.datasets[0].data = avancoTonPcts;
+            chartInstances['chartAvancoTon'] = new Chart(document.getElementById('chartAvancoTon'), cfg5);
         }
     </script>
 </body>

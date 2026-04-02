@@ -70,34 +70,79 @@
         .tab-panel.active {
             display: block;
         }
+
+        .print-only {
+            display: none;
+        }
+
+        @media print {
+            html {
+                font-size: 11px !important;
+            }
+
+            .no-print {
+                display: none !important;
+            }
+
+            .print-only {
+                display: block !important;
+            }
+
+            body {
+                background: white !important;
+                -webkit-print-color-adjust: exact;
+                print-color-adjust: exact;
+                padding-top: 10mm;
+                padding-bottom: 20mm;
+            }
+
+            @page {
+                size: landscape;
+                margin-top: 5mm;
+                margin-bottom: 10mm;
+                margin-left: 10mm;
+                margin-right: 10mm;
+            }
+        }
     </style>
 </head>
 
 <body class="bg-white min-h-screen">
     <!-- HEADER -->
-    <div class="bg-primary text-white px-6 py-4 flex items-center gap-5 shadow-md">
+    <div class="bg-primary text-white px-6 py-4 flex items-center gap-5 shadow-md no-print">
         <img src="Logo_Estaleiro_Maua.jpeg" alt="Logo Estaleiro Mauá" class="h-14 rounded bg-white p-1 shadow">
         <h1 class="text-2xl font-bold tracking-wide uppercase">Controle de Juntas</h1>
     </div>
     <!-- SUBHEADER -->
-    <div class="bg-secondary text-white text-xs italic px-6 py-1.5">
+    <div class="bg-secondary text-white text-xs italic px-6 py-1.5 no-print">
         P84 - FPSO | Seatrium | Mauá | <span id="currentDate"></span>
     </div>
     <!-- NAVEGAÇÃO DE ABAS -->
-    <div class="flex gap-1 px-6 bg-light-blue border-b-2 border-primary">
-        <button class="tab-btn active px-6 py-3 font-bold text-primary text-sm border-b-[3px] border-transparent
-                       hover:bg-blue-100 transition-colors duration-150 cursor-pointer"
-            onclick="showTab('tab-dashboard')">
-            DASHBOARD
-        </button>
-        <button class="tab-btn px-6 py-3 font-bold text-primary text-sm border-b-[3px] border-transparent
-                       hover:bg-blue-100 transition-colors duration-150 cursor-pointer"
-            onclick="showTab('tab-graficos')">
-            GRÁFICOS
+    <div class="flex justify-between items-end px-6 bg-light-blue border-b-2 border-primary no-print pt-2">
+        <div class="flex gap-1">
+            <button class="tab-btn active px-6 py-3 font-bold text-primary text-sm border-b-[3px] border-transparent
+                           hover:bg-blue-100 transition-colors duration-150 cursor-pointer"
+                onclick="showTab('tab-dashboard')">
+                DASHBOARD
+            </button>
+            <button class="tab-btn px-6 py-3 font-bold text-primary text-sm border-b-[3px] border-transparent
+                           hover:bg-blue-100 transition-colors duration-150 cursor-pointer"
+                onclick="showTab('tab-graficos')">
+                GRÁFICOS
+            </button>
+        </div>
+        <button onclick="window.print()"
+            class="bg-primary text-white px-4 py-2 rounded text-sm font-bold shadow hover:bg-blue-800 transition-colors mb-2 flex items-center gap-2">
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24"
+                stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                    d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z" />
+            </svg>
+            IMPRIMIR
         </button>
     </div>
     <!-- ══════════ ÁREA DE CONFIGURAÇÃO E FILTRO (GLOBAL) ══════════ -->
-    <div class="px-6 pt-5 max-w-[1800px] mx-auto">
+    <div class="px-6 pt-5 max-w-[1800px] mx-auto no-print">
         <div class="bg-light-blue text-primary font-bold px-4 py-2 rounded mb-4 uppercase text-sm tracking-wide">
             Configuração e Filtro
         </div>
@@ -238,7 +283,7 @@
         </div>
     </div>
     <!-- FOOTER -->
-    <footer class="mt-8 bg-gray-100 text-gray-400 text-xs px-6 py-3 border-t border-gray-200">
+    <footer class="mt-8 bg-gray-100 text-gray-400 text-xs px-6 py-3 border-t border-gray-200 no-print">
         Legenda de Aprovadas: <span class="text-green-700 font-semibold">Verde ≥ 80%</span> |
         <span class="text-yellow-700 font-semibold">Laranja ≥ 50%</span> |
         <span class="text-red-700 font-semibold">Vermelho &lt; 50%</span> |

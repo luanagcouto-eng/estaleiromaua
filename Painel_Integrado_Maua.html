@@ -1,0 +1,1920 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Painel Integrado | Estaleiro Mauá</title>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Outfit:wght@300;400;500;600;700;800;900&family=Montserrat:wght@300;400;500;600;700;800;900&display=swap"
+        rel="stylesheet">
+    <!-- React & ReactDOM -->
+    <script crossorigin src="https://unpkg.com/react@18/umd/react.development.js"></script>
+    <script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.development.js"></script>
+    <!-- Babel for JSX -->
+    <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+    <!-- MSAL.js for Microsoft Auth -->
+    <script src="https://alcdn.msauth.net/browser/2.35.0/js/msal-browser.min.js"></script>
+
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: {
+                        sans: ['Inter', 'sans-serif'],
+                        outfit: ['Outfit', 'sans-serif'],
+                        montserrat: ['Montserrat', 'sans-serif'],
+                    },
+                    colors: {
+                        brand: {
+                            50: '#9B9B9B',
+                            100: '#e0f2fe',
+                            500: '#0ea5e9',
+                            600: '#0284c7',
+                            900: '#0c4a6e',
+                            navy: '#1e293b',
+                            deep: '#0f172a',
+                            orange: '#f97316',
+                            amber: '#f59e0b',
+                            red: '#ef4444',
+                            green: '#10b981',
+                            maua: '#364B59'
+                        }
+                    },
+                    boxShadow: {
+                        'premium': '0 10px 15px -3px rgba(0, 0, 0, 0.05), 0 4px 6px -2px rgba(0, 0, 0, 0.025)',
+                        'card': '0 2px 4px 0 rgba(0, 0, 0, 0.02), 0 1px 2px 0 rgba(0, 0, 0, 0.06)',
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        :root {
+            --brand-maua: #364B59;
+            --brand-maua-light: #0056a4;
+            --brand-dark: #0f172a;
+            --brand-orange: #f97316;
+            --brand-emerald: #10b981;
+            --brand-ruby: #e11d48;
+            --bg-main: #f8fafc;
+            --glass: rgba(255, 255, 255, 0.75);
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: var(--bg-main);
+            color: #1e293b;
+            letter-spacing: -0.011em;
+            -webkit-font-smoothing: antialiased;
+        }
+
+        .font-outfit {
+            font-family: 'Outfit', sans-serif;
+        }
+
+        .font-montserrat {
+            font-family: 'Montserrat', sans-serif;
+        }
+
+        .font-inter {
+            font-family: 'Inter', sans-serif;
+        }
+
+        .glass {
+            background: var(--glass);
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
+            border: 1px solid rgba(255, 255, 255, 0.4);
+        }
+
+        .shadow-premium {
+            box-shadow: 0 20px 50px -12px rgba(0, 66, 126, 0.12), 0 10px 15px -5px rgba(0, 0, 0, 0.04);
+        }
+
+        .shadow-card {
+            box-shadow: 0 4px 20px -5px rgba(15, 23, 42, 0.08);
+        }
+
+        @keyframes fadeInScale {
+            from {
+                opacity: 0;
+                transform: scale(0.98) translateY(10px);
+            }
+
+            to {
+                opacity: 1;
+                transform: scale(1) translateY(0);
+            }
+        }
+
+        .animate-premium {
+            animation: fadeInScale 0.7s cubic-bezier(0.22, 1, 0.36, 1) forwards;
+        }
+
+        .sidebar-scroll::-webkit-scrollbar {
+            display: none;
+        }
+
+        .sidebar-scroll {
+            -ms-overflow-style: none;
+            scrollbar-width: none;
+        }
+
+        .transition-soft {
+            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        /* OKR Flow liquid animation */
+        @keyframes wave {
+            0% {
+                transform: translateX(-50%) skewY(0deg);
+            }
+
+            50% {
+                transform: translateX(-25%) skewY(2deg);
+            }
+
+            100% {
+                transform: translateX(-50%) skewY(0deg);
+            }
+        }
+
+        .liquid-animation {
+            animation: wave 3s infinite linear;
+        }
+
+        /* OKR Flow slide-in */
+        @keyframes slideInBottom {
+            from {
+                opacity: 0;
+                transform: translateY(2rem);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .animate-in {
+            animation: slideInBottom 0.7s cubic-bezier(0.22, 1, 0.36, 1) forwards;
+        }
+    </style>
+</head>
+
+<body class="text-slate-800">
+    <div id="root"></div>
+
+    <script type="text/babel">
+        const { useState, useMemo, useEffect, useRef } = React;
+
+        // ============================================================
+        //  AUTH & CONFIG
+        // ============================================================
+        const allowedEmails = [
+            "alexandre.trindade@estaleiromaua.ind.br",
+            "alexandre.nora@estaleiromaua.ind.br",
+            "felippe.duino@estaleiromaua.ind.br",
+            "luana.couto@estaleiromaua.ind.br",
+            "alexander.araujo@estaleiromaua.ind.br",
+            "ernani.brito@estaleiromaua.ind.br",
+            "marcelo.arantes@estaleiromaua.ind.br",
+            "AAA@",
+            "miro.arantes@estaleiromaua.ind.br"
+        ];
+
+        const GOOGLE_SHEETS_CONFIG = { sheetId: "13HwwXLMsK9xMJ9HUu9jkcN0WRWC7_sxWyT_qZ8A59l4" };
+
+        const MS_AUTH_CONFIG = {
+            clientId: "6f151f97-c3ee-407f-8cff-7899cba82b40",
+            authority: "https://login.microsoftonline.com/3e7d37d1-105b-48d3-9a4f-5800afe1b7ba",
+            scopes: ["user.read"]
+        };
+
+        const msalConfig = {
+            auth: {
+                clientId: MS_AUTH_CONFIG.clientId,
+                authority: MS_AUTH_CONFIG.authority,
+                redirectUri: window.location.protocol === "file:"
+                    ? "http://localhost:5500/Metas%20Maua/Painel_Integrado_Maua.html"
+                    : window.location.origin + window.location.pathname,
+                navigateToLoginRequestUrl: false
+            },
+            cache: { cacheLocation: "sessionStorage", storeAuthStateInCookie: false }
+        };
+
+        const msalInstance = new msal.PublicClientApplication(msalConfig);
+
+        // ============================================================
+        //  GOOGLE SHEETS SERVICE
+        // ============================================================
+        const googleSheetsService = {
+            query: (sheetName) => new Promise((resolve, reject) => {
+                const callbackName = 'gvizCallback_' + Date.now() + '_' + Math.floor(Math.random() * 100000);
+                window[callbackName] = (data) => {
+                    delete window[callbackName];
+                    document.head.removeChild(script);
+                    if (data.status === 'error') return reject(new Error(data.errors[0].message));
+                    if (!data || !data.table || !data.table.rows || !data.table.cols) return resolve([]);
+                    const cols = data.table.cols.map(c => c ? c.label : '');
+                    const rows = data.table.rows.map(row => {
+                        let objArr = [];
+                        row.c.forEach((cell, i) => {
+                            const val = cell ? (cell.f !== undefined ? cell.f : cell.v) : null;
+                            objArr.push(val);
+                            objArr[cols[i] || `col_${i}`] = val;
+                        });
+                        return objArr;
+                    });
+                    resolve(rows);
+                };
+                const script = document.createElement('script');
+                script.src = `https://docs.google.com/spreadsheets/d/${GOOGLE_SHEETS_CONFIG.sheetId}/gviz/tq?tqx=responseHandler:${callbackName}&sheet=${encodeURIComponent(sheetName)}`;
+                script.onerror = () => { delete window[callbackName]; document.head.removeChild(script); reject(new Error("Falha ao consultar Google Sheets")); };
+                document.head.appendChild(script);
+            })
+        };
+
+        // ============================================================
+        //  PAINEL MAUÁ — DADOS
+        // ============================================================
+        const departmentsData = [
+            {
+                id: 'contratos', name: 'ALEXANDRE TRINDADE', department: 'CONTRATOS', rating: 'A', kpis: [
+                    { name: 'LEADTIME TERMO DE ACEITE', progress: 0, target: '30%', current: '≤ 2 DIAS (48H)', status: 'warning' },
+                    { name: 'RESULTADO HORAS PROJETOS', progress: 0, target: '20%', current: 'PLANEJADO = EXECUTADO', status: 'warning' },
+                    { name: 'ASSERTIVIDADE MAPEAMENTO PO', progress: 0, target: '20%', current: '≥ 90% (MENSUAL)', status: 'warning' },
+                    { name: 'SATISFAÇÃO DO CLIENTE', progress: 0, target: '30%', current: 'PESQUISA 60% PROJ. (>40D)', status: 'warning' }
+                ], hoursData: { bancoHoras: 120, horasExtras: 45, absenteismo: 1.2 }
+            },
+            {
+                id: 'producao', name: 'ALEXANDRE NORA', department: 'PRODUÇÃO', rating: 'A', kpis: [
+                    { name: 'BANCO DE HORAS', progress: 0, target: '20%', current: '< 7% DO BH DE DEZ/25', status: 'warning' },
+                    { name: 'HORA EXTRA', progress: 0, target: '20%', current: '< 7% (TRABALHADAS)', status: 'warning' },
+                    { name: 'ABSENTEÍSMO', progress: 0, target: '20%', current: '-10% (VS ANO ANTERIOR)', status: 'warning' },
+                    { name: 'ADERÊNCIA AO PLANEJAMENTO', progress: 0, target: '10%', current: 'DATA FIM EAP = REAL', status: 'warning' },
+                    { name: 'RESULTADO HORAS PROJETOS', progress: 0, target: '20%', current: 'PLANEJADO = EXECUTADO', status: 'warning' },
+                    { name: 'ADERÊNCIA INSPEÇÃO CQ', progress: 0, target: '10%', current: 'QTD REAL = PLAN.', status: 'warning' }
+                ], hoursData: { bancoHoras: 450, horasExtras: 320, absenteismo: 9.0 }
+            },
+            { id: 'plan_cq_eng', name: 'ALEXANDER ARAÚJO', department: 'GERÊNCIA TÉCNICA', rating: 'A', kpis: [], hoursData: { bancoHoras: 210, horasExtras: 85, absenteismo: 2.5 } },
+            {
+                id: 'manutencao', name: 'FELIPPE DUINO', department: 'MANUTENÇÃO', rating: 'F', kpis: [
+                    { name: 'BANCO DE HORAS', progress: 0, target: '25%', current: '< 7% DO BH DE DEZ/25', status: 'warning' },
+                    { name: 'HORA EXTRA', progress: 0, target: '25%', current: '< 7% DO SALDO DE DEZ/25', status: 'warning' },
+                    { name: 'REAL = ORÇADO (CAPEX)', progress: 0, target: '25%', current: 'REAL = ORÇADO', status: 'warning' },
+                    { name: 'PLANO DE MANUTENÇÃO ANUAL', progress: 0, target: '25%', current: 'PLANEJADO = EXECUTADO', status: 'warning' }
+                ], hoursData: { bancoHoras: 380, horasExtras: 290, absenteismo: 3.8 }
+            },
+            { id: 'suprimentos', name: 'ERNANI BRITO', department: 'SUPRIMENTOS', rating: 'E', kpis: [], hoursData: { bancoHoras: 90, horasExtras: 35, absenteismo: 2.0 } }
+        ];
+
+        const managersData = departmentsData.map(dep => ({
+            ...dep,
+            subDepartments: dep.id === 'plan_cq_eng' ? [
+                { name: '', kpis: [{ name: 'BANCO DE HORAS', progress: 0, target: '5%', current: '< 7% DO BH DE DEZ/25', status: 'warning' }] },
+                { name: '', kpis: [{ name: 'HORA EXTRA', progress: 0, target: '5%', current: '< 7% DAS HORAS TRAB.', status: 'warning' }] },
+                { name: '', kpis: [{ name: 'LEADTIME PLANO DE ATRACAÇÃO', progress: 0, target: '15%', current: '≤ 5 DIAS', status: 'warning' }] },
+                { name: '', kpis: [{ name: 'LEADTIME ENTREGÁVEIS ORÇAMENTO', progress: 0, target: '30%', current: '≤ 5 DIAS', status: 'warning' }] },
+                { name: '', kpis: [{ name: 'PROJETO DE MELHORIA', progress: 0, target: '20%', current: '3 PROJETOS (LUCRO/PERDA)', status: 'warning' }] },
+                { name: '', kpis: [{ name: 'FREQUÊNCIA ENTREGÁVEIS PRODUÇÃO', progress: 0, target: '15%', current: '100%', status: 'warning' }] },
+                { name: '', kpis: [{ name: 'LEADTIME DATABOOKS', progress: 0, target: '10%', current: '≤ 10 DIAS', status: 'warning' }] }
+            ] : null,
+            kpis: dep.id === 'plan_cq_eng' ? [] : dep.kpis.map(k => ({ ...k, status: k.status === 'Atingido' ? 'success' : (k.status === 'Crítico' ? 'danger' : 'warning') }))
+        }));
+
+        const mauaSectors = [
+            { id: 'manutencao', name: 'MANUTENÇÃO' }, { id: 'contratos', name: 'CONTRATOS' },
+            { id: 'cq', name: 'CQ' }, { id: 'planejamento', name: 'PLANEJAMENTO' },
+            { id: 'metodos', name: 'MÉTODOS E PROCESSOS' }, { id: 'engenharia', name: 'ENGENHARIA' },
+            { id: 'producao', name: 'PRODUÇÃO' }
+        ];
+
+        const initialMetas = {
+            manutencao: [{ id: 1, centroCusto: 'CC-101', projeto: 'MANUT. PREVENTIVA', nome: 'BANCO DE HORAS/HE', target: 'TETO ESTABELECIDO' }],
+            contratos: [{ id: 2, centroCusto: 'CC-201', projeto: 'PROJETO ALFA', nome: 'SLA DE EMISSÃO', target: '48H' }]
+        };
+
+        // ============================================================
+        //  OKR FLOW — DADOS
+        // ============================================================
+        const OKR_INITIAL_TEAMS = ['Financeiro', 'Qualidade', 'RH e SMS', 'Operações', 'Comercial', 'Governança', 'Produção', 'TI & Inovação'];
+
+        const OKR_MOCK_USERS = [
+            { id: 'u2', name: 'MARCELO ARANTES', role: 'CEO', avatar: './foto_marcelo.jpg', team: 'GOVERNANÇA' },
+            { id: 'u1', name: 'MIRO ARANTES', role: 'DIRECTOR', avatar: './foto_miro.jpg', reportsTo: 'u2', team: 'GOVERNANÇA' },
+            { id: 'u5', name: 'MARCOS OPS', role: 'DIRECTOR', avatar: 'https://api.dicebear.com/7.x/avataaars/svg?seed=Marcos', reportsTo: 'u2', team: 'OPERAÇÕES' },
+            { id: 'u3', name: 'CARLOS FINANCE', role: 'MANAGER', avatar: 'https://api.dicebear.com/7.x/avataaars/svg?seed=Carlos', reportsTo: 'u1', team: 'FINANCEIRO' },
+            { id: 'u4', name: 'DANIELA QUALITY', role: 'CONTROLLER', avatar: 'https://api.dicebear.com/7.x/avataaars/svg?seed=Daniela', reportsTo: 'u5', team: 'QUALIDADE' },
+        ];
+
+        const OKR_MOCK_SECTORS = [
+            { id: 's1', team: 'FINANCEIRO', name: 'EBITDA', okr: 'GARANTIR SUSTENTABILIDADE FINANCEIRA E GERAÇÃO SAUDÁVEL DE CAIXA', kpi: 'ATINGIR EBITDA MENSAL', targetValue: 24792, weight: 0.10, managerId: 'u3' },
+            { id: 's2', team: 'FINANCEIRO', name: 'FATURAMENTO LÍQUIDO', okr: 'SUSTENTAR CRESCIMENTO FINANCEIRO ALINHADO À CAPACIDADE PRODUTIVA', kpi: 'ALCANÇAR FATURAMENTO LÍQUIDO', targetValue: 256079, weight: 0.10, managerId: 'u3' },
+            { id: 's3', team: 'FINANCEIRO', name: 'RESULTADO OPERACIONAL', okr: 'ASSEGURAR EFICIÊNCIA ECONÔMICA DAS OPERAÇÕES', kpi: 'ATINGIR RESULTADO OPERACIONAL', targetValue: 82602, weight: 0.10, managerId: 'u3' },
+            { id: 's4', team: 'QUALIDADE', name: 'DENÚNCIAS', okr: 'FORTALECER CULTURA ÉTICA, TRANSPARENTE E DE CONFIANÇA', kpi: 'REDUÇÃO DE DENÚNCIAS (%)', targetValue: 30, weight: 0.05, managerId: 'u4' },
+            { id: 's5', team: 'QUALIDADE', name: 'APROVAÇÃO DO CLIENTE', okr: 'CONSOLIDAR EXCELÊNCIA PERCEBIDA PELO CLIENTE', kpi: 'ÍNDICE MÉDIO DE APROVAÇÃO', targetValue: 90, weight: 0.05, managerId: 'u4' },
+            { id: 's6', team: 'PESSOAS E SEGURANÇA', name: 'TURNOVER MOD', okr: 'GARANTIR ESTABILIDADE DA FORÇA DE TRABALHO OPERACIONAL', kpi: 'TURNOVER MÉDIO MENSAL', targetValue: 2.5, weight: 0.05, managerId: 'u5' },
+            { id: 's7', team: 'PESSOAS E SEGURANÇA', name: 'TFCA', okr: 'PROTEGER A INTEGRIDADE FÍSICA DAS PESSOAS', kpi: 'ÍNDICE TFCA', targetValue: 1.5, weight: 0.05, managerId: 'u5' },
+            { id: 's8', team: 'PESSOAS E SEGURANÇA', name: 'TFS', okr: 'REDUZIR GRAVIDADE DOS ACIDENTES DE TRABALHO', kpi: 'ÍNDICE TFS', targetValue: 2.0, weight: 0.05, managerId: 'u5' },
+            { id: 's9', team: 'OPERAÇÕES', name: 'PRODUTIVIDADE FABRICAÇÃO', okr: 'ELEVAR EFICIÊNCIA OPERACIONAL DA PRODUÇÃO', kpi: 'PRODUTIVIDADE MÉDIA (HH/TON)', targetValue: 196, weight: 0.05, managerId: 'u5' },
+            { id: 's10', team: 'OPERAÇÕES', name: 'ORGANIZAÇÃO DO PÁTIO', okr: 'CRIAR AMBIENTE OPERACIONAL ORGANIZADO E SEGURO', kpi: 'LIMPEZA E ORGANIZAÇÃO (%)', targetValue: 100, weight: 0.025, managerId: 'u5' },
+            { id: 's11', team: 'OPERAÇÕES', name: 'JOBCAR', okr: 'MELHORAR CONTROLE E RASTREABILIDADE OPERACIONAL', kpi: 'IMPLEMENTAÇÃO JOBCAR (%)', targetValue: 100, weight: 0.025, managerId: 'u5' },
+            { id: 's12', team: 'COMERCIAL', name: 'DOCAGEM INTERNA SINGELA', okr: 'MAXIMIZAR UTILIZAÇÃO DOS ATIVOS INTERNOS', kpi: 'OCUPAÇÃO MÉDIA ANUAL (%)', targetValue: 65, weight: 0.05, managerId: 'u1' },
+            { id: 's13', team: 'COMERCIAL', name: 'DOCAGEM INTERNA DUPLA', okr: 'OTIMIZAR ATIVOS DE MAIOR CAPACIDADE', kpi: 'OCUPAÇÃO MÉDIA ANUAL (%)', targetValue: 35, weight: 0.05, managerId: 'u1' },
+            { id: 's14', team: 'COMERCIAL', name: 'DOCAGENS EXTERNAS', okr: 'EXPANDIR PRESENÇA COMERCIAL FORA DA BASE', kpi: 'NÚMERO DE DOCAGENS EXTERNAS', targetValue: 3, weight: 0.05, managerId: 'u1' },
+            { id: 's15', team: 'COMERCIAL', name: 'FABRICAÇÃO', okr: 'EXPANDIR RECEITA DA LINHA DE FABRICAÇÃO', kpi: 'CRESCIMENTO DE FATURAMENTO (%)', targetValue: 40, weight: 0.05, managerId: 'u1' },
+            { id: 's16', team: 'COMERCIAL', name: 'ARRENDAMENTO', okr: 'CRIAR RECEITA RECORRENTE E PREVISÍVEL', kpi: 'CONTRATOS DE ARRENDAMENTO', targetValue: 1, weight: 0.05, managerId: 'u1' },
+            { id: 's17', team: 'GOVERNANÇA', name: 'NORS OK', okr: 'GARANTIR PADRONIZAÇÃO E GOVERNANÇA OPERACIONAL', kpi: 'UTILIZAÇÃO NORS OK (%)', targetValue: 100, weight: 0.05, managerId: 'u2' },
+        ];
+
+        const OKR_INITIAL_HISTORY = [
+            { id: 'h1', userId: 'u3', sectorId: 's1', week: 1, year: 2026, value: 8, timestamp: '2026-01-05T10:00:00Z' },
+            { id: 'h2', userId: 'u4', sectorId: 's4', week: 1, year: 2026, value: 5, timestamp: '2026-01-05T11:00:00Z' },
+            { id: 'h3', userId: 'u5', sectorId: 's9', week: 1, year: 2026, value: 12, timestamp: '2026-01-05T12:00:00Z' },
+        ];
+
+        const OKR_CURRENT_WEEK = 2;
+        const OKR_CURRENT_YEAR = 2026;
+
+        // ============================================================
+        //  HELPERS
+        // ============================================================
+        const getStatusStyles = (status) => {
+            if (status === 'Atingido' || status === 'success') return { color: 'text-emerald-700', bg: 'bg-emerald-50', border: 'border-emerald-100', bar: 'bg-emerald-500', name: 'Em Conformidade' };
+            if (status === 'Em Andamento' || status === 'warning') return { color: 'text-amber-700', bg: 'bg-amber-50', border: 'border-amber-100', bar: 'bg-amber-500', name: 'Em Andamento' };
+            if (status === 'Crítico' || status === 'danger') return { color: 'text-rose-700', bg: 'bg-rose-50', border: 'border-rose-100', bar: 'bg-rose-500', name: 'Atenção Crítica' };
+            return { color: 'text-slate-700', bg: 'bg-slate-50', border: 'border-slate-100', bar: 'bg-slate-500', name: 'Indefinido' };
+        };
+
+        const calcOkrProgress = (sectorId, history) =>
+            Math.min(100, history.filter(h => h.sectorId === sectorId).reduce((s, h) => s + h.value, 0));
+
+        // ============================================================
+        //  SIDEBAR MAUÁ
+        // ============================================================
+        const Sidebar = ({ currentView, setView, activeManagerId, setActiveManager }) => {
+            const [gestoresOpen, setGestoresOpen] = useState(false);
+            return (
+                <aside className="fixed left-0 top-0 h-screen w-[80px] hover:w-[280px] bg-[#364B59] border-r border-white/5 z-50 flex flex-col shadow-premium transition-all duration-500 group/sidebar overflow-hidden hover:shadow-[10px_0_40px_rgba(0,0,0,0.4)]">
+                    <div className="h-24 flex items-center mb-6 cursor-pointer overflow-hidden whitespace-nowrap flex-shrink-0" onClick={() => setView('ceo')}>
+                        <div className="w-[80px] min-w-[80px] flex justify-center">
+                            <div className="h-11 w-11 flex items-center justify-center bg-white/10 rounded-xl shadow-lg border border-white/5">
+                                <span className="text-white font-black text-lg tracking-tighter">M</span>
+                            </div>
+                        </div>
+                        <div className="opacity-0 group-hover/sidebar:opacity-100 transition-all duration-300 ml-2">
+                            <h2 className="text-[11px] font-black text-white uppercase tracking-[0.4em] font-montserrat leading-none">STRATEGY HUB</h2>
+                            <p className="text-[8px] font-bold text-white/40 uppercase tracking-[0.2em] mt-2">OPERAÇÕES</p>
+                        </div>
+                    </div>
+
+                    <nav className="flex-1 overflow-y-auto sidebar-scroll space-y-2">
+                        <div className="text-[9px] font-black text-white/20 uppercase tracking-[0.4em] px-10 mb-4 mt-4 opacity-0 group-hover/sidebar:opacity-100 transition-all duration-300 whitespace-nowrap">Navegação Principal</div>
+
+                        <SidebarItem active={currentView === 'ceo'} icon="M4 5a1 1 0 011-1h14a1 1 0 011 1v2a1 1 0 01-1 1H5a1 1 0 01-1-1V5zM4 13a1 1 0 011-1h6a1 1 0 011 1v6a1 1 0 01-1 1H5a1 1 0 01-1-1v-6zM16 13a1 1 0 011-1h2a1 1 0 011 1v6a1 1 0 01-1 1h-2a1 1 0 01-1-1v-6z" label="ESTRATÉGICO (CEO)" subLabel="MACRO DASHBOARD" onClick={() => setView('ceo')} />
+                        <SidebarItem active={currentView === 'metas'} icon="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065zM15 12a3 3 0 11-6 0 3 3 0 016 0z" label="CONFIGURAÇÕES" subLabel="CONFIGURAÇÃO" onClick={() => setView('metas')} />
+
+                        {/* OKR Flow button */}
+                        <SidebarItem active={currentView === 'okr'} icon="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" label="METAS CORPORATIVA" subLabel="VISÃO ESTRATÉGICA" onClick={() => setView('okr')} />
+
+                        <div className="pt-6 border-t border-white/5 mt-4">
+                            <button onClick={() => setGestoresOpen(o => !o)} className="w-full flex items-center transition-all group py-3 hover:bg-white/5 rounded-xl">
+                                <div className="w-[80px] min-w-[80px] flex justify-center">
+                                    <div className={`h-10 w-10 flex items-center justify-center transition-all rounded-xl ${gestoresOpen ? 'bg-brand-maua text-white' : 'bg-white/5 text-white/30 group-hover:text-white'}`}>
+                                        <svg className={`h-4 w-4 transition-transform duration-300 ${gestoresOpen ? 'rotate-180' : ''}`} fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" /></svg>
+                                    </div>
+                                </div>
+                                <span className="text-[10px] font-black text-white/80 uppercase tracking-widest font-montserrat opacity-0 group-hover/sidebar:opacity-100 transition-all duration-300 whitespace-nowrap ml-2">METAS INDIVIDUAIS</span>
+                            </button>
+
+                            <div className={`overflow-hidden transition-all duration-300 ${gestoresOpen ? 'max-h-[500px] opacity-100' : 'max-h-0 opacity-0'}`}>
+                                <div className="space-y-1 mt-2">
+                                    {managersData.map(m => (
+                                        <button key={m.id} onClick={() => { setActiveManager(m.id); setView('gestor'); }} className={`w-full flex items-center group py-2 px-2 transition-all ${currentView === 'gestor' && activeManagerId === m.id ? 'bg-brand-maua/20' : 'hover:bg-white/5'}`}>
+                                            <div className="w-[80px] min-w-[80px] flex justify-center">
+                                                <div className={`h-8 w-8 rounded-lg flex items-center justify-center font-black text-[10px] transition-all shadow-lg text-white ${{ 'A': 'bg-blue-500', 'B': 'bg-blue-400', 'C': 'bg-sky-500', 'D': 'bg-sky-400', 'E': 'bg-indigo-400', 'F': 'bg-indigo-600' }[m.rating] || 'bg-slate-500'}`}>{m.rating}</div>
+                                            </div>
+                                            <div className="opacity-0 group-hover/sidebar:opacity-100 transition-all duration-300 ml-2 overflow-hidden items-start flex flex-col">
+                                                <span className="text-[10px] font-black text-white uppercase tracking-wider truncate w-full text-left font-montserrat">{m.department}</span>
+                                                <span className="text-[8px] font-black text-white/30 truncate w-full text-left uppercase tracking-widest">{m.name}</span>
+                                            </div>
+                                        </button>
+                                    ))}
+                                </div>
+                            </div>
+                        </div>
+                    </nav>
+
+                    <div className="p-4 border-t border-white/5 mt-auto flex-shrink-0">
+                        <button onClick={() => setView('login')} className="w-full flex items-center transition-all group py-2">
+                            <div className="w-[80px] min-w-[80px] flex justify-center">
+                                <div className="h-10 w-10 flex items-center justify-center text-rose-500 group-hover:bg-rose-500 group-hover:text-white transition-all rounded-xl">
+                                    <svg className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" /></svg>
+                                </div>
+                            </div>
+                            <div className="flex flex-col items-start leading-none opacity-0 group-hover/sidebar:opacity-100 transition-all duration-300 ml-2 overflow-hidden">
+                                <span className="text-[10px] font-black text-white uppercase tracking-widest whitespace-nowrap">LOGOUT</span>
+                                <span className="text-[8px] font-bold text-white/40 uppercase tracking-widest mt-1 leading-none">FINALIZAR SESSÃO</span>
+                            </div>
+                        </button>
+                    </div>
+                </aside>
+            );
+        };
+
+        const SidebarItem = ({ active, icon, label, subLabel, onClick }) => (
+            <button onClick={onClick} className={`w-full flex items-center transition-all duration-300 group py-1 ${active ? 'bg-brand-maua/10' : ''}`}>
+                <div className="w-[80px] min-w-[80px] flex justify-center">
+                    <div className={`h-11 w-11 flex items-center justify-center transition-all rounded-xl ${active ? 'bg-brand-maua text-white shadow-lg' : 'bg-white/5 text-white/30 group-hover:bg-brand-maua group-hover:text-white'}`}>
+                        <svg className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d={icon} /></svg>
+                    </div>
+                </div>
+                <div className="opacity-0 group-hover/sidebar:opacity-100 transition-all duration-300 ml-2 overflow-hidden items-start flex flex-col">
+                    <span className="text-[10px] font-black text-white uppercase tracking-widest whitespace-nowrap block text-left font-montserrat">{label}</span>
+                    {subLabel && <span className="text-[8px] font-bold text-white/40 uppercase tracking-widest mt-1 block whitespace-nowrap leading-none">{subLabel}</span>}
+                </div>
+            </button>
+        );
+
+        // ============================================================
+        //  SHARED MAUÁ COMPONENTS
+        // ============================================================
+        const DataTable = ({ kpis, title }) => (
+            <div className="bg-white rounded-[2.5rem] shadow-premium border border-slate-100 overflow-hidden mt-10 animate-premium">
+                <div className="px-12 py-10 border-b border-slate-50 bg-white flex justify-between items-center">
+                    <div className="flex items-center gap-6">
+                        <div className="h-10 w-3 bg-brand-maua rounded-full shadow-lg shadow-brand-maua/40"></div>
+                        <h3 className="text-xl font-black text-slate-900 uppercase font-outfit tracking-[0.2em]">{title || 'Estrategia Integrada | Gestão Mauá'}</h3>
+                    </div>
+                    <div className="flex items-center gap-3 bg-slate-50 px-4 py-2 rounded-2xl border border-slate-100">
+                        <span className="h-2 w-2 rounded-full bg-emerald-500 animate-pulse"></span>
+                        <span className="text-[9px] font-black text-slate-400 uppercase tracking-widest">DIRETORIA DE OPERAÇÕES</span>
+                    </div>
+                </div>
+                <div className="overflow-x-auto overflow-y-auto max-h-[600px] sidebar-scroll">
+                    <table className="w-full text-left border-separate border-spacing-0">
+                        <thead>
+                            <tr className="bg-brand-maua backdrop-blur-md sticky top-0 z-10">
+                                <th className="px-10 py-5 text-xs font-black text-white/90 uppercase tracking-[0.2em]">Diretriz Estratégica</th>
+                                <th className="px-10 py-5 text-xs font-black text-white/90 uppercase tracking-[0.2em]">Subpeso</th>
+                                <th className="px-10 py-5 text-xs font-black text-white/90 uppercase tracking-[0.2em]">Meta</th>
+                                <th className="px-10 py-5 text-xs font-black text-white/90 uppercase tracking-[0.2em] w-[260px]">Atingimento (%)</th>
+                                <th className="px-10 py-5 text-xs font-black text-white/90 uppercase tracking-[0.2em] text-right">Avaliação Técnica</th>
+                            </tr>
+                        </thead>
+                        <tbody className="divide-y divide-slate-50">
+                            {kpis.map((k, i) => {
+                                const style = getStatusStyles(k.status);
+                                return (
+                                    <tr key={i} className="hover:bg-slate-50/70 transition-soft group/row">
+                                        <td className="px-10 py-6">
+                                            <div className="flex flex-col">
+                                                <span className="text-sm font-black text-slate-800 uppercase tracking-tight group-hover/row:text-brand-maua transition-colors font-outfit">{k.name}</span>
+                                                {k.managerName && <span className="text-[11px] font-bold text-slate-500 uppercase tracking-widest mt-1">{k.managerName}</span>}
+                                            </div>
+                                        </td>
+                                        <td className="px-10 py-6 text-sm font-bold text-slate-500 font-montserrat tracking-tight uppercase">{k.target}</td>
+                                        <td className="px-10 py-6"><span className="text-sm font-black text-slate-900 font-outfit uppercase tracking-tighter">{k.current}</span></td>
+                                        <td className="px-10 py-6">
+                                            <div className="flex items-center gap-5">
+                                                <span className="text-xs font-black text-slate-900 w-12 font-outfit">{k.progress}%</span>
+                                                <div className="flex-1 bg-[#C8C6C4] h-3 rounded-full overflow-hidden shadow-inner border border-slate-100">
+                                                    <div className={`h-full rounded-full transition-all duration-1000 ${style.bar}`} style={{ width: `${k.progress}%` }}></div>
+                                                </div>
+                                            </div>
+                                        </td>
+                                        <td className="px-10 py-6 text-right">
+                                            <div className={`inline-flex items-center gap-2 px-4 py-1.5 rounded-full text-[11px] font-black uppercase tracking-widest border shadow-sm ${style.color} ${style.bg} ${style.border}`}>
+                                                <div className={`h-1.5 w-1.5 rounded-full ${style.bar} animate-pulse`}></div>
+                                                {style.name}
+                                            </div>
+                                        </td>
+                                    </tr>
+                                );
+                            })}
+                        </tbody>
+                    </table>
+                </div>
+                <div className="bg-slate-50/50 px-10 py-5 border-t border-slate-100 flex justify-between items-center">
+                    <span className="text-[9px] font-bold text-slate-400 uppercase tracking-[0.2em]">ESTALEIRO MAUÁ 2026</span>
+                    <span className="text-[10px] font-black text-slate-900 uppercase tracking-[0.1em] bg-white border border-slate-200 px-4 py-1.5 rounded-xl shadow-sm font-outfit">NITERÓI - RJ</span>
+                </div>
+            </div>
+        );
+
+        const KpiCard = ({ kpi }) => {
+            const style = getStatusStyles(kpi.status);
+            return (
+                <div className="bg-white p-8 rounded-[2.5rem] shadow-premium border border-slate-50 transition-soft group hover:shadow-2xl h-full flex flex-col items-center text-center font-outfit">
+                    <div className="mb-6 h-[40px] flex items-center justify-center">
+                        <h3 className="text-[11px] font-black text-slate-400 uppercase tracking-widest group-hover:text-brand-maua transition-colors leading-tight">{kpi.name}</h3>
+                    </div>
+                    <div className="text-4xl font-black text-slate-900 tracking-tighter mb-8 group-hover:scale-110 transition-all transform py-2">{kpi.val}</div>
+                    <div className="mt-auto w-full space-y-4">
+                        <div className="w-full bg-[#C8C6C4] h-2 rounded-full overflow-hidden border border-slate-100 shadow-inner">
+                            <div className={`h-full transition-all duration-1000 ease-out ${kpi.progress >= 90 ? 'bg-emerald-500' : kpi.progress >= 75 ? 'bg-amber-500' : 'bg-rose-500'} shadow-lg`} style={{ width: `${kpi.progress}%` }}></div>
+                        </div>
+                    </div>
+                </div>
+            );
+        };
+
+        // ============================================================
+        //  LOGIN SCREEN
+        // ============================================================
+        const LoginScreen = ({ setScreen }) => {
+            const [email, setEmail] = useState("");
+            const [password, setPassword] = useState("");
+            const [showP, setShowP] = useState(false);
+            const [err, setErr] = useState("");
+            const [loading, setLoading] = useState(false);
+
+            const handleLogin = (e) => {
+                e.preventDefault();
+                setErr(""); setLoading(true);
+                setTimeout(() => {
+                    const m = email.toLowerCase().trim();
+                    if (!allowedEmails.includes(m)) { setErr("EMAIL CORPORATIVO NÃO AUTORIZADO."); setLoading(false); return; }
+                    if (password !== "1") { setErr("SENHA DE ACESSO DIVERGENTE."); setLoading(false); return; }
+                    setScreen('ceo');
+                }, 800);
+            };
+
+            const handleMicrosoftLogin = async () => {
+                setErr(""); setLoading(true);
+                try {
+                    const response = await msalInstance.loginPopup({ scopes: MS_AUTH_CONFIG.scopes, prompt: "select_account" });
+                    const em = response.account.username.toLowerCase().trim();
+                    if (allowedEmails.some(e => e.toLowerCase().trim() === em)) { setScreen('ceo'); }
+                    else { setErr("CONTA MICROSOFT NÃO AUTORIZADA PARA ESTE PAINEL."); await msalInstance.logoutPopup(); }
+                } catch (err) {
+                    if (err.name !== "BrowserAuthError" || !err.message.includes("user_cancelled")) setErr("Erro MSAL: " + (err.message || err.name));
+                } finally { setLoading(false); }
+            };
+
+            return (
+                <div className="h-screen flex items-center justify-center relative overflow-hidden font-sans" style={{ background: "#0f172a" }}>
+                    <div className="absolute top-0 left-0 w-full h-full opacity-20 pointer-events-none">
+                        <div className="absolute top-[-10%] right-[-10%] w-[50%] h-[50%] bg-brand-maua blur-[120px] rounded-full"></div>
+                        <div className="absolute bottom-[-10%] left-[-10%] w-[50%] h-[50%] bg-brand-orange blur-[120px] rounded-full opacity-40"></div>
+                    </div>
+                    <div className="w-full max-w-md glass rounded-[2.5rem] shadow-2xl relative overflow-hidden p-10 flex flex-col items-center border border-white/10">
+                        <div className="mb-8 transform transition-transform hover:scale-110">
+                            <img src="estaleiro-maua-logo.png" className="h-24 object-contain brightness-125" style={{ mixBlendMode: 'lighten' }} onError={e => e.target.style.display = 'none'} />
+                        </div>
+                        <div className="text-center mb-8 select-none">
+                            <h1 className="text-slate-900 text-3xl font-black uppercase tracking-tight font-outfit mb-2">METAS ESTRATÉGICAS 2026</h1>
+                            <p className="text-slate-500 text-[10px] font-bold uppercase tracking-[0.4em]">PORTAL DO COLABORADOR</p>
+                        </div>
+                        <form onSubmit={handleLogin} className="w-full space-y-5">
+                            <div className="space-y-1.5">
+                                <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">LOGIN</label>
+                                <div className="relative group">
+                                    <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none text-slate-400 group-focus-within:text-brand-maua transition-colors">
+                                        <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" /></svg>
+                                    </div>
+                                    <input type="email" value={email} onChange={e => setEmail(e.target.value)} required placeholder="USER@ESTALEIROMAUA.IND.BR" className="w-full pl-11 pr-4 py-4 bg-slate-50 border-2 border-slate-100 rounded-2xl text-sm font-medium focus:ring-4 focus:ring-brand-maua/10 focus:border-brand-maua outline-none transition-all placeholder:text-slate-300 shadow-sm" />
+                                </div>
+                            </div>
+                            <div className="space-y-1.5">
+                                <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">SENHA</label>
+                                <div className="relative group">
+                                    <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none text-slate-400">
+                                        <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" /></svg>
+                                    </div>
+                                    <input type={showP ? 'text' : 'password'} value={password} onChange={e => setPassword(e.target.value)} required placeholder="••••••••" className="w-full pl-11 pr-14 py-4 bg-slate-50 border-2 border-slate-100 rounded-2xl text-sm font-medium focus:ring-4 focus:ring-brand-maua/10 focus:border-brand-maua outline-none transition-all placeholder:text-slate-300 shadow-sm" />
+                                    <button type="button" onClick={() => setShowP(!showP)} className="absolute right-4 top-1/2 -translate-y-1/2 text-slate-400 hover:text-brand-maua transition-colors">
+                                        {showP ? <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13.875 18.825A10.05 10.05 0 0112 19c-4.478 0-8.268-2.943-9.543-7a9.97 9.97 0 011.563-3.029m5.858.908a3 3 0 114.243 4.243M9.878 9.878l4.242 4.242M9.88 9.88l-3.29-3.29m7.532 7.532l3.29 3.29M3 3l3.59 3.59m0 0A9.953 9.953 0 0112 5c4.478 0 8.268 2.943 9.543 7a10.025 10.025 0 01-4.132 4.411m0 0L21 21" /></svg> : <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" /><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" /></svg>}
+                                    </button>
+                                </div>
+                            </div>
+                            {err && <div className="text-rose-500 text-[10px] font-black uppercase text-center bg-rose-50 py-2 rounded-xl border border-rose-100 animate-bounce">⚠️ {err}</div>}
+                            <button type="submit" disabled={loading} className="w-full bg-slate-900 border-2 border-slate-900 text-white font-black py-4 rounded-[1.5rem] shadow-xl hover:bg-transparent hover:text-slate-900 transition-all flex justify-center items-center group active:scale-95 disabled:opacity-70">
+                                {loading ? <div className="h-5 w-5 border-2 border-white/30 border-t-white rounded-full animate-spin"></div> : <div className="flex items-center gap-3"><span className="text-xs uppercase tracking-[0.3em]">ACESSAR PAINEL</span><svg className="h-4 w-4 group-hover:translate-x-1 transition-transform" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M14 5l7 7m0 0l-7 7m7-7H3" /></svg></div>}
+                            </button>
+                            <div className="relative my-6">
+                                <div className="absolute inset-0 flex items-center"><span className="w-full border-t border-slate-100"></span></div>
+                                <div className="relative flex justify-center text-[9px] uppercase font-bold"><span className="bg-white px-4 text-slate-400">OU UTILIZE</span></div>
+                            </div>
+                            <button type="button" disabled={loading} onClick={handleMicrosoftLogin} className="w-full bg-white border-2 border-slate-100 text-slate-700 font-bold py-4 rounded-[1.5rem] shadow-sm hover:border-brand-maua hover:bg-slate-50 transition-all flex justify-center items-center gap-3 active:scale-95 disabled:opacity-70">
+                                <svg className="h-5 w-5" viewBox="0 0 23 23"><path fill="#f35325" d="M1 1h10v10H1z" /><path fill="#81bc06" d="M12 1h10v10H12z" /><path fill="#05a6f0" d="M1 12h10v10H1z" /><path fill="#ffba08" d="M12 12h10v10H12z" /></svg>
+                                <span className="text-[10px] uppercase tracking-widest">ENTRAR COM MICROSOFT 365</span>
+                            </button>
+                        </form>
+                        <div className="mt-8 text-[9px] text-slate-400 font-bold uppercase tracking-[0.4em] text-center border-t border-slate-100 pt-8 w-full opacity-60">ESTALEIRO MAUÁ S.A. · NAVAL 2026</div>
+                    </div>
+                </div>
+            );
+        };
+
+        // ============================================================
+        //  CEO DASHBOARD
+        // ============================================================
+        const CustomBarChart = ({ data }) => {
+            const maxBanco = Math.max(...data.map(d => d.bancoHoras || 0)) || 1;
+            const maxExtras = Math.max(...data.map(d => d.horasExtras || 0)) || 1;
+            return (
+                <div className="w-full flex flex-col pt-2 font-sans">
+                    <div className="hidden sm:flex w-full justify-between items-center text-xs font-black text-white uppercase tracking-[0.2em] sticky top-0 bg-brand-maua z-10 rounded-2xl py-5 px-8 mb-6 shadow-lg">
+                        <div className="w-[30%]">Centro de Gestão</div>
+                        <div className="w-[25%] pr-8 text-center">Banco de Horas</div>
+                        <div className="w-[25%] pr-8 text-center">Horas Extras</div>
+                        <div className="w-[20%] text-left">Absenteísmo</div>
+                    </div>
+                    <div className="space-y-4">
+                        {data.map((item, i) => {
+                            const pctBanco = (item.bancoHoras / maxBanco) * 100;
+                            const pctExtras = (item.horasExtras / maxExtras) * 100;
+                            const bhColor = pctBanco >= 80 ? 'bg-rose-500' : pctBanco >= 40 ? 'bg-amber-500' : 'bg-emerald-500';
+                            const heColor = pctExtras >= 80 ? 'bg-rose-500' : pctExtras >= 40 ? 'bg-amber-500' : 'bg-emerald-500';
+                            const absColor = item.absenteismo >= 6 ? 'bg-rose-500' : item.absenteismo >= 3.5 ? 'bg-amber-500' : 'bg-emerald-500';
+                            return (
+                                <div key={i} className="flex flex-col sm:flex-row items-center py-5 border border-slate-50 bg-slate-50/30 hover:bg-white hover:shadow-premium hover:border-slate-200 transition-all duration-300 rounded-2xl px-5 group">
+                                    <div className="w-full sm:w-[30%] mb-4 sm:mb-0">
+                                        <div className="font-black text-slate-800 text-sm uppercase tracking-tight font-outfit group-hover:text-brand-maua transition-colors">{item.department}</div>
+                                        <div className="text-[11px] text-slate-500 font-bold uppercase tracking-widest mt-1">{item.name}</div>
+                                    </div>
+                                    <div className="w-full sm:w-[25%] flex items-center pr-8">
+                                        <div className="w-20 text-sm font-black text-slate-700 text-right mr-4 font-outfit">{item.bancoHoras} h</div>
+                                        <div className="flex-1 h-3 bg-slate-200/50 rounded-full overflow-hidden shadow-inner border border-slate-100"><div className={`h-full ${bhColor} rounded-full shadow-lg transition-all`} style={{ width: `${pctBanco}%` }}></div></div>
+                                    </div>
+                                    <div className="w-full sm:w-[25%] flex items-center pr-8">
+                                        <div className="w-20 text-sm font-black text-slate-700 text-right mr-4 font-outfit">{item.horasExtras} h</div>
+                                        <div className="flex-1 h-3 bg-slate-200/50 rounded-full overflow-hidden shadow-inner border border-slate-100"><div className={`h-full ${heColor} rounded-full shadow-lg transition-all`} style={{ width: `${pctExtras}%` }}></div></div>
+                                    </div>
+                                    <div className="w-full sm:w-[20%] flex items-center">
+                                        <div className="w-16 text-sm font-black text-slate-700 mr-3 font-outfit">{item.absenteismo} %</div>
+                                        <div className="flex-1 h-3 bg-slate-200/50 rounded-full overflow-hidden shadow-inner border border-slate-100"><div className={`h-full rounded-full ${absColor} shadow-md transition-all`} style={{ width: `${(item.absenteismo / 10) * 100}%` }}></div></div>
+                                    </div>
+                                </div>
+                            );
+                        })}
+                    </div>
+                </div>
+            );
+        };
+
+        const StatCard = ({ label, value, colorClass, manager, percentage }) => (
+            <div className="bg-white p-8 rounded-[2.5rem] shadow-premium border border-slate-50 group transition-soft hover:shadow-2xl flex flex-col items-center text-center">
+                <div className="mb-6">
+                    <h4 className="text-[11px] font-black text-slate-400 uppercase tracking-[0.3em] font-montserrat mb-1 whitespace-nowrap">{label}</h4>
+                    {manager && <div className="text-[10px] font-bold text-slate-600 uppercase tracking-widest whitespace-nowrap">{manager}</div>}
+                </div>
+                <div className="text-4xl font-black text-slate-900 tracking-tighter font-outfit mb-8 group-hover:scale-110 transition-all transform">{value}</div>
+                <div className="w-full mt-auto">
+                    <div className="w-full bg-[#C8C6C4] h-2 rounded-full overflow-hidden border border-slate-100 shadow-inner">
+                        <div className={`h-full ${percentage >= 90 ? 'bg-emerald-500' : percentage >= 75 ? 'bg-amber-500' : 'bg-rose-500'} transition-all duration-1000 shadow-lg`} style={{ width: `${percentage || 0}%` }}></div>
+                    </div>
+                </div>
+            </div>
+        );
+
+        const DashboardCEO = ({ navigate, ...props }) => {
+            const [fGestor, setFGestor] = useState('Todos');
+            const filteredKpis = useMemo(() => {
+                let all = [];
+                managersData.forEach(dep => {
+                    if (dep.kpis && dep.kpis.length > 0) {
+                        dep.kpis.forEach(k => all.push({ ...k, managerName: dep.name, department: dep.department, managerId: dep.id }));
+                    } else if (dep.subDepartments) {
+                        dep.subDepartments.forEach(sub => sub.kpis.forEach(k => all.push({ ...k, managerName: dep.name, department: dep.department, managerId: dep.id })));
+                    }
+                });
+                return all.filter(k => fGestor === 'Todos' || k.managerId === fGestor);
+            }, [fGestor]);
+
+
+            return (
+                <div className="flex min-h-screen bg-[#C8C6C4] relative">
+                    <Sidebar currentView="ceo" setView={navigate} activeManagerId={props.activeManagerId} setActiveManager={props.setActiveManager} />
+                    <main className="flex-1 p-10 lg:pl-[120px] lg:pr-14 lg:py-14 overflow-y-auto font-inter relative animate-premium transition-all duration-500">
+                        <header className="mb-14 flex flex-col md:flex-row md:justify-between md:items-end gap-10">
+                            <div>
+                                <div className="flex items-center gap-4 mb-3">
+                                    <div className="h-0.5 w-12 bg-brand-maua rounded-full"></div>
+                                    <span className="text-[12px] font-black text-slate-400 uppercase tracking-[0.4em] font-montserrat">GOVERNANÇA EXECUTIVA</span>
+                                </div>
+                                <h2 className="text-3xl font-black text-slate-900 tracking-tighter uppercase font-outfit leading-none">VISÃO ESTRATÉGICA</h2>
+                                <p className="text-[10px] font-bold text-slate-500 uppercase tracking-[0.2em] font-montserrat opacity-60 mt-2">METAS ESTRATÉGICAS - CICLO 2026</p>
+                            </div>
+                        </header>
+
+                        <div className="grid grid-cols-1 md:grid-cols-3 xl:grid-cols-6 gap-6 mb-14">
+                            <StatCard label="DIRETORIA" value="94.2%" colorClass="bg-amber-500" manager="MARCELO ARANTES" percentage={94.2} />
+                            <StatCard label="G. TÉCNICA" value="98.5%" colorClass="bg-brand-maua" manager="ALEXANDER ARAÚJO" percentage={98.5} />
+                            <StatCard label="MANUTENÇÃO" value="92.0%" colorClass="bg-emerald-500" manager="FELIPE DUINO" percentage={92} />
+                            <StatCard label="PRODUÇÃO" value="85.4%" colorClass="bg-rose-500" manager="ALEXANDRE NORA" percentage={85.4} />
+                            <StatCard label="SUPRIMENTOS" value="94.2%" colorClass="bg-amber-500" manager="ERNANI BRITO" percentage={94.2} />
+                            <StatCard label="CONTRATOS" value="91.8%" colorClass="bg-brand-maua" manager="ALEXANDRE TRINDADE" percentage={91.8} />
+                        </div>
+
+                        <div className="space-y-14 pb-20">
+                            <DataTable kpis={filteredKpis} title="Estrategia Integrada | Gestão Mauá" />
+                        </div>
+                    </main>
+                </div>
+            );
+        };
+
+        // ============================================================
+        //  GESTOR & METAS SCREENS (simplified — pass-through from original)
+        // ============================================================
+        const DetailTable = ({ id, title, headers, data, loading, centered }) => (
+            <div id={id} className="bg-white rounded-[2.5rem] shadow-premium border border-slate-50 overflow-hidden scroll-mt-24 animate-premium">
+                <div className="px-10 py-8 bg-slate-900/95 text-white flex justify-between items-center border-l-[12px] border-brand-maua">
+                    <h3 className="text-[11px] font-black uppercase tracking-[0.4em] font-outfit">{title}</h3>
+                    {loading && <div className="flex items-center gap-3"><span className="text-[9px] font-black uppercase tracking-widest text-white/40">SYNCING</span><div className="animate-spin h-4 w-4 border-2 border-white/20 border-t-white rounded-full"></div></div>}
+                </div>
+                <div className="overflow-x-auto">
+                    <table className={`w-full border-separate border-spacing-0 ${centered ? 'text-center' : 'text-left'}`}>
+                        <thead>
+                            <tr className="bg-brand-maua sticky top-0 z-10">
+                                {headers.map((h, i) => <th key={i} className={`px-10 py-5 text-xs font-black text-white/90 uppercase tracking-[0.2em] font-montserrat ${centered ? 'text-center' : ''}`}>{h}</th>)}
+                            </tr>
+                        </thead>
+                        <tbody className="divide-y divide-slate-50">
+                            {loading ? (
+                                <tr><td colSpan={headers.length} className="py-20 text-center text-slate-500 font-black uppercase tracking-[0.3em] animate-pulse">SINCRONIZANDO...</td></tr>
+                            ) : (data && data.length > 0 && data[0]?.isError) ? (
+                                <tr><td colSpan={headers.length} className="py-20 text-center text-rose-500 font-black uppercase">⚠️ {data[0].msg}</td></tr>
+                            ) : (data && data.length > 0) ? (
+                                data.map((row, i) => (
+                                    <tr key={i} className="hover:bg-slate-50 transition-soft font-outfit">
+                                        {row.map((cell, j) => (
+                                            <td key={j} className={`px-10 py-6 text-[13px] font-black uppercase tracking-tight ${centered ? 'text-center text-slate-700' : (j === row.length - 1 ? 'text-brand-maua text-right' : 'text-slate-700')}`}>
+                                                {cell}
+                                            </td>
+                                        ))}
+                                    </tr>
+                                ))
+                            ) : (
+                                <tr><td colSpan={headers.length} className="px-10 py-24 text-center"><div className="flex flex-col items-center gap-4 opacity-30"><span className="text-[10px] font-black text-slate-400 uppercase tracking-[0.5em] font-outfit">Nenhum Registro Detectado</span></div></td></tr>
+                            )}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        );
+
+        const DashboardContentTemplate = ({ manager, metrics, activeDetail, setActiveDetail, detailsRender }) => (
+            <div className="animate-in fade-in">
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 xl:grid-cols-7 gap-6 mb-14">
+                    {metrics.map(kpi => (
+                        <div key={kpi.id} onClick={() => { setActiveDetail(activeDetail === kpi.id ? null : kpi.id); if (activeDetail !== kpi.id) setTimeout(() => { const el = document.getElementById(kpi.id); if (el) el.scrollIntoView({ behavior: 'smooth' }); }, 100); }} className="cursor-pointer">
+                            <KpiCard kpi={{ ...kpi, status: kpi.ok ? 'Atingido' : 'Em Andamento' }} />
+                        </div>
+                    ))}
+                </div>
+                <div className="bg-white rounded-[2.5rem] shadow-premium border border-slate-100 overflow-hidden mb-14">
+                    <div className="p-10 border-b border-slate-50 flex justify-between items-center bg-white">
+                        <div className="flex items-center gap-6">
+                            <div className="h-10 w-3 bg-brand-maua rounded-full shadow-lg shadow-brand-maua/40"></div>
+                            <h3 className="text-xl font-black text-slate-900 uppercase font-outfit tracking-[0.2em]">RESUMO EXECUTIVO | RATING PONDERADO</h3>
+                        </div>
+                    </div>
+                    <div className="overflow-x-auto"><table className="w-full text-left border-separate border-spacing-0">
+                        <thead><tr className="bg-brand-maua sticky top-0 z-10">
+                            <th className="px-10 py-5 text-xs font-black text-white/90 uppercase tracking-[0.2em]">Diretriz Estratégica</th>
+                            <th className="px-10 py-5 text-xs font-black text-white/90 uppercase tracking-[0.2em]">Subpeso</th>
+                            <th className="px-10 py-5 text-xs font-black text-white/90 uppercase tracking-[0.2em]">Meta</th>
+                            <th className="px-10 py-5 text-xs font-black text-white/90 uppercase tracking-[0.2em] w-[260px]">Atingimento (%)</th>
+                            <th className="px-10 py-5 text-xs font-black text-white/90 uppercase tracking-[0.2em] text-right">Avaliação Técnica</th>
+                        </tr></thead>
+                        <tbody className="divide-y divide-slate-50">
+                            {metrics.map(m => {
+                                const style = getStatusStyles(m.ok ? 'Atingido' : 'Em Andamento');
+                                return (
+                                    <tr key={m.id} className="hover:bg-slate-50/70 transition-soft cursor-pointer group/row" onClick={() => { setActiveDetail(activeDetail === m.id ? null : m.id); if (activeDetail !== m.id) setTimeout(() => { const el = document.getElementById(m.id); if (el) el.scrollIntoView({ behavior: 'smooth' }); }, 100); }}>
+                                        <td className="px-10 py-6"><div className="flex flex-col"><span className={`text-sm font-black uppercase tracking-tight font-outfit ${activeDetail === m.id ? 'text-brand-maua' : 'text-slate-800 group-hover/row:text-brand-maua'} transition-colors`}>{m.fullName}</span><span className="text-[11px] font-bold text-slate-500 uppercase tracking-widest mt-1">{manager.name}</span></div></td>
+                                        <td className="px-10 py-6 text-sm font-bold text-slate-500 font-montserrat uppercase">{m.weight}</td>
+                                        <td className="px-10 py-6"><span className="text-sm font-black text-slate-900 font-outfit uppercase tracking-tighter">{m.target}</span></td>
+                                        <td className="px-10 py-6"><div className="flex items-center gap-5"><span className="text-xs font-black text-slate-900 w-12 font-outfit">{m.val}</span><div className="flex-1 bg-[#C8C6C4] h-3 rounded-full overflow-hidden shadow-inner border border-slate-100"><div className={`h-full rounded-full transition-all duration-1000 ${style.bar}`} style={{ width: `${m.progress}%` }}></div></div></div></td>
+                                        <td className="px-10 py-6 text-right"><div className={`inline-flex items-center gap-2 px-4 py-1.5 rounded-full text-[11px] font-black uppercase tracking-widest border shadow-sm ${style.color} ${style.bg} ${style.border}`}><div className={`h-1.5 w-1.5 rounded-full ${style.bar} animate-pulse`}></div>{style.name}</div></td>
+                                    </tr>
+                                );
+                            })}
+                        </tbody>
+                    </table></div>
+                </div>
+                {detailsRender()}
+            </div>
+        );
+
+        const PlanCqEngDashboard = ({ manager }) => {
+            const [bhData, setBhData] = useState([]);
+            const [bhMetric, setBhMetric] = useState({ val: '...', progress: 0, ok: false });
+            const [heData, setHeData] = useState([]);
+            const [heMetric, setHeMetric] = useState({ val: '...', progress: 0, ok: false });
+            const [activeDetail, setActiveDetail] = useState(null);
+            const [databookData, setDatabookData] = useState([]);
+            const [databookMetric, setDatabookMetric] = useState({ val: '...', progress: 0, ok: true });
+            const [prodData, setProdData] = useState([]);
+            const [prodMetric, setProdMetric] = useState({ val: '...', progress: 100, ok: true });
+            const [projectsData, setProjectsData] = useState([]);
+            const [projectsMetric, setProjectsMetric] = useState({ val: '...', progress: 0, ok: false });
+            const [comercialData, setComercialData] = useState([]);
+            const [comercialMetric, setComercialMetric] = useState({ val: '...', progress: 100, ok: true });
+            const [atracacaoData, setAtracacaoData] = useState([]);
+            const [atracacaoMetric, setAtracacaoMetric] = useState({ val: '...', progress: 45, ok: false });
+            const [loading, setLoading] = useState(false);
+
+            useEffect(() => {
+                fetchBhData(); fetchHeData(); fetchDatabookData(); fetchProjectsData(); fetchComercialData(); fetchAtracacaoData(); fetchProdData();
+            }, []);
+
+            const getDate = (val) => {
+                if (!val) return null;
+                const parts = String(val).split('/');
+                if (parts.length === 3) return new Date(parts[2], parts[1] - 1, parts[0]);
+                const d = new Date(val); if (!isNaN(d.getTime())) return d;
+                const m = String(val).match(/Date\((\d+),\s*(\d+),\s*(\d+)\)/);
+                if (m) return new Date(m[1], m[2], m[3]);
+                return null;
+            };
+            const fetchBhData = async () => {
+                setLoading(true);
+                try {
+                    const rows = await googleSheetsService.query("ALEX_ARAUJO_3.2");
+                    if (!rows || rows.length === 0) throw new Error("Tabela vazia");
+                    const processed = rows.map(row => {
+                        const banco = (row["BANCO"] || row[0] || "-").toUpperCase();
+                        const bhDez25 = parseFloat(String(row["BH DEZ/2025"] || row[2] || '0').replace('%', '').replace(',', '.')) || 0;
+                        const mediaBhQ1 = parseFloat(String(row["MÉDIA BH Q1 2026"] || row[6] || '0').replace('%', '').replace(',', '.')) || 0;
+
+                        const diff = bhDez25 - mediaBhQ1;
+                        const target = "≤ 7%";
+
+                        // Rule: Rating proportional if actual <= 7% of baseline
+                        const targetVal = bhDez25 * 0.07;
+                        let at = 0;
+                        if (mediaBhQ1 === 0) {
+                            at = 120;
+                        } else {
+                            at = Math.min(120, Math.round((targetVal / mediaBhQ1) * 100));
+                        }
+
+                        const rating = (at >= 120 ? '120%' : at >= 110 ? '110%' : at >= 100 ? '100%' : at >= 90 ? '90%' : 'ABAIXO DO MÍNIMO').toUpperCase();
+
+                        return [
+                            banco,
+                            bhDez25.toLocaleString('pt-BR') + (String(row[2]).includes('%') ? '%' : ''),
+                            mediaBhQ1.toLocaleString('pt-BR') + (String(row[6]).includes('%') ? '%' : ''),
+                            diff.toLocaleString('pt-BR') + (String(row[2]).includes('%') ? '%' : ''),
+                            target,
+                            rating
+                        ];
+                    });
+                    const filtered = processed.filter(r => r[0] === "BH SALDO");
+                    setBhData(filtered);
+                    const ats = filtered.map(r => {
+                        const val = parseInt(r[5]);
+                        return isNaN(val) ? 0 : val;
+                    });
+                    if (ats.length > 0) {
+                        const avg = Math.min(120, Math.round(ats.reduce((a, b) => a + b, 0) / ats.length));
+                        setBhMetric({ val: `${avg}%`, progress: avg, ok: avg >= 90 });
+                    }
+                } catch (e) {
+                    console.error(e);
+                    setBhData([{ isError: true, msg: e.message }]);
+                } finally {
+                    setLoading(false);
+                }
+            };
+            const fetchHeData = async () => {
+                setLoading(true);
+                try {
+                    const rows = await googleSheetsService.query("ALEX_ARAUJO_3.1");
+                    if (!rows || rows.length === 0) throw new Error("Tabela vazia");
+                    const processed = rows.map(row => {
+                        const trabalhadas = parseFloat(String(row["TOTAL HORAS TRABALHADAS (R$)"] || row[2] || '0').replace(/[^0-9.,]/g, '').replace(',', '.')) || 0;
+                        const extras = parseFloat(String(row["TOTAL HORAS EXTRAS (R$)"] || row[4] || '0').replace(/[^0-9.,]/g, '').replace(',', '.')) || 0;
+
+                        const target = "≤ 7%";
+                        const targetVal = trabalhadas * 0.07;
+
+                        let at = 0;
+                        if (extras === 0) {
+                            at = 120;
+                        } else {
+                            at = Math.min(120, Math.round((targetVal / extras) * 100));
+                        }
+
+                        const rating = (at >= 120 ? '120%' : at >= 110 ? '110%' : at >= 100 ? '100%' : at >= 90 ? '90%' : 'ABAIXO DO MÍNIMO').toUpperCase();
+
+                        return [
+                            trabalhadas.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' }),
+                            extras.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' }),
+                            target,
+                            rating
+                        ];
+                    });
+                    setHeData(processed);
+                    const ats = processed.map(r => {
+                        const val = parseInt(r[3]);
+                        return isNaN(val) ? 0 : val;
+                    });
+                    if (ats.length > 0) {
+                        const avg = Math.min(120, Math.round(ats.reduce((a, b) => a + b, 0) / ats.length));
+                        setHeMetric({ val: `${avg}%`, progress: avg, ok: avg >= 90 });
+                    }
+                } catch (e) {
+                    console.error(e);
+                    setHeData([{ isError: true, msg: e.message }]);
+                } finally {
+                    setLoading(false);
+                }
+            };
+
+
+
+            const fetchAtracacaoData = async () => {
+                setLoading(true);
+                try {
+                    const rows = await googleSheetsService.query("ALEX_ARAUJO_3.3");
+                    if (!rows || rows.length === 0) throw new Error("Tabela vazia");
+                    const processed = rows.map(row => {
+                        const nome = (row["Title"] || row[0] || "-").toUpperCase();
+                        const dtS = getDate(row["Data Solicitado"] || row[1]);
+                        const dtE = getDate(row["Data Entrega"] || row[2]);
+                        let lt = parseFloat(String(row["LeadTime"] || row[3] || '').replace(/[^0-9.,]/g, '').replace(',', '.'));
+                        if (isNaN(lt) && dtS && dtE) lt = Math.abs(Math.round((dtE - dtS) / 86400000));
+                        if (isNaN(lt)) lt = null;
+                        const at = lt === null ? null : lt === 0 ? 120 : Math.min(120, Math.round((5 / lt) * 100));
+                        const rating = (at === null ? '-' : at >= 120 ? '120%' : at >= 110 ? '110%' : at >= 100 ? '100%' : at >= 90 ? '90%' : 'ABAIXO DO MÍNIMO').toUpperCase();
+                        return [nome, dtS ? dtS.toLocaleDateString('pt-BR') : '-', dtE ? dtE.toLocaleDateString('pt-BR') : '-', lt !== null ? lt + ' DIAS' : '-', at !== null ? at + '%' : '-', rating];
+                    });
+                    setAtracacaoData(processed);
+                    const ats = processed.map(r => parseInt(r[4])).filter(n => !isNaN(n));
+                    if (ats.length > 0) { const avg = Math.min(120, Math.round(ats.reduce((a, b) => a + b, 0) / ats.length)); setAtracacaoMetric({ val: `${avg}%`, progress: avg, ok: avg >= 90 }); }
+                } catch (e) { console.error(e); } finally { setLoading(false); }
+            };
+
+            const fetchProdData = async () => {
+                setLoading(true);
+                try {
+                    const rows = await googleSheetsService.query("ALEX_ARAUJO_3.5");
+                    if (!rows || rows.length === 0) throw new Error("Tabela vazia");
+                    const semVals = rows.map(r => parseInt(r["Semana"] || r[1]) || 0).filter(v => v > 0);
+                    const maxS = semVals.length > 0 ? Math.max(...semVals) : 1;
+                    const semsCount = maxS;
+                    const totalEnvios = rows.reduce((s, r) => s + (parseInt(r["Total Envios x Semana"] || r[8]) || 0), 0);
+                    const at = Math.min(120, Math.round((totalEnvios / (semsCount * 12)) * 100));
+                    const rating = (at >= 120 ? '120%' : at >= 110 ? '110%' : at >= 100 ? '100%' : at >= 90 ? '90%' : 'ABAIXO DO MÍNIMO').toUpperCase();
+                    setProdData([[semsCount, semsCount * 12, totalEnvios, at + '%', rating]]);
+                    setProdMetric({ val: `${at}%`, progress: at, ok: at >= 90 });
+                } catch (e) { console.error(e); } finally { setLoading(false); }
+            };
+
+            const fetchProjectsData = async () => {
+                setLoading(true);
+                try {
+                    const rows = await googleSheetsService.query("ALEX_ARAUJO_3.7");
+                    if (!rows || rows.length === 0) throw new Error("Tabela vazia");
+                    const curMonth = new Date().getMonth() + 1;
+                    const expPct = (curMonth / 12) * 100;
+                    const getRaw = (row) => parseFloat(String(row["Status"] || row["%Conclusão"] || row["% Conclusão"] || row[2] || 0).replace('%', '').replace(',', '.')) || 0;
+                    const processed = rows.map(row => {
+                        const area = (row["Área de atuação"] || row[0] || "-").toUpperCase();
+                        const obs = (row["Observação"] || row[1] || "-").toUpperCase();
+                        const pct = getRaw(row);
+                        let at = expPct > 0 ? Math.min(120, Math.round((pct / expPct) * 100)) : 0;
+                        return [area, obs, pct.toFixed(0) + '%', at + '%'];
+                    });
+                    setProjectsData(processed);
+                    const totalPct = rows.reduce((s, r) => s + getRaw(r), 0);
+                    const avgPct = totalPct / rows.length;
+                    const gr = Math.min(120, expPct > 0 ? Math.round((avgPct / expPct) * 100) : 0);
+                    setProjectsMetric({ val: `${gr}%`, progress: gr, ok: gr >= 90 });
+                } catch (e) { console.error(e); } finally { setLoading(false); }
+            };
+
+            const fetchComercialData = async () => {
+                setLoading(true);
+                try {
+                    const rows = await googleSheetsService.query("ALEX_ARAUJO_3.4");
+                    if (!rows || rows.length === 0) throw new Error("Tabela vazia");
+                    const processed = rows.map(row => {
+                        const nome = (row["Nome Projeto"] || row[0] || "-").toUpperCase();
+                        const dtR = getDate(row["Data Recebimento"] || row[1]);
+                        const dtC = getDate(row["Data Conclusão"] || row[2]);
+                        let intv = parseFloat(String(row["Intervalo"] || row[3] || '').replace(/[^0-9.,]/g, '').replace(',', '.'));
+                        if (isNaN(intv) && dtR && dtC) intv = Math.abs(Math.round((dtC - dtR) / 86400000));
+                        if (isNaN(intv)) intv = null;
+                        const at = intv === null ? null : intv === 0 ? 120 : Math.min(120, Math.round((5 / intv) * 100));
+                        return [nome, dtR ? dtR.toLocaleDateString('pt-BR') : '-', dtC ? dtC.toLocaleDateString('pt-BR') : '-', intv !== null ? intv + ' DIAS' : '-', at !== null ? at + '%' : '-'];
+                    });
+                    setComercialData(processed);
+                    const ats = processed.map(r => parseInt(r[4])).filter(n => !isNaN(n));
+                    if (ats.length > 0) { const avg = Math.min(120, Math.round(ats.reduce((a, b) => a + b, 0) / ats.length)); setComercialMetric({ val: `${avg}%`, progress: avg, ok: avg >= 90 }); }
+                } catch (e) { console.error(e); } finally { setLoading(false); }
+            };
+
+            const fetchDatabookData = async () => {
+                setLoading(true);
+                try {
+                    const rows = await googleSheetsService.query("ALEX_ARAUJO_3.6");
+                    if (!rows || rows.length === 0) throw new Error("Tabela vazia");
+                    const processed = rows.map(row => {
+                        const cc = (row["Centro de Custo"] || row["CC"] || row[1] || "-").toUpperCase();
+                        const proj = (row["NomeProjeto"] || row["Projeto"] || row[0] || "-").toUpperCase();
+                        const fim = getDate(row["Data Término"] || row["Fim Projeto"] || row[3]);
+                        const envio = getDate(row["Data Envio Databook"] || row["Databook"] || row[5]);
+                        let ltStr = row["LeadTime"] || row["Leadtime"] || row[7] || "-";
+                        let ltNum = isNaN(parseInt(ltStr)) ? (fim && envio && !isNaN(fim) && !isNaN(envio) ? Math.floor((envio - fim) / 86400000) : "-") : parseInt(ltStr);
+                        return [cc, proj, fim && !isNaN(fim) ? fim.toLocaleDateString('pt-BR') : "-", "-", envio && !isNaN(envio) ? envio.toLocaleDateString('pt-BR') : "-", ltNum === "-" ? "-" : ltNum + " DIAS"];
+                    });
+                    setDatabookData(processed);
+                    const lts = processed.map(r => parseInt(r[5])).filter(n => !isNaN(n));
+                    if (lts.length > 0) { const avg = lts.reduce((a, b) => a + b, 0) / lts.length; let r = avg <= 0 ? 120 : Math.min(120, Math.round((10 / avg) * 100)); setDatabookMetric({ val: `${r}%`, progress: r, ok: r >= 90 }); }
+                } catch (err) { console.error(err); setDatabookData([{ isError: true, msg: err.message }]); } finally { setLoading(false); }
+            };
+
+            const metrics = [
+                { id: 'bh', name: 'Banco de Horas', fullName: 'Banco de Horas', target: 'Teto 7%', val: bhMetric.val, weight: '5%', progress: bhMetric.progress, ok: bhMetric.ok },
+                { id: 'he', name: 'Horas Extras', fullName: 'Horas Extras', target: 'Teto 7%', val: heMetric.val, weight: '5%', progress: heMetric.progress, ok: heMetric.ok },
+                { id: 'lt_atracacao', name: 'LT Plano Atracação', fullName: 'LeadTime Plano de Atracação', target: '≤ 5 dias', val: atracacaoMetric.val, weight: '15%', progress: atracacaoMetric.progress, ok: atracacaoMetric.ok },
+                { id: 'lt_orc', name: 'LT Entregáveis Orçamento', fullName: 'LeadTime Entregáveis Orçamento', target: '≤ 5 dias', val: comercialMetric.val, weight: '30%', progress: comercialMetric.progress, ok: comercialMetric.ok },
+                { id: 'proj_melhoria', name: 'Projetos de Melhoria', fullName: 'Projetos de Melhoria', target: '100%', val: projectsMetric.val, weight: '20%', progress: projectsMetric.progress, ok: projectsMetric.ok },
+                { id: 'freq_prod', name: 'Freq. Entregáveis Produção', fullName: 'Frequência Entregáveis Produção', target: '≥12/sem', val: prodMetric.val, weight: '15%', progress: prodMetric.progress, ok: prodMetric.ok },
+                { id: 'lt_databook', name: 'LeadTime Databooks', fullName: 'LeadTime Databooks', target: '≤ 10 dias', val: databookMetric.val, weight: '10%', progress: databookMetric.progress, ok: databookMetric.ok }
+            ];
+
+            return <DashboardContentTemplate manager={manager} metrics={metrics} activeDetail={activeDetail} setActiveDetail={setActiveDetail}
+                detailsRender={() => (
+                    <div className="space-y-12 pb-20">
+                        {activeDetail === 'bh' && <DetailTable id="bh" title="1. BANCO DE HORAS" headers={['BANCO', 'BH DEZ/2025', 'MÉDIA BH Q1 2026', '% DIFERENÇA', 'TARGET', 'RATING (%)']} data={bhData} loading={loading} centered={true} />}
+                        {activeDetail === 'he' && <DetailTable id="he" title="2. HORAS EXTRAS" headers={['TOTAL HORAS TRABALHADAS (R$)', 'TOTAL HORAS EXTRAS (R$)', 'TARGET', 'RATING (%)']} data={heData} loading={loading} centered={true} />}
+                        {activeDetail === 'lt_atracacao' && <DetailTable id="lt_atracacao" title="3. ENTREGÁVEIS ENGENHARIA X COMERCIAL" headers={['NOME DO PROJETO', 'DATA SOLICITADO', 'DATA ENTREGA', 'LEADTIME', 'ATINGIMENTO (%)', 'RATING']} data={atracacaoData} loading={loading} centered={true} />}
+                        {activeDetail === 'lt_orc' && <DetailTable id="lt_orc" title="4. ENTREGÁVEIS PLANEJAMENTO X COMERCIAL" headers={['NOME DO PROJETO', 'DATA RECEBIMENTO', 'DATA CONCLUSÃO', 'INTERVALO', 'ATINGIMENTO (%)']} data={comercialData} loading={loading} centered={true} />}
+                        {activeDetail === 'proj_melhoria' && <DetailTable id="proj_melhoria" title="5. PROJETOS DE MELHORIA" headers={['ÁREA DE ATUAÇÃO', 'OBSERVAÇÃO', '% CONCLUSÃO', 'ATINGIMENTO (%)']} data={projectsData} loading={loading} centered={true} />}
+                        {activeDetail === 'freq_prod' && <DetailTable id="freq_prod" title="6. ENTREGÁVEIS PLANEJAMENTO X PRODUÇÃO" headers={['SEMANAS TRABALHADAS', 'TARGET', 'ENVIOS REALIZADOS', 'ATINGIMENTO (%)', 'RATING']} data={prodData} loading={loading} centered={true} />}
+                        {activeDetail === 'lt_databook' && <DetailTable id="lt_databook" title="7. ENTREGÁVEIS QUALIDADE X CLIENTE" headers={['CC', 'PROJETO', 'FIM PROJETO', 'TERMO ACEITE', 'DATABOOK', 'LEADTIME']} data={databookData} loading={loading} centered={true} />}
+                    </div>
+                )}
+            />;
+        };
+
+        const GenericDashboardTemplate = ({ manager, metrics }) => {
+            const [activeDetail, setActiveDetail] = useState(null);
+            return <DashboardContentTemplate manager={manager} metrics={metrics} activeDetail={activeDetail} setActiveDetail={setActiveDetail} detailsRender={() => <div></div>} />;
+        };
+
+        const DashboardGestor = ({ navigate, activeManagerId, setActiveManager }) => {
+            const activeM = useMemo(() => managersData.find(m => m.id === activeManagerId) || managersData[0], [activeManagerId]);
+            const producaoMetrics = [
+                { id: 'bh', name: 'Banco de Horas', fullName: 'Banco de Horas', target: 'Teto 7%', val: '92%', weight: '10%', progress: 92, ok: true },
+                { id: 'he', name: 'Horas Extras', fullName: 'Horas Extras', target: 'Teto 7%', val: '94%', weight: '10%', progress: 94, ok: true },
+                { id: 'absenteismo', name: 'Absenteísmo', fullName: 'Absenteísmo', target: '< 3%', val: '2.5%', weight: '15%', progress: 100, ok: true },
+                { id: 'diff_horas', name: 'Diferença Horas Plan.', fullName: 'Diferença Horas Planejadas', target: '< 5%', val: '4.2%', weight: '25%', progress: 95, ok: true },
+                { id: 'aderencia_sq', name: 'Aderência Inspeção CQ', fullName: 'Aderência Inspeção Qualidade', target: '100%', val: '98%', weight: '20%', progress: 98, ok: true },
+            ];
+            const contratosMetrics = [
+                { id: 'diff_horas', name: 'Diferença Horas Plan.', fullName: 'Diferença Horas Planejadas', target: '< 5%', val: '6.1%', weight: '25%', progress: 80, ok: false },
+                { id: 'assert_po', name: 'Assertividade PO', fullName: 'Assertividade PO', target: '> 95%', val: '98%', weight: '30%', progress: 100, ok: true },
+                { id: 'sat_cliente', name: 'Satisfação Cliente', fullName: 'Satisfação Cliente (NPS)', target: '> 8.5', val: '9.2', weight: '20%', progress: 92, ok: true },
+            ];
+            const manutencaoMetrics = [
+                { id: 'bh', name: 'Banco de Horas', fullName: 'Banco de Horas', target: '< 7%', val: '12%', weight: '25%', progress: 50, ok: false },
+                { id: 'he', name: 'Horas Extras', fullName: 'Horas Extras', target: '< 7%', val: '14%', weight: '25%', progress: 40, ok: false },
+                { id: 'capex', name: 'Real x Orçado', fullName: 'Investimentos CAPEX', target: '100%', val: '92%', weight: '25%', progress: 92, ok: true },
+                { id: 'preventiva', name: 'Plano Anual', fullName: 'Plano de Manutenção Preventiva', target: '100%', val: '85%', weight: '25%', progress: 85, ok: false },
+            ];
+            const genericMetrics = [
+                { id: 'bh', name: 'Banco de Horas', fullName: 'Banco de Horas', target: '< 7%', val: '5.2%', weight: '25%', progress: 100, ok: true },
+                { id: 'he', name: 'Horas Extras', fullName: 'Horas Extras', target: '< 7%', val: '6.8%', weight: '25%', progress: 95, ok: true },
+                { id: 'sat', name: 'Nível de Satisfação', fullName: 'Índice de Satisfação Interna', target: '> 8.5', val: '9.0', weight: '25%', progress: 90, ok: true },
+                { id: 'perf', name: 'Performance Global', fullName: 'Performance Técnica de Unidade', target: '100%', val: '98%', weight: '25%', progress: 98, ok: true },
+            ];
+
+            return (
+                <div className="flex min-h-screen bg-[#C8C6C4] relative">
+                    <Sidebar currentView="gestor" setView={navigate} activeManagerId={activeManagerId} setActiveManager={setActiveManager} />
+                    <main className="flex-1 p-10 lg:pl-[120px] lg:pr-14 lg:py-14 overflow-y-auto font-inter relative animate-premium transition-all duration-500">
+                        <header className="mb-14 select-none">
+                            <div className="flex items-center gap-4 mb-3"><div className="h-0.5 w-12 bg-brand-maua rounded-full"></div><span className="text-[10px] font-black text-slate-400 uppercase tracking-[0.4em] font-montserrat">Operacional & Projetos</span></div>
+                            <div className="flex flex-col md:flex-row md:items-end md:justify-between gap-10">
+                                <div className="space-y-4">
+                                    <h2 className="text-5xl font-black text-slate-900 tracking-tighter uppercase font-outfit leading-none">{activeM.department}</h2>
+                                    <div className="flex items-center gap-3">
+                                        <span className="text-[10px] font-black text-slate-300 uppercase tracking-widest font-montserrat">Responsabilidade Técnica:</span>
+                                        <span className="text-xs font-black text-brand-maua bg-white border border-slate-100 px-5 py-1.5 rounded-2xl shadow-premium font-outfit uppercase tracking-widest">{activeM.name}</span>
+                                    </div>
+                                </div>
+                                <div className="bg-slate-900 border border-slate-800 p-8 rounded-[2.5rem] shadow-premium flex flex-col items-center justify-center min-w-[240px] group hover:bg-brand-maua transition-soft">
+                                    <span className="text-[9px] font-black uppercase tracking-[0.4em] text-slate-500 group-hover:text-white/60 mb-2">Live Status Update</span>
+                                    <span className="text-sm font-black text-white uppercase tracking-widest font-outfit">{new Date().toLocaleDateString('pt-BR', { month: 'long', year: 'numeric' })}</span>
+                                </div>
+                            </div>
+                        </header>
+                        <div className="space-y-14">
+                            {activeM.id === 'plan_cq_eng' && <PlanCqEngDashboard manager={activeM} />}
+                            {activeM.id === 'contratos' && <GenericDashboardTemplate manager={activeM} metrics={contratosMetrics} />}
+                            {activeM.id === 'producao' && <GenericDashboardTemplate manager={activeM} metrics={producaoMetrics} />}
+                            {activeM.id === 'manutencao' && <GenericDashboardTemplate manager={activeM} metrics={manutencaoMetrics} />}
+                            {!['plan_cq_eng', 'contratos', 'producao', 'manutencao'].includes(activeM.id) && <GenericDashboardTemplate manager={activeM} metrics={genericMetrics} />}
+                        </div>
+                    </main>
+                </div>
+            );
+        };
+
+        const MetasScreen = ({ navigate, ...props }) => {
+            const [activeSubTab, setActiveSubTab] = useState('metas');
+            const [selSector, setSelSector] = useState(mauaSectors[0].id);
+            const [metas, setMetas] = useState(initialMetas);
+            const [form, setForm] = useState({ cc: '', proj: '', kpi: '', target: '' });
+
+            const save = (e) => {
+                e.preventDefault();
+                const nm = { id: Date.now(), centroCusto: form.cc.toUpperCase(), projeto: form.proj.toUpperCase(), nome: form.kpi.toUpperCase(), target: form.target.toUpperCase() };
+                setMetas(p => ({ ...p, [selSector]: [...(p[selSector] || []), nm] }));
+                setForm({ cc: '', proj: '', kpi: '', target: '' });
+                alert('PARÂMETROS SALVOS.');
+            };
+
+            const configTabs = [
+                { id: 'metas', label: 'LANÇAR METAS', icon: 'M12 4v16m8-8H4' },
+                { id: 'history', label: 'HISTÓRICO', icon: 'M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z' },
+                { id: 'gestao', label: 'GESTÃO & CADASTRO', icon: 'M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065zM15 12a3 3 0 11-6 0 3 3 0 016 0z' }
+            ];
+
+            return (
+                <div className="flex min-h-screen bg-[#C8C6C4] relative">
+                    <Sidebar currentView="metas" setView={navigate} activeManagerId={props.activeManagerId} setActiveManager={props.setActiveManager} />
+                    <main className="flex-1 p-10 lg:pl-[120px] lg:pr-14 lg:py-14 overflow-y-auto font-inter relative animate-premium">
+                        <header className="mb-14 select-none flex flex-col md:flex-row justify-between items-start md:items-center gap-8">
+                            <div>
+                                <div className="flex items-center gap-4 mb-3"><div className="h-0.5 w-12 bg-brand-maua rounded-full"></div><span className="text-[10px] font-black text-slate-400 uppercase tracking-[0.4em] font-montserrat">SISTEMA INTEGRADO</span></div>
+                                <h2 className="text-5xl font-black text-slate-900 tracking-tighter uppercase font-outfit leading-none">CONFIGURAÇÕES</h2>
+                            </div>
+
+                            <div className="flex items-center gap-1 bg-white/50 backdrop-blur-md p-1.5 rounded-2xl border border-white/20 shadow-xl">
+                                {configTabs.map(t => (
+                                    <button key={t.id} onClick={() => setActiveSubTab(t.id)} className={`flex items-center gap-2 px-6 py-3 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all ${activeSubTab === t.id ? 'bg-slate-900 text-white shadow-lg' : 'text-slate-500 hover:text-slate-800 hover:bg-white/50'}`}>
+                                        <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d={t.icon} /></svg>
+                                        {t.label}
+                                    </button>
+                                ))}
+                            </div>
+                        </header>
+
+                        {activeSubTab === 'metas' && (
+                            <div className="animate-premium">
+                                <div className="flex gap-4 mb-14 overflow-x-auto pb-6 sidebar-scroll">
+                                    {mauaSectors.map(s => <button key={s.id} onClick={() => setSelSector(s.id)} className={`px-8 py-4 border-2 rounded-3xl text-[10px] font-black uppercase tracking-widest transition-soft whitespace-nowrap font-montserrat ${selSector === s.id ? 'bg-slate-900 text-white shadow-premium border-slate-900 scale-105' : 'bg-white text-slate-400 border-slate-100 hover:border-slate-300 shadow-sm'}`}>{s.name}</button>)}
+                                </div>
+                                <div className="grid grid-cols-1 xl:grid-cols-12 gap-14 pb-20">
+                                    <div className="xl:col-span-4 bg-white p-14 rounded-[3rem] shadow-premium border border-slate-50 h-max sticky top-14">
+                                        <h3 className="text-[11px] font-black text-slate-900 uppercase tracking-[0.4em] mb-14 font-montserrat border-b border-slate-50 pb-8 text-center">PROTOCOLAR NOVA META</h3>
+                                        <form onSubmit={save} className="space-y-8">
+                                            {[['CENTRO DE CUSTO / ID', 'cc', 'EX: CC-GER-501'], ['ESCOPO DO PROJETO', 'proj', 'EX: MANUTENÇÃO NAVIO'], ['MÉTRICA ESTRATÉGICA', 'kpi', 'EX: FATOR DE EFICIÊNCIA'], ['RESULTADO ALVO', 'target', 'EX: > 98.5%']].map(([label, field, ph]) => (
+                                                <div key={field} className="space-y-2 font-montserrat">
+                                                    <label className="text-[9px] font-black text-slate-400 uppercase tracking-widest ml-1">{label}</label>
+                                                    <input required value={form[field]} onChange={e => setForm({ ...form, [field]: e.target.value })} className="w-full bg-slate-50 border-2 border-slate-100 rounded-2xl p-4 text-xs font-medium focus:border-brand-maua focus:bg-white outline-none transition-all placeholder:text-slate-300" placeholder={ph} />
+                                                </div>
+                                            ))}
+                                            <button className="w-full bg-slate-900 text-white py-6 rounded-[2rem] text-[11px] font-black uppercase tracking-[0.4em] shadow-premium transition-soft active:scale-[0.97] mt-10 border-2 border-slate-900 font-outfit hover:bg-transparent hover:text-slate-900">Publicar OKR</button>
+                                        </form>
+                                    </div>
+                                    <div className="xl:col-span-8 bg-white rounded-[3rem] shadow-premium border border-slate-100 overflow-hidden flex flex-col">
+                                        <div className="p-10 border-b border-slate-50 bg-white/50 sticky top-0 z-10 flex justify-between items-center">
+                                            <h3 className="text-[11px] font-black text-slate-900 uppercase tracking-[0.4em] font-montserrat">Consolidado 2026 | {mauaSectors.find(s => s.id === selSector).name}</h3>
+                                        </div>
+                                        <div className="overflow-x-auto"><table className="w-full text-left border-separate border-spacing-0">
+                                            <thead><tr className="bg-brand-maua text-[9px] font-black text-white/90 uppercase tracking-[0.3em] font-montserrat"><th className="px-10 py-6">Protocolo ID</th><th className="px-10 py-6">Scope</th><th className="px-10 py-6">Métrica</th><th className="px-10 py-6 text-right">Target</th></tr></thead>
+                                            <tbody className="divide-y divide-slate-50">
+                                                {(metas[selSector] || []).map(m => <tr key={m.id} className="hover:bg-slate-50/70 font-outfit"><td className="px-10 py-8 text-slate-400 text-xs font-mono">{m.centroCusto}</td><td className="px-10 py-8 font-black text-slate-900 text-[13px]">{m.projeto}</td><td className="px-10 py-8 font-black text-slate-700 text-xs uppercase tracking-widest">{m.nome}</td><td className="px-10 py-8 text-right"><span className="px-6 py-2 rounded-2xl bg-slate-900 text-white font-black text-xs shadow-premium">{m.target}</span></td></tr>)}
+                                                {(!metas[selSector] || metas[selSector].length === 0) && <tr><td colSpan="4" className="p-32 text-center font-black text-slate-200 uppercase tracking-[0.5em] opacity-40 font-outfit">Déficit de Diretrizes Operacionais</td></tr>}
+                                            </tbody>
+                                        </table></div>
+                                    </div>
+                                </div>
+                            </div>
+                        )}
+
+                        {activeSubTab === 'history' && <div className="bg-white rounded-[3rem] p-1 shadow-premium overflow-hidden animate-premium"><OKRHistoryView history={props.okrHistory} sectors={props.okrSectors} users={props.okrUsers} /></div>}
+                        {activeSubTab === 'gestao' && (
+                            <div className="animate-premium"><OKRSettingsView
+                                sectors={props.okrSectors}
+                                users={props.okrUsers}
+                                teams={props.okrTeams}
+                                onUpdateSector={props.handleUpdateSector}
+                                onUpdateUser={props.handleUpdateUser}
+                                onAddUser={props.handleAddUser}
+                                onDeleteUser={props.handleDeleteUser}
+                                onUpdateTeams={props.handleUpdateTeams}
+                            /></div>
+                        )}
+                    </main>
+                </div>
+            );
+        };
+
+        // ============================================================
+        //  OKR FLOW — COMPONENTS
+        // ============================================================
+
+        // Flask (liquid indicator)
+        const Flask = ({ label, percentage, weight, size = 'normal', showConfetti = false }) => {
+            const color = percentage <= 30 ? 'bg-red-500' : percentage <= 70 ? 'bg-orange-500' : percentage < 100 ? 'bg-sky-400' : 'bg-blue-600';
+            const h = size === 'large' ? 'h-[320px] w-32' : 'h-[220px] w-24';
+            return (
+                <div className="relative flex flex-col items-center">
+                    {percentage >= 100 && (
+                        <div className="absolute -top-10 z-20">
+                            <div className="bg-yellow-400 p-2 rounded-full shadow-lg border-2 border-white">
+                                <svg className="w-6 h-6 text-white" fill="currentColor" viewBox="0 0 20 20"><path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z" /></svg>
+                            </div>
+                        </div>
+                    )}
+                    <div className={`relative ${h} bg-white/40 border-4 border-slate-200 rounded-b-3xl rounded-t-lg overflow-hidden backdrop-blur-sm shadow-inner`}>
+                        <div className="absolute inset-y-0 right-2 flex flex-col justify-between py-4 text-[8px] font-bold text-slate-300 pointer-events-none">
+                            <span>100</span><span>75</span><span>50</span><span>25</span><span>0</span>
+                        </div>
+                        <div className={`absolute bottom-0 left-0 right-0 ${color} transition-all duration-1000`} style={{ height: `${Math.min(100, percentage)}%` }}>
+                            <div className="absolute -top-4 left-0 right-0 h-8 opacity-40">
+                                <div className="absolute inset-0 bg-white/30 skew-y-2 translate-y-2 liquid-animation" style={{ width: '200%' }} />
+                            </div>
+                        </div>
+                        <div className="absolute inset-0 flex items-center justify-center pointer-events-none z-10">
+                            <span className={`text-slate-700 font-bold ${size === 'large' ? 'text-2xl' : 'text-sm'}`}>{Math.round(percentage)}%</span>
+                        </div>
+                    </div>
+                    <div className="mt-4 text-center">
+                        <p className={`${size === 'large' ? 'text-xl font-black' : 'text-sm font-bold'} text-slate-800`}>{label}</p>
+                        <p className="text-[10px] text-slate-400 uppercase tracking-tighter">Capacidade: {Math.round(weight)}%</p>
+                    </div>
+                </div>
+            );
+        };
+
+        // OKR Board
+        const TEAM_COLORS = { 'Financeiro': '#1d4ed8', 'Qualidade': '#4338ca', 'Pessoas e Segurança': '#047857', 'Operações': '#c2410c', 'Comercial': '#be123c', 'Governança': '#334155' };
+
+        const OKRBoardView = ({ sectors, history, users }) => {
+            const [zoom, setZoom] = useState(0.8);
+            const { teams, corporateProgress } = useMemo(() => {
+                const uniqueTeams = Array.from(new Set(sectors.map(s => s.team)));
+                let totalCorporate = 0;
+                const teamData = uniqueTeams.map(teamName => {
+                    const ts = sectors.filter(s => s.team === teamName);
+                    const krs = ts.map(s => ({ ...s, progress: calcOkrProgress(s.id, history) }));
+                    const totalW = ts.reduce((s, x) => s + x.weight, 0);
+                    const weightedSum = krs.reduce((s, x) => s + x.progress * x.weight, 0);
+                    const teamProgress = totalW > 0 ? weightedSum / totalW : 0;
+                    totalCorporate += weightedSum;
+                    const lead = users.filter(u => u.team === teamName).sort((a, b) => ({ 'CEO': 5, 'DIRECTOR': 4, 'ADMIN': 3, 'MANAGER': 2, 'CONTROLLER': 1 }[b.role] || 0) - ({ 'CEO': 5, 'DIRECTOR': 4, 'ADMIN': 3, 'MANAGER': 2, 'CONTROLLER': 1 }[a.role] || 0))[0];
+                    return { name: teamName, objective: ts[0].okr, progress: teamProgress, krs, lead };
+                });
+                return { teams: teamData, corporateProgress: Math.min(100, totalCorporate) };
+            }, [sectors, history, users]);
+
+            const chartData = useMemo(() => departmentsData.map(d => ({ name: d.name, department: d.department, ...d.hoursData })), []);
+
+            return (
+                <div className="w-full relative min-h-[80vh] flex flex-col items-center">
+                    <div className="sticky top-4 z-40 bg-white/90 backdrop-blur-md border border-slate-200 p-2 rounded-2xl shadow-xl flex items-center gap-2 mb-8 self-end">
+                        <button onClick={() => setZoom(z => Math.max(0.4, z - 0.1))} className="p-2 hover:bg-[#C8C6C4] rounded-lg text-slate-500 transition-colors"><svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0zM13 10H7" /></svg></button>
+                        <div className="px-2 min-w-[60px] text-center"><span className="text-[10px] font-black text-slate-400 uppercase tracking-tighter">{Math.round(zoom * 100)}%</span></div>
+                        <button onClick={() => setZoom(z => Math.min(1.2, z + 0.1))} className="p-2 hover:bg-[#C8C6C4] rounded-lg text-slate-500 transition-colors"><svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0zM10 7v3m0 0v3m0-3h3m-3 0H7" /></svg></button>
+                        <div className="w-px h-4 bg-slate-200 mx-1" />
+                        <button onClick={() => setZoom(0.8)} className="p-2 hover:bg-blue-50 text-blue-500 rounded-lg transition-colors"><svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 8V4m0 0h4M4 4l5 5m11-1V4m0 0h-4m4 0l-5 5M4 16v4m0 0h4m-4 0l5-5m11 5l-5-5m5 5v-4m0 4h-4" /></svg></button>
+                    </div>
+
+                    <div className="w-full flex flex-col items-center transition-transform duration-300 ease-out origin-top" style={{ transform: `scale(${zoom})` }}>
+                        <div className="relative flex flex-col items-center">
+                            <div className="text-white px-20 py-8 rounded-[2.5rem] font-black text-3xl shadow-2xl border-4 border-white/10 z-10 uppercase tracking-tighter text-center relative overflow-hidden" style={{ background: `linear-gradient(to top, #0f172a ${corporateProgress}%, #334155 ${corporateProgress}%)` }}>
+                                <div className="relative z-10">
+                                    <span className="block opacity-40 text-xs tracking-[0.4em] mb-2 font-black uppercase">NÍVEL EXECUTIVO</span>
+                                    ESTRATÉGIA CORPORATIVA 2026
+                                    <span className="block text-sm mt-2 text-blue-400 font-black uppercase">{Math.round(corporateProgress)}% CONCLUÍDO</span>
+                                </div>
+                            </div>
+                            <div className="w-[3px] h-16 bg-slate-300 relative">
+                                <div className="absolute bottom-0 left-1/2 -translate-x-1/2 h-[3px] bg-slate-300" style={{ width: `calc(220px * ${teams.length - 1})` }} />
+                            </div>
+                        </div>
+
+                        <div className="flex gap-6 items-start px-20">
+                            {teams.map(team => {
+                                const col = TEAM_COLORS[team.name] || '#334155';
+                                return (
+                                    <div key={team.name} className="flex flex-col items-center w-[200px] shrink-0">
+                                        <div className="w-[3px] h-8 bg-slate-300 mb-0" />
+                                        <div className="w-full text-white p-5 rounded-[2rem] flex flex-col items-center justify-center gap-2 shadow-lg z-10 mb-4 h-32 text-center border-4 border-white/20 transition-all duration-500 overflow-hidden relative" style={{ background: `linear-gradient(to top, ${col} ${team.progress}%, ${col}88 ${team.progress}%)` }}>
+                                            <span className="font-black text-[10px] uppercase tracking-widest leading-none">{team.name}</span>
+                                            <span className="font-black text-xs bg-black/20 px-2 py-1 rounded-full mt-1 uppercase">{Math.round(team.progress)}%</span>
+                                        </div>
+                                        <div className="w-full bg-white border border-slate-100 p-4 rounded-3xl shadow-sm mb-6 relative min-h-[100px] flex flex-col justify-center text-center">
+                                            <p className="text-[8px] font-black text-slate-300 uppercase mb-2 tracking-widest">OBJETIVO</p>
+                                            <p className="text-[10px] font-bold text-slate-700 leading-snug uppercase">"{team.objective}"</p>
+                                            <div className="absolute -bottom-6 left-1/2 -translate-x-1/2 w-[3px] h-6 bg-slate-300" />
+                                        </div>
+                                        <div className="w-full space-y-3">
+                                            {team.krs.map(kr => {
+                                                const manager = users.find(u => u.id === kr.managerId);
+                                                return (
+                                                    <div key={kr.id} className="w-full bg-white border border-slate-100 p-4 rounded-2xl shadow-sm hover:shadow-xl hover:border-blue-100 transition-all">
+                                                        <div className="flex justify-between items-start mb-2">
+                                                            <span className="text-[9px] font-black text-blue-500 uppercase tracking-tighter leading-none">{kr.name}</span>
+                                                            {kr.progress >= 100 && <svg className="w-3.5 h-3.5 text-emerald-500" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>}
+                                                        </div>
+                                                        <p className="text-[9px] text-slate-500 font-semibold mb-3 leading-relaxed line-clamp-2 uppercase">{kr.kpi}</p>
+                                                        {manager && <div className="flex items-center gap-2 mb-3 bg-slate-50 p-1.5 rounded-xl border border-slate-100/50"><img src={manager.avatar} className="w-4 h-4 rounded-full" alt="" /><span className="text-[8px] font-bold text-slate-400 uppercase tracking-tight truncate">{manager.name}</span></div>}
+                                                        <div className="space-y-1">
+                                                            <div className="flex justify-between items-center text-[8px] font-black uppercase">
+                                                                <span className="text-slate-300">Impacto {Math.round(kr.weight * 100)}%</span>
+                                                                <span className={kr.progress >= 100 ? 'text-emerald-600' : 'text-blue-600'}>{Math.round(kr.progress)}%</span>
+                                                            </div>
+                                                            <div className="h-1 w-full bg-[#C8C6C4] rounded-full overflow-hidden">
+                                                                <div className={`h-full ${kr.progress >= 100 ? 'bg-emerald-500' : 'bg-blue-500'} transition-all duration-1000`} style={{ width: `${kr.progress}%` }}></div>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                );
+                                            })}
+                                        </div>
+                                    </div>
+                                );
+                            })}
+                        </div>
+                    </div>
+
+                    <section className="w-full max-w-7xl mt-14 mb-20 bg-white rounded-[3rem] shadow-premium border border-slate-100 p-12 relative overflow-hidden">
+                        <div className="flex items-center gap-6 mb-12">
+                            <div className="h-10 w-3 bg-brand-maua rounded-full shadow-lg shadow-brand-maua/40"></div>
+                            <h3 className="text-xl font-black text-slate-900 uppercase tracking-widest font-outfit tracking-[0.2em]">INDICADORES DE CAPITAL HUMANO</h3>
+                        </div>
+                        <CustomBarChart data={chartData} />
+                    </section>
+                </div>
+            );
+        };
+
+        // OKR Dashboard (monitor)
+        const OKRDashboardView = ({ sectors, history, users }) => {
+            const sectorProgress = useMemo(() => sectors.map(s => ({ ...s, progress: calcOkrProgress(s.id, history) })), [sectors, history]);
+            const globalProgress = useMemo(() => sectorProgress.reduce((s, x) => s + x.progress * x.weight, 0), [sectorProgress]);
+            const grouped = useMemo(() => {
+                const g = {};
+                sectorProgress.forEach(s => { if (!g[s.team]) g[s.team] = []; g[s.team].push(s); });
+                return g;
+            }, [sectorProgress]);
+
+            return (
+                <div className="space-y-12 pb-24">
+                    <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                        {[{ label: 'METAS TOTAIS', val: sectors.length.toString(), color: 'text-blue-600', bg: 'bg-blue-50' }, { label: 'PROGRESSO MÉDIO', val: `${Math.round(globalProgress)}%`, color: 'text-amber-600', bg: 'bg-amber-50' }, { label: 'CICLO ATUAL', val: 'ANUAL 2026', color: 'text-emerald-600', bg: 'bg-emerald-50' }].map(c => (
+                            <div key={c.label} className="bg-white p-6 rounded-3xl border border-slate-100 shadow-sm flex items-center gap-4">
+                                <div className={`p-4 rounded-2xl ${c.bg}`}><svg className={`w-6 h-6 ${c.color}`} fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" /></svg></div>
+                                <div><p className="text-[10px] font-black text-slate-400 uppercase tracking-widest">{c.label}</p><p className="text-2xl font-black text-slate-800">{c.val}</p></div>
+                            </div>
+                        ))}
+                    </div>
+
+                    <section className="flex flex-col lg:flex-row items-center justify-around py-16 bg-white rounded-[40px] shadow-xl shadow-slate-200/40 border border-slate-100">
+                        <div className="relative mb-12 lg:mb-0">
+                            <Flask label="EVOLUÇÃO CORPORATIVA" percentage={globalProgress} size="large" weight={100} showConfetti={globalProgress >= 100} />
+                        </div>
+                        <div className="text-center lg:text-left max-w-md px-8">
+                            <h2 className="text-3xl font-black text-slate-800 uppercase tracking-tighter leading-tight">STRATEGIC PERFORMANCE DASHBOARD</h2>
+                            <p className="text-slate-500 mt-4 leading-relaxed uppercase text-[10px] font-bold">ESTE PAINEL CONSOLIDA OS INDICADORES DE TODAS AS FRENTES DE NEGÓCIO. O PROGRESSO CORPORATIVO É UMA MÉDIA PONDERADA BASEADA NO PESO ESTRATÉGICO DE CADA KPI.</p>
+                        </div>
+                    </section>
+
+                    <div className="grid grid-cols-1 xl:grid-cols-2 gap-8">
+                        {Object.entries(grouped).map(([team, items]) => (
+                            <div key={team} className="bg-white p-8 rounded-3xl border border-slate-100 shadow-sm">
+                                <div className="flex justify-between items-center mb-10 border-b border-slate-50 pb-4">
+                                    <h3 className="text-sm font-black text-slate-800 uppercase tracking-widest">{team}</h3>
+                                    <span className="text-[10px] font-bold text-slate-400">{items.length} INDICADORES</span>
+                                </div>
+                                <div className="grid grid-cols-2 sm:grid-cols-3 gap-y-12 gap-x-4">
+                                    {items.map(s => <Flask key={s.id} label={s.name} percentage={s.progress} weight={s.weight * 100} size="normal" showConfetti={s.progress >= 100} />)}
+                                </div>
+                            </div>
+                        ))}
+                    </div>
+                </div>
+            );
+        };
+
+        // OKR Data Entry
+        const OKRDataEntryView = ({ user, sectors, history, onAddEntry }) => {
+            const [selectedId, setSelectedId] = useState('');
+            const [value, setValue] = useState('');
+            const [submitted, setSubmitted] = useState(false);
+
+            const allowed = useMemo(() => {
+                if (['ADMIN', 'CEO', 'DIRECTOR'].includes(user.role)) return sectors;
+                return sectors.filter(s => s.managerId === user.id);
+            }, [user, sectors]);
+
+            useEffect(() => { if (allowed.length > 0 && !selectedId) setSelectedId(allowed[0].id); }, [allowed]);
+
+            const current = allowed.find(s => s.id === selectedId);
+            const already = history.some(h => h.sectorId === selectedId && h.week === OKR_CURRENT_WEEK && h.year === OKR_CURRENT_YEAR);
+
+            const handleSubmit = (e) => {
+                e.preventDefault();
+                if (!selectedId || !value || already) return;
+                onAddEntry({ userId: user.id, sectorId: selectedId, week: OKR_CURRENT_WEEK, year: OKR_CURRENT_YEAR, value: parseFloat(value.replace(',', '.')) });
+                setSubmitted(true); setValue('');
+                setTimeout(() => setSubmitted(false), 3000);
+            };
+
+            if (allowed.length === 0) return (
+                <div className="max-w-2xl mx-auto bg-red-50 p-12 rounded-[3rem] text-center border-2 border-dashed border-red-100">
+                    <div className="bg-red-100 w-20 h-20 rounded-full flex items-center justify-center mx-auto mb-6"><svg className="w-10 h-10 text-red-500" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" /></svg></div>
+                    <h3 className="text-2xl font-black text-red-800 uppercase tracking-tight mb-2">Acesso Restrito</h3>
+                    <p className="text-red-600 font-medium">Seu perfil ({user.role}) não possui KPIs vinculados para lançamento no momento.</p>
+                </div>
+            );
+
+            return (
+                <div className="max-w-2xl mx-auto bg-white rounded-[3rem] shadow-2xl shadow-slate-200/50 border border-slate-100 overflow-hidden">
+                    <div className="bg-slate-900 p-10 text-white relative overflow-hidden">
+                        <div className="absolute -right-10 -top-10 w-40 h-40 bg-blue-600 rounded-full blur-3xl opacity-20" />
+                        <div className="relative z-10">
+                            <span className="text-[10px] font-black uppercase tracking-[0.3em] text-blue-400">Governança Corporativa</span>
+                            <h3 className="text-3xl font-black uppercase tracking-tight mt-2">Lançamento Semanal</h3>
+                            <p className="text-slate-400 text-sm font-medium mt-1">CICLO DE MONITORAMENTO: <span className="text-white font-bold">Semana {OKR_CURRENT_WEEK} / {OKR_CURRENT_YEAR}</span></p>
+                        </div>
+                    </div>
+                    <div className="p-10">
+                        {submitted ? (
+                            <div className="flex flex-col items-center py-12">
+                                <div className="w-24 h-24 bg-emerald-100 rounded-full flex items-center justify-center mb-6"><svg className="w-12 h-12 text-emerald-500" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" /></svg></div>
+                                <h4 className="text-2xl font-black text-slate-800 uppercase tracking-tight">REGISTRO CONCLUÍDO!</h4>
+                                <button onClick={() => setSubmitted(false)} className="mt-8 text-blue-600 font-black text-xs uppercase tracking-widest hover:underline">FAZER OUTRO LANÇAMENTO</button>
+                            </div>
+                        ) : (
+                            <form onSubmit={handleSubmit} className="space-y-8">
+                                <div className="space-y-3">
+                                    <label className="text-xs font-black text-slate-400 uppercase tracking-widest ml-1">KPI / Target Sector</label>
+                                    <div className="relative">
+                                        <select value={selectedId} onChange={e => setSelectedId(e.target.value)} className="w-full appearance-none pl-6 pr-12 py-5 bg-slate-50 border-2 border-slate-100 rounded-3xl text-sm font-black text-slate-800 uppercase tracking-tight outline-none focus:border-blue-500 focus:bg-white transition-all cursor-pointer">
+                                            {allowed.map(s => <option key={s.id} value={s.id}>{s.team} - {s.name}</option>)}
+                                        </select>
+                                        <svg className="absolute right-6 top-1/2 -translate-y-1/2 w-5 h-5 text-slate-400 pointer-events-none" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" /></svg>
+                                    </div>
+                                    {current && <div className="px-6 py-3 bg-blue-50/50 rounded-2xl border border-blue-100/50"><p className="text-[10px] text-blue-700 leading-relaxed"><span className="font-black uppercase tracking-tighter mr-1">Objetivo:</span>"{current.okr}"</p></div>}
+                                </div>
+                                {already ? (
+                                    <div className="bg-amber-50 p-8 rounded-[2rem] border-2 border-amber-100 text-center">
+                                        <svg className="w-8 h-8 text-amber-500 mx-auto mb-3" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" /></svg>
+                                        <p className="text-amber-800 font-black text-sm uppercase tracking-tight">Meta já lançada esta semana</p>
+                                    </div>
+                                ) : (
+                                    <div className="space-y-3">
+                                        <label className="flex items-center gap-2 text-xs font-black text-slate-400 uppercase tracking-widest ml-1">Evolução Incremental (%)</label>
+                                        <div className="relative">
+                                            <input type="text" required value={value} onChange={e => setValue(e.target.value.replace(/[^0-9,.]/g, ''))} placeholder="0,00" className="w-full pl-8 pr-16 py-6 bg-slate-50 border-2 border-slate-100 rounded-3xl focus:ring-4 focus:ring-blue-500/10 focus:border-blue-500 focus:bg-white focus:outline-none text-4xl font-black text-slate-900 transition-all placeholder:text-slate-200" />
+                                            <span className="absolute right-8 top-1/2 -translate-y-1/2 text-2xl font-black text-slate-300">%</span>
+                                        </div>
+                                    </div>
+                                )}
+                                <button type="submit" disabled={already || !value} className={`w-full py-6 rounded-3xl font-black text-xs uppercase tracking-[0.2em] shadow-2xl transition-all flex items-center justify-center gap-3 active:scale-95 border-b-4 ${already || !value ? 'bg-[#C8C6C4] text-slate-300 border-slate-200 cursor-not-allowed grayscale' : 'bg-blue-600 hover:bg-blue-700 text-white border-blue-800 shadow-blue-500/20'}`}>
+                                    <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8" /></svg>
+                                    Confirmar Lançamento Semanal
+                                </button>
+                            </form>
+                        )}
+                    </div>
+                </div>
+            );
+        };
+
+        // OKR History
+        const OKRHistoryView = ({ history, sectors, users }) => {
+            const [filterSector, setFilterSector] = useState('all');
+            const filtered = useMemo(() => [...history].filter(h => filterSector === 'all' || h.sectorId === filterSector).sort((a, b) => new Date(b.timestamp) - new Date(a.timestamp)), [history, filterSector]);
+            return (
+                <div className="space-y-6">
+                    <div className="flex justify-between items-center bg-white p-4 rounded-2xl shadow-sm border border-slate-100">
+                        <div className="flex items-center gap-2 px-3 py-2 bg-slate-50 rounded-lg">
+                            <select className="bg-transparent border-none text-sm font-medium text-slate-600 focus:ring-0 cursor-pointer" value={filterSector} onChange={e => setFilterSector(e.target.value)}>
+                                <option value="all">TODOS OS SETORES</option>
+                                {sectors.map(s => <option key={s.id} value={s.id}>{s.name}</option>)}
+                            </select>
+                        </div>
+                        <div className="text-xs text-slate-400 font-medium uppercase">TOTAL: {filtered.length} REGISTROS</div>
+                    </div>
+                    <div className="bg-white rounded-3xl shadow-sm border border-slate-100 overflow-hidden">
+                        <table className="w-full text-left border-collapse">
+                            <thead>
+                                <tr className="bg-slate-50/50 border-b border-slate-100">
+                                    <th className="px-6 py-4 text-xs font-black text-slate-400 uppercase tracking-widest">Semana / Data</th>
+                                    <th className="px-6 py-4 text-xs font-black text-slate-400 uppercase tracking-widest">Setor</th>
+                                    <th className="px-6 py-4 text-xs font-black text-slate-400 uppercase tracking-widest">Responsável</th>
+                                    <th className="px-6 py-4 text-xs font-black text-slate-400 uppercase tracking-widest text-right">Valor Adicionado</th>
+                                </tr>
+                            </thead>
+                            <tbody className="divide-y divide-slate-100">
+                                {filtered.map(h => {
+                                    const sector = sectors.find(s => s.id === h.sectorId);
+                                    const user = users.find(u => u.id === h.userId);
+                                    return (
+                                        <tr key={h.id} className="hover:bg-slate-50/50 transition-colors">
+                                            <td className="px-6 py-4"><div className="flex items-center gap-3"><div className="w-10 h-10 bg-blue-50 rounded-lg flex items-center justify-center text-blue-600 font-bold">W{h.week}</div><div><p className="text-sm font-bold text-slate-800">{h.year}</p><p className="text-[10px] text-slate-400">{new Date(h.timestamp).toLocaleDateString()}</p></div></div></td>
+                                            <td className="px-6 py-4"><span className="px-2 py-1 bg-[#C8C6C4] rounded text-xs font-bold text-slate-600 uppercase tracking-tighter">{sector?.name}</span></td>
+                                            <td className="px-6 py-4"><div className="flex items-center gap-2"><img src={user?.avatar} className="w-6 h-6 rounded-full" alt="" /><span className="text-sm text-slate-600">{user?.name}</span></div></td>
+                                            <td className="px-6 py-4 text-right"><span className="text-lg font-mono font-black text-blue-600">+{h.value}%</span></td>
+                                        </tr>
+                                    );
+                                })}
+                                {filtered.length === 0 && <tr><td colSpan={4} className="px-6 py-12 text-center text-slate-400 font-black uppercase tracking-widest">NENHUM REGISTRO ENCONTRADO.</td></tr>}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            );
+        };
+
+        // ============================================================
+        //  OKR SETTINGS VIEW (Gestão & Cadastro)
+        // ============================================================
+        const OKRSettingsView = ({ sectors, users, teams, onUpdateSector, onUpdateUser, onAddUser, onDeleteUser, onUpdateTeams }) => {
+            const [activeTab, setActiveTab] = useState('sectors');
+            const [editingId, setEditingId] = useState(null);
+            const [editForm, setEditForm] = useState(null);
+            const [userEditId, setUserEditId] = useState(null);
+            const [userEditForm, setUserEditForm] = useState(null);
+            const [isCreatingUser, setIsCreatingUser] = useState(false);
+            const [newUserForm, setNewUserForm] = useState({ id: '', name: '', role: 'MANAGER', avatar: `https://api.dicebear.com/7.x/avataaars/svg?seed=${Math.random().toString(36).substring(7)}`, team: teams[0] || '', reportsTo: '' });
+            const [newTeamName, setNewTeamName] = useState('');
+            const [editingTeamIdx, setEditingTeamIdx] = useState(null);
+            const [editingTeamValue, setEditingTeamValue] = useState('');
+
+            const eligibleManagers = useMemo(() => users.filter(u => ['MANAGER', 'DIRECTOR', 'CEO', 'ADMIN'].includes(u.role)), [users]);
+
+            const startEditingSector = (sector) => { setEditingId(sector.id); setEditForm({ ...sector }); };
+            const handleSectorChange = (e) => {
+                if (!editForm) return;
+                const { name, value } = e.target;
+                setEditForm(prev => {
+                    let nv = value;
+                    if (name === 'weight') { const p = parseFloat(value.replace(',', '.')) / 100; nv = isNaN(p) ? 0 : p; }
+                    if (name === 'targetValue') { const p = parseFloat(value); nv = isNaN(p) ? 0 : p; }
+                    return { ...prev, [name]: nv };
+                });
+            };
+            const saveSector = () => { if (editForm) { onUpdateSector(editForm); setEditingId(null); } };
+
+            const startEditingUser = (user) => { setUserEditId(user.id); setUserEditForm({ ...user }); };
+            const handleUserChange = (e) => { const { name, value } = e.target; setUserEditForm(prev => prev ? { ...prev, [name]: value } : null); };
+            const saveUser = () => { if (userEditForm) { onUpdateUser(userEditForm); setUserEditId(null); setUserEditForm(null); } };
+
+            const handleNewUserChange = (e) => { const { name, value } = e.target; setNewUserForm(prev => ({ ...prev, [name]: value })); };
+            const saveNewUser = () => {
+                if (!newUserForm.name) { alert('Nome é obrigatório'); return; }
+                onAddUser({ ...newUserForm, id: `u-${Date.now()}` });
+                setIsCreatingUser(false);
+                setNewUserForm({ id: '', name: '', role: 'MANAGER', avatar: `https://api.dicebear.com/7.x/avataaars/svg?seed=${Math.random().toString(36).substring(7)}`, team: teams[0] || '', reportsTo: '' });
+            };
+
+            const handleAddTeam = () => { if (newTeamName && !teams.includes(newTeamName)) { onUpdateTeams([...teams, newTeamName].sort()); setNewTeamName(''); } };
+            const handleDeleteTeam = (t) => { if (sectors.some(s => s.team === t)) { alert(`O grupo "${t}" está em uso por setores.`); return; } onUpdateTeams(teams.filter(x => x !== t)); };
+            const saveTeamEdit = (idx) => {
+                const oldName = teams[idx]; const newName = editingTeamValue;
+                if (newName && newName !== oldName) { const updated = [...teams]; updated[idx] = newName; onUpdateTeams(updated.sort()); }
+                setEditingTeamIdx(null);
+            };
+
+            const totalWeight = sectors.reduce((s, x) => s + x.weight, 0);
+            const isWeightValid = Math.abs(totalWeight - 1) < 0.001;
+
+            return (
+                <div className="space-y-6 animate-in pb-20">
+                    {/* Tab Header */}
+                    <div className="flex flex-col lg:flex-row justify-between items-start lg:items-center gap-4">
+                        <div className="flex bg-[#C8C6C4] p-1.5 rounded-2xl border border-slate-200 shadow-inner overflow-x-auto">
+                            {[{ id: 'sectors', label: 'ESTRUTURA OKR/KPI' }, { id: 'users', label: 'GESTÃO DE PESSOAS' }, { id: 'teams', label: 'GRUPOS / TIMES' }].map(t => (
+                                <button key={t.id} onClick={() => setActiveTab(t.id)} className={`px-6 py-2.5 rounded-xl text-xs font-black uppercase tracking-widest transition-all shrink-0 ${activeTab === t.id ? 'bg-white text-blue-600 shadow-md scale-105' : 'text-slate-400 hover:text-slate-600'}`}>{t.label}</button>
+                            ))}
+                        </div>
+                        {activeTab === 'sectors' && (
+                            <div className={`px-5 py-3 rounded-2xl flex items-center gap-2 border-2 text-xs font-black uppercase tracking-tighter transition-all ${isWeightValid ? 'bg-emerald-50 border-emerald-100 text-emerald-600' : 'bg-amber-50 border-amber-100 text-amber-600 animate-pulse'}`}>
+                                ⚡ Impacto Estratégico: {Math.round(totalWeight * 100)}%
+                            </div>
+                        )}
+                        {activeTab === 'users' && !isCreatingUser && (
+                            <button onClick={() => setIsCreatingUser(true)} className="flex items-center gap-2 px-6 py-3 bg-blue-600 text-white rounded-2xl text-xs font-black uppercase tracking-widest shadow-xl shadow-blue-500/20 hover:bg-blue-700 transition-all active:scale-95">+ NOVO USUÁRIO</button>
+                        )}
+                    </div>
+
+                    {/* SECTORS TAB */}
+                    {activeTab === 'sectors' && (
+                        <div className="bg-white rounded-[3rem] shadow-2xl shadow-slate-200/60 border border-slate-100 overflow-hidden">
+                            <div className="overflow-x-auto">
+                                <table className="w-full text-left border-collapse min-w-[1400px]">
+                                    <thead className="bg-slate-50/80 border-b border-slate-100">
+                                        <tr>{['Grupo', 'Gestor', 'KPI / Título', 'Valor Alvo', 'Descrição KPI', 'Objetivo OKR', 'Peso %', 'Ações'].map(h => <th key={h} className="px-6 py-5 text-[10px] font-black text-slate-400 uppercase tracking-[0.3em]">{h}</th>)}</tr>
+                                    </thead>
+                                    <tbody className="divide-y divide-slate-100">
+                                        {sectors.map(sector => {
+                                            const isEditing = editingId === sector.id;
+                                            const manager = users.find(u => u.id === sector.managerId);
+                                            return (
+                                                <tr key={sector.id} className={`transition-all ${isEditing ? 'bg-blue-50/40 ring-inset ring-2 ring-blue-500/10' : 'hover:bg-slate-50/30'}`}>
+                                                    <td className="px-6 py-5 align-top">
+                                                        {isEditing ? <select name="team" value={editForm?.team} onChange={handleSectorChange} className="w-full p-2 text-xs border-2 border-blue-100 rounded-xl font-bold bg-white outline-none">{teams.map(t => <option key={t} value={t}>{t}</option>)}</select> : <span className="px-3 py-1 bg-slate-900 text-white rounded-lg text-[10px] font-black uppercase">{sector.team}</span>}
+                                                    </td>
+                                                    <td className="px-6 py-5 align-top">
+                                                        {isEditing ? <select name="managerId" value={editForm?.managerId} onChange={handleSectorChange} className="w-full p-2 text-xs border-2 border-blue-100 rounded-xl bg-white outline-none">{eligibleManagers.map(m => <option key={m.id} value={m.id}>{m.name}</option>)}</select> : <div className="flex items-center gap-2"><img src={manager?.avatar} className="w-6 h-6 rounded-full border border-slate-200" alt="" /><span className="text-xs font-bold text-slate-700">{manager?.name}</span></div>}
+                                                    </td>
+                                                    <td className="px-6 py-5 align-top">
+                                                        {isEditing ? <input name="name" value={editForm?.name} onChange={handleSectorChange} className="w-full p-2 text-xs border-2 border-blue-100 rounded-xl font-bold outline-none" /> : <p className="text-xs font-black uppercase text-slate-800">{sector.name}</p>}
+                                                    </td>
+                                                    <td className="px-6 py-5 align-top">
+                                                        {isEditing ? <input type="number" name="targetValue" value={editForm?.targetValue} onChange={handleSectorChange} className="w-full p-2 text-xs border-2 border-blue-100 rounded-xl font-bold outline-none" /> : <span className="text-xs font-mono font-bold text-slate-600">{Number(sector.targetValue).toLocaleString()}</span>}
+                                                    </td>
+                                                    <td className="px-6 py-5 align-top max-w-[120px]">
+                                                        {isEditing ? <input name="kpi" value={editForm?.kpi} onChange={handleSectorChange} className="w-full p-2 text-[10px] border-2 border-blue-100 rounded-xl outline-none" /> : <p className="text-[10px] text-slate-400 line-clamp-2">{sector.kpi}</p>}
+                                                    </td>
+                                                    <td className="px-6 py-5 align-top min-w-[200px]">
+                                                        {isEditing ? <textarea name="okr" value={editForm?.okr} onChange={handleSectorChange} rows={3} className="w-full p-2 text-xs border-2 border-blue-100 rounded-xl resize-none outline-none" /> : <p className="text-[10px] text-slate-500 leading-relaxed border-l-2 border-slate-100 pl-3">{sector.okr}</p>}
+                                                    </td>
+                                                    <td className="px-6 py-5 text-right align-top">
+                                                        {isEditing ? <input type="number" name="weight" value={Math.round((editForm?.weight || 0) * 100)} onChange={handleSectorChange} className="w-16 p-2 text-xs text-right border-2 border-blue-100 rounded-xl font-bold text-blue-600 outline-none" /> : <span className="text-base font-black text-blue-600">{Math.round(sector.weight * 100)}%</span>}
+                                                    </td>
+                                                    <td className="px-6 py-5 text-center align-top">
+                                                        {isEditing ? (
+                                                            <div className="flex flex-col gap-2">
+                                                                <button onClick={saveSector} className="p-2 bg-emerald-500 text-white rounded-xl hover:bg-emerald-600 transition-all text-xs font-black">✓</button>
+                                                                <button onClick={() => setEditingId(null)} className="p-2 bg-[#C8C6C4] text-slate-400 rounded-xl hover:bg-slate-200 transition-all text-xs font-black">✕</button>
+                                                            </div>
+                                                        ) : <button onClick={() => startEditingSector(sector)} className="p-2 text-slate-400 hover:text-blue-500 hover:bg-blue-50 rounded-xl transition-all">✏️</button>}
+                                                    </td>
+                                                </tr>
+                                            );
+                                        })}
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    )}
+
+                    {/* USERS TAB */}
+                    {activeTab === 'users' && (
+                        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                            {isCreatingUser && (
+                                <div className="p-8 rounded-[3rem] bg-blue-50/50 border-2 border-dashed border-blue-200 shadow-xl">
+                                    <div className="flex flex-col items-center text-center">
+                                        <div className="relative mb-6">
+                                            <img src={newUserForm.avatar} className="w-24 h-24 rounded-full border-4 border-white shadow-xl" alt="" />
+                                            <button onClick={() => setNewUserForm(p => ({ ...p, avatar: `https://api.dicebear.com/7.x/avataaars/svg?seed=${Math.random().toString(36).substring(7)}` }))} className="absolute bottom-0 right-0 bg-white p-1.5 rounded-full shadow border border-slate-100 hover:bg-blue-50 text-blue-600 text-xs">🔄</button>
+                                        </div>
+                                        <div className="w-full space-y-3">
+                                            <input name="name" placeholder="Nome completo" value={newUserForm.name} onChange={handleNewUserChange} className="w-full p-3 text-sm border-2 border-white rounded-2xl font-bold text-center focus:border-blue-500 outline-none bg-white shadow-sm" />
+                                            <div className="grid grid-cols-2 gap-3">
+                                                <select name="role" value={newUserForm.role} onChange={handleNewUserChange} className="w-full p-3 text-[10px] border-2 border-white rounded-2xl font-black uppercase text-center focus:border-blue-500 outline-none bg-white">
+                                                    {['CEO', 'DIRECTOR', 'ADMIN', 'MANAGER', 'CONTROLLER'].map(r => <option key={r} value={r}>{r}</option>)}
+                                                </select>
+                                                <select name="team" value={newUserForm.team} onChange={handleNewUserChange} className="w-full p-3 text-[10px] border-2 border-white rounded-2xl font-black uppercase text-center focus:border-blue-500 outline-none bg-white">
+                                                    <option value="">Nenhum</option>{teams.map(t => <option key={t} value={t}>{t}</option>)}
+                                                </select>
+                                            </div>
+                                            <select name="reportsTo" value={newUserForm.reportsTo} onChange={handleNewUserChange} className="w-full p-3 text-[10px] border-2 border-white rounded-2xl font-black uppercase text-center focus:border-blue-500 outline-none bg-white">
+                                                <option value="">Ninguém (Root)</option>{users.map(u => <option key={u.id} value={u.id}>{u.name} ({u.role})</option>)}
+                                            </select>
+                                            <div className="flex gap-3 pt-2">
+                                                <button onClick={saveNewUser} className="flex-1 bg-blue-600 text-white py-3 rounded-2xl font-black text-[10px] uppercase shadow-lg active:scale-95 hover:bg-blue-700">CRIAR</button>
+                                                <button onClick={() => setIsCreatingUser(false)} className="flex-1 bg-white text-slate-500 py-3 rounded-2xl font-black text-[10px] uppercase active:scale-95 hover:bg-slate-50 border border-slate-200">CANCELAR</button>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            )}
+                            {users.map(user => {
+                                const isEditing = userEditId === user.id;
+                                const superior = users.find(u => u.id === user.reportsTo);
+                                return (
+                                    <div key={user.id} className={`p-8 rounded-[3rem] bg-white border border-slate-100 shadow-xl shadow-slate-200/40 transition-all group relative ${isEditing ? 'ring-2 ring-blue-500' : ''}`}>
+                                        {!isEditing && <button onClick={() => { if (confirm('Excluir usuário?')) onDeleteUser(user.id); }} className="absolute top-6 right-6 p-2 text-slate-200 hover:text-red-500 hover:bg-red-50 rounded-xl transition-all opacity-0 group-hover:opacity-100">🗑️</button>}
+                                        <div className="flex flex-col items-center text-center">
+                                            <div className="relative mb-6">
+                                                <img src={isEditing ? userEditForm?.avatar : user.avatar} className="w-24 h-24 rounded-full border-4 border-white shadow-xl" alt="" />
+                                                {isEditing && <button onClick={() => setUserEditForm(p => p ? { ...p, avatar: `https://api.dicebear.com/7.x/avataaars/svg?seed=${Math.random().toString(36).substring(7)}` } : null)} className="absolute bottom-0 right-0 bg-white p-1.5 rounded-full shadow border border-slate-100 hover:bg-blue-50 text-blue-600 text-xs">🔄</button>}
+                                            </div>
+                                            {isEditing ? (
+                                                <div className="w-full space-y-3">
+                                                    <input name="name" value={userEditForm?.name} onChange={handleUserChange} className="w-full p-3 text-sm border-2 border-blue-50 rounded-2xl font-bold text-center focus:border-blue-500 outline-none" />
+                                                    <div className="grid grid-cols-2 gap-3">
+                                                        <select name="role" value={userEditForm?.role} onChange={handleUserChange} className="w-full p-3 text-[10px] border-2 border-blue-50 rounded-2xl font-black uppercase text-center focus:border-blue-500 outline-none bg-white cursor-pointer">
+                                                            {['CEO', 'DIRECTOR', 'ADMIN', 'MANAGER', 'CONTROLLER'].map(r => <option key={r} value={r}>{r}</option>)}
+                                                        </select>
+                                                        <select name="team" value={userEditForm?.team} onChange={handleUserChange} className="w-full p-3 text-[10px] border-2 border-blue-50 rounded-2xl font-black uppercase text-center focus:border-blue-500 outline-none bg-white cursor-pointer">
+                                                            <option value="">NENHUM</option>{teams.map(t => <option key={t} value={t}>{t}</option>)}
+                                                        </select>
+                                                    </div>
+                                                    <select name="reportsTo" value={userEditForm?.reportsTo} onChange={handleUserChange} className="w-full p-3 text-[10px] border-2 border-blue-50 rounded-2xl font-black uppercase text-center focus:border-blue-500 outline-none bg-white cursor-pointer">
+                                                        <option value="">NINGUÉM (ROOT)</option>{users.filter(u => u.id !== user.id).map(u => <option key={u.id} value={u.id}>{u.name} ({u.role})</option>)}
+                                                    </select>
+                                                    <div className="flex gap-3 pt-2">
+                                                        <button onClick={saveUser} className="flex-1 bg-emerald-500 text-white py-3 rounded-2xl font-black text-[10px] uppercase shadow-lg active:scale-95 hover:bg-emerald-600">SALVAR</button>
+                                                        <button onClick={() => setUserEditId(null)} className="flex-1 bg-[#C8C6C4] text-slate-500 py-3 rounded-2xl font-black text-[10px] uppercase active:scale-95 hover:bg-slate-200">CANCELAR</button>
+                                                    </div>
+                                                </div>
+                                            ) : (
+                                                <>
+                                                    <h4 className="text-xl font-black text-slate-800 tracking-tight">{user.name}</h4>
+                                                    <div className="flex items-center gap-2 mb-4 mt-2">
+                                                        <span className="text-[10px] font-black uppercase tracking-[0.25em] text-blue-500 px-3 py-1 bg-blue-50 rounded-full">{user.role}</span>
+                                                        {user.team && <span className="text-[10px] font-black uppercase tracking-[0.25em] text-slate-500 px-3 py-1 bg-[#C8C6C4] rounded-full">{user.team}</span>}
+                                                    </div>
+                                                    {superior && (
+                                                        <div className="flex items-center gap-2 mb-6 p-3 bg-slate-50 rounded-2xl border border-slate-100 w-full">
+                                                            <img src={superior.avatar} className="w-5 h-5 rounded-full" alt="" />
+                                                            <div className="flex flex-col items-start"><span className="text-[8px] font-black text-slate-400 uppercase tracking-widest">REPORTA A</span><span className="text-[10px] font-bold text-slate-700">{superior.name}</span></div>
+                                                        </div>
+                                                    )}
+                                                    {!superior && user.role !== 'CEO' && (
+                                                        <div className="flex items-center gap-2 mb-6 p-3 bg-amber-50 rounded-2xl border border-amber-100 w-full">
+                                                            <span className="text-amber-500">⚠️</span><span className="text-[9px] font-black text-amber-700 uppercase tracking-widest">SEM SUPERIOR DEFINIDO</span>
+                                                        </div>
+                                                    )}
+                                                    <button onClick={() => startEditingUser(user)} className="flex items-center gap-2 px-8 py-3 bg-slate-900 text-white hover:bg-blue-600 rounded-full text-[10px] font-black uppercase tracking-[0.2em] transition-all active:scale-90 shadow-lg">✏️ EDITAR PERFIL</button>
+                                                </>
+                                            )}
+                                        </div>
+                                    </div>
+                                );
+                            })}
+                        </div>
+                    )}
+
+                    {/* TEAMS TAB */}
+                    {activeTab === 'teams' && (
+                        <div className="max-w-4xl mx-auto space-y-8">
+                            <div className="bg-white p-10 rounded-[3rem] border border-slate-100 shadow-xl">
+                                <h3 className="text-lg font-black text-slate-800 uppercase tracking-tight mb-2">NOVO GRUPO / TIME</h3>
+                                <p className="text-xs text-slate-400 mb-8 uppercase font-bold tracking-tight">ESTES NOMES APARECERÃO NO DROPDOWN DE SELEÇÃO DE SETORES.</p>
+                                <div className="flex gap-3">
+                                    <input type="text" value={newTeamName} onChange={e => setNewTeamName(e.target.value)} placeholder="EX: MARKETING, LOGÍSTICA..." className="flex-1 p-4 border-2 border-slate-100 rounded-2xl text-sm font-bold focus:border-blue-500 outline-none bg-slate-50/50" />
+                                    <button onClick={handleAddTeam} className="bg-blue-600 text-white px-8 rounded-2xl font-black text-[10px] uppercase tracking-widest shadow-xl hover:bg-blue-700 transition-all active:scale-95">+ ADICIONAR</button>
+                                </div>
+                            </div>
+                            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                                {teams.map((team, idx) => (
+                                    <div key={idx} className="bg-white p-6 rounded-3xl border border-slate-100 shadow-sm flex items-center justify-between group hover:shadow-md transition-all">
+                                        {editingTeamIdx === idx ? (
+                                            <div className="flex gap-2 w-full">
+                                                <input autoFocus value={editingTeamValue} onChange={e => setEditingTeamValue(e.target.value)} className="flex-1 p-2 text-sm font-black uppercase border-b-2 border-blue-500 outline-none" />
+                                                <button onClick={() => saveTeamEdit(idx)} className="p-2 text-emerald-500 hover:bg-emerald-50 rounded-lg">✓</button>
+                                                <button onClick={() => setEditingTeamIdx(null)} className="p-2 text-slate-400 hover:bg-slate-50 rounded-lg">✕</button>
+                                            </div>
+                                        ) : (
+                                            <>
+                                                <div className="flex items-center gap-3">
+                                                    <div className="w-10 h-10 rounded-2xl bg-slate-50 flex items-center justify-center text-slate-300 text-lg font-bold">≡</div>
+                                                    <span className="text-xs font-black uppercase tracking-widest text-slate-700">{team}</span>
+                                                </div>
+                                                <div className="flex gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
+                                                    <button onClick={() => { setEditingTeamIdx(idx); setEditingTeamValue(team); }} className="p-2 text-slate-300 hover:text-blue-500 hover:bg-blue-50 rounded-xl transition-all">✏️</button>
+                                                    <button onClick={() => handleDeleteTeam(team)} className="p-2 text-slate-300 hover:text-red-500 hover:bg-red-50 rounded-xl transition-all">🗑️</button>
+                                                </div>
+                                            </>
+                                        )}
+                                    </div>
+                                ))}
+                            </div>
+                        </div>
+                    )}
+
+                    {/* Footer */}
+                    <div className="flex justify-between items-center bg-slate-900 p-8 rounded-[3rem] text-slate-400 mt-12 shadow-2xl shadow-slate-900/20">
+                        <div className="flex items-center gap-4">
+                            <span className="text-blue-500 text-xl">⚡</span>
+                            <div className="flex flex-col"><span className="text-[10px] font-black uppercase tracking-[0.3em]">SINCRONIZAÇÃO ATIVA</span><span className="text-[9px] font-bold text-slate-600 uppercase tracking-widest">GOVERNANÇA CORPORATIVA DE DADOS 2026</span></div>
+                        </div>
+                        <p className="text-[10px] opacity-30 font-bold uppercase tracking-tighter">ALTERAÇÕES SÃO PERMANENTES E AUDITADAS</p>
+                    </div>
+                </div>
+            );
+        };
+
+        // OKR Flow — Main Screen (embedded inside Mauá layout)
+        const OKRFlowScreen = (props) => {
+            const { navigate, activeManagerId, setActiveManager } = props;
+            const [activeOkrTab, setActiveOkrTab] = useState('board');
+
+            const tabs = [
+                { id: 'board', label: 'Quadro OKR', icon: 'M4 5a1 1 0 011-1h14a1 1 0 011 1v2a1 1 0 01-1 1H5a1 1 0 01-1-1V5zM4 13a1 1 0 011-1h6a1 1 0 011 1v6a1 1 0 01-1 1H5a1 1 0 01-1-1v-6zM16 13a1 1 0 011-1h2a1 1 0 011 1v6a1 1 0 01-1 1h-2a1 1 0 01-1-1v-6z' },
+                { id: 'dashboard', label: 'Monitoramento', icon: 'M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z' },
+            ];
+
+            return (
+                <div className="flex min-h-screen bg-[#C8C6C4] relative">
+                    <Sidebar currentView="okr" setView={navigate} activeManagerId={activeManagerId} setActiveManager={setActiveManager} />
+                    <main className="flex-1 overflow-y-auto bg-[#C8C6C4]">
+                        {/* OKR Header */}
+                        <header className="sticky top-0 z-30 bg-white/80 backdrop-blur-md border-b border-slate-100 p-6 flex justify-between items-center lg:pl-[100px]">
+                            <div>
+                                <h1 className="text-2xl font-black text-slate-800 uppercase tracking-tight">
+                                    {activeOkrTab === 'dashboard' && 'MONITORAMENTO DE PERFORMANCE'}
+                                    {activeOkrTab === 'board' && 'PAINEL ESTRATÉGICO OKR'}
+                                </h1>
+                                <p className="text-xs text-slate-400 font-medium uppercase tracking-widest">OKR FLOW · CORPORATIVO 2026 · CICLO ANUAL</p>
+                            </div>
+                            <div className="flex items-center gap-6">
+                                {/* Tab Nav */}
+                                <div className="hidden md:flex items-center gap-1 bg-[#C8C6C4] p-1 rounded-xl">
+                                    {tabs.map(t => (
+                                        <button key={t.id} onClick={() => setActiveOkrTab(t.id)} className={`flex items-center gap-2 px-4 py-2 rounded-lg text-xs font-bold uppercase tracking-wider transition-all ${activeOkrTab === t.id ? 'bg-white text-blue-600 shadow-md' : 'text-slate-400 hover:text-slate-600'}`}>
+                                            <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d={t.icon} /></svg>
+                                            {t.label}
+                                        </button>
+                                    ))}
+                                </div>
+                                <div className="flex flex-col items-end">
+                                    <span className="text-[10px] text-slate-400 font-black uppercase tracking-tighter">STATUS ATUAL</span>
+                                    <span className="px-3 py-1 bg-blue-100 text-blue-700 rounded-full text-xs font-black">SEMANA {OKR_CURRENT_WEEK} / {OKR_CURRENT_YEAR}</span>
+                                </div>
+                            </div>
+                        </header>
+
+                        <div className="p-8 lg:pl-[104px]">
+                            {activeOkrTab === 'dashboard' && <OKRDashboardView sectors={props.okrSectors} history={props.okrHistory} users={props.okrUsers} />}
+                            {activeOkrTab === 'board' && <OKRBoardView sectors={props.okrSectors} history={props.okrHistory} users={props.okrUsers} />}
+                        </div>
+                    </main>
+                </div>
+            );
+        };
+
+        // ============================================================
+        //  ROOT APP
+        // ============================================================
+        function App() {
+            const [view, setView] = useState('login');
+            const [gestorId, setGestorId] = useState(managersData[0].id);
+
+            // OKR SHARED STATE (LIFTED)
+            const [okrHistory, setOkrHistory] = useState(() => { try { const s = localStorage.getItem('okr_history_2026'); return s ? JSON.parse(s) : OKR_INITIAL_HISTORY; } catch { return OKR_INITIAL_HISTORY; } });
+            const [okrSectors, setOkrSectors] = useState(() => { try { const s = localStorage.getItem('okr_sectors_2026'); return s ? JSON.parse(s) : OKR_MOCK_SECTORS; } catch { return OKR_MOCK_SECTORS; } });
+            const [okrUsers, setOkrUsers] = useState(() => { try { const s = localStorage.getItem('okr_users_2026c'); return s ? JSON.parse(s) : OKR_MOCK_USERS; } catch { return OKR_MOCK_USERS; } });
+            const [okrTeams, setOkrTeams] = useState(() => { try { const s = localStorage.getItem('okr_teams_2026'); return s ? JSON.parse(s) : OKR_INITIAL_TEAMS; } catch { return OKR_INITIAL_TEAMS; } });
+
+            useEffect(() => { localStorage.setItem('okr_history_2026', JSON.stringify(okrHistory)); }, [okrHistory]);
+            useEffect(() => { localStorage.setItem('okr_sectors_2026', JSON.stringify(okrSectors)); }, [okrSectors]);
+            useEffect(() => { localStorage.setItem('okr_teams_2026', JSON.stringify(okrTeams)); }, [okrTeams]);
+            useEffect(() => { localStorage.setItem('okr_users_2026c', JSON.stringify(okrUsers)); }, [okrUsers]);
+
+            const handleUpdateSector = (updated) => setOkrSectors(prev => prev.map(s => s.id === updated.id ? updated : s));
+            const handleUpdateUser = (updated) => setOkrUsers(prev => prev.map(u => u.id === updated.id ? updated : u));
+            const handleAddUser = (newUser) => setOkrUsers(prev => [...prev, newUser]);
+            const handleDeleteUser = (userId) => setOkrUsers(prev => prev.filter(u => u.id !== userId));
+            const handleUpdateTeams = (newTeams) => setOkrTeams(newTeams);
+            const handleAddEntry = (entry) => setOkrHistory(prev => [...prev, { ...entry, id: `h-${Date.now()}`, timestamp: new Date().toISOString() }]);
+
+            const sharedOkrProps = {
+                okrHistory, okrSectors, okrUsers, okrTeams,
+                handleUpdateSector, handleUpdateUser, handleAddUser, handleDeleteUser, handleUpdateTeams, handleAddEntry
+            };
+
+            useEffect(() => {
+                const checkAuth = async () => {
+                    try {
+                        await msalInstance.handleRedirectPromise();
+                        const accounts = msalInstance.getAllAccounts();
+                        if (accounts.length > 0 && view === 'login') {
+                            const em = accounts[0].username.toLowerCase().trim();
+                            if (allowedEmails.some(e => e.toLowerCase().trim() === em)) nav('ceo');
+                        }
+                    } catch (error) { console.error("Erro de autenticação:", error); }
+                };
+                checkAuth();
+            }, []);
+
+            const nav = (v) => { window.scrollTo(0, 0); setView(v); };
+
+            const props = { navigate: nav, activeManagerId: gestorId, setActiveManager: setGestorId };
+
+            const render = () => {
+                if (view === 'login') return <LoginScreen setScreen={nav} />;
+                if (view === 'ceo') return <DashboardCEO {...props} />;
+                if (view === 'gestor') return <DashboardGestor {...props} />;
+                if (view === 'metas') return <MetasScreen {...props} {...sharedOkrProps} />;
+                if (view === 'okr') return <OKRFlowScreen {...props} {...sharedOkrProps} />;
+                return <LoginScreen setScreen={nav} />;
+            };
+
+            return <div className="w-full min-h-screen bg-[#C8C6C4] shadow-inner overflow-x-hidden antialiased">{render()}</div>;
+        }
+
+        const root = ReactDOM.createRoot(document.getElementById('root'));
+        root.render(<App />);
+    </script>
+
+</body>
+
+</html>

@@ -213,12 +213,17 @@
                 </div>
                 <div id="summaryArea" class="grid grid-cols-2 sm:grid-cols-4 lg:grid-cols-8 gap-3 mb-6"></div>
                 <!-- Análise por Peça -->
-                <div
-                    class="bg-light-blue text-primary font-bold px-4 py-2 rounded mb-4 uppercase text-sm tracking-wide">
-                    Análise por Peça
+                <!-- Análise por Peça (Valores Absolutos) -->
+                <div onclick="toggleTable('containerTabelaAbs', this)"
+                    class="bg-light-blue text-primary font-bold px-4 py-2 rounded mb-4 uppercase text-sm tracking-wide cursor-pointer flex justify-between items-center hover:opacity-80 transition-opacity">
+                    <span>Análise por Peça (Valores Absolutos)</span>
+                    <svg class="table-toggle-icon w-5 h-5 transform transition-transform text-primary" fill="none"
+                        stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path>
+                    </svg>
                 </div>
-                <!-- Tabela -->
-                <div class="overflow-x-auto rounded-lg shadow border border-gray-200">
+                <div id="containerTabelaAbs"
+                    class="overflow-x-auto rounded-lg shadow border border-gray-200 mb-6 hidden">
                     <table id="resultsTable" class="w-full border-collapse text-sm">
                         <thead>
                             <tr class="bg-primary text-white">
@@ -227,13 +232,42 @@
                                 <th class="px-4 py-3 font-semibold">FIT-UP = A</th>
                                 <th class="px-4 py-3 font-semibold">WELDING = A</th>
                                 <th class="px-4 py-3 font-semibold">VISUAL TEST = A</th>
-                                <th class="px-4 py-3 font-semibold">% FIT-UP = A</th>
-                                <th class="px-4 py-3 font-semibold">% WELDING = A</th>
-                                <th class="px-4 py-3 font-semibold">% VISUAL TEST = A</th>
-                                <th class="px-4 py-3 font-semibold">% AVANÇO TON TOTAL</th>
+                                <th class="px-4 py-3 font-semibold">WELD 1º REP = A</th>
+                                <th class="px-4 py-3 font-semibold">WELD 2º REP = A</th>
+                                <th class="px-4 py-3 font-semibold">VISUAL 1º REP = A</th>
+                                <th class="px-4 py-3 font-semibold">VISUAL 2º REP = A</th>
                             </tr>
                         </thead>
                         <tbody id="tableBody"></tbody>
+                    </table>
+                </div>
+
+                <!-- Análise por Peça (Percentuais) -->
+                <div onclick="toggleTable('containerTabelaPct', this)"
+                    class="bg-light-blue text-primary font-bold px-4 py-2 rounded mb-4 uppercase text-sm tracking-wide cursor-pointer flex justify-between items-center hover:opacity-80 transition-opacity">
+                    <span>Análise por Peça (Percentuais)</span>
+                    <svg class="table-toggle-icon w-5 h-5 transform transition-transform text-primary" fill="none"
+                        stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path>
+                    </svg>
+                </div>
+                <div id="containerTabelaPct" class="overflow-x-auto rounded-lg shadow border border-gray-200 hidden">
+                    <table id="resultsTablePct" class="w-full border-collapse text-sm">
+                        <thead>
+                            <tr class="bg-primary text-white">
+                                <th class="px-4 py-3 text-left font-semibold">PEÇA</th>
+                                <th class="px-4 py-3 font-semibold">QTD TOTAL</th>
+                                <th class="px-4 py-3 font-semibold">% FIT-UP = A</th>
+                                <th class="px-4 py-3 font-semibold">% WELDING = A</th>
+                                <th class="px-4 py-3 font-semibold">% VISUAL TEST = A</th>
+                                <th class="px-4 py-3 font-semibold">% WELD 1º REV = A</th>
+                                <th class="px-4 py-3 font-semibold">% WELD 2º REV = A</th>
+                                <th class="px-4 py-3 font-semibold">% VISUAL 1º REV = A</th>
+                                <th class="px-4 py-3 font-semibold">% VISUAL 2º REV = A</th>
+                                <th class="px-4 py-3 font-semibold">% AVANÇO TON TOTAL</th>
+                            </tr>
+                        </thead>
+                        <tbody id="tableBodyPct"></tbody>
                     </table>
                 </div>
             </div>
@@ -377,7 +411,7 @@
                         setTimeout(() => {
                             const allData = XLSX.utils.sheet_to_json(workbook.Sheets[sheetName], { header: "A", defval: "" });
                             let headerRowIdx = -1;
-                            cols = { juntas: "", ass: "", item: "", stage: "", fitup: "AN", welding: "AS", visual: "" };
+                            cols = { juntas: "", ass: "", item: "", stage: "", fitup: "AN", welding: "AS", visual: "BL", weld1Rep: "AY", weld2Rep: "BE", visual1Rep: "BP", visual2Rep: "BT" };
                             // Busca a linha de cabeçalho — aceita variações de nome de coluna
                             for (let i = 0; i < Math.min(allData.length, 20); i++) {
                                 const r = allData[i];
@@ -392,10 +426,6 @@
                                         cols.item = key;
                                     } else if (val === "STAGE" || val === "ETAPA") {
                                         cols.stage = key;
-                                    } else if (val.includes("VISUAL") && val.includes("TEST")) {
-                                        cols.visual = key;
-                                    } else if (val === "VISUAL") {
-                                        cols.visual = key;
                                     }
                                 }
                                 if (foundJuntas) {
@@ -465,48 +495,77 @@
         }
         function processData() {
             if (rawData.length === 0) return alert("Carregue um arquivo primeiro.");
-            const filterAss = document.getElementById('assemblyFilter').value;
-            const filterStage = document.getElementById('stageFilter').value;
-            const stats = new Map();
-            let totals = { juntas: 0, fitA: 0, weldA: 0, visualA: 0 };
-            rawData.forEach(row => {
-                const assembly = String(row[cols.ass] || "").trim();
-                const item1 = String(row[cols.item] || "").trim();
-                const stage = normalizeText(row[cols.stage]);
-                const assLast3 = assembly.slice(-3); // últimos 3 chars do ASSEMBLY DRAWING
-                let stageMatch = false;
-                if (filterStage === "TODOS") {
-                    stageMatch = true;
-                } else if (filterStage === "WORKSHOP" && stage.includes("WORKSHOP")) {
-                    stageMatch = true;
-                } else if (filterStage === "ASSEMBLY" && stage.includes("ASSEMBLY")) {
-                    stageMatch = true;
-                } else if (filterStage === "PRIMARIA" && ["103", "102", "172"].includes(assLast3)) {
-                    stageMatch = true;
-                } else if (filterStage === "SECUNDARIA" && ["202", "203"].includes(assLast3)) {
-                    stageMatch = true;
-                }
-                if ((filterAss === "TODOS" || assembly === filterAss) && stageMatch) {
-                    const chave = item1.length > 2 ? item1.substring(0, item1.length - 2) : item1;
-                    if (!chave || chave === "") return;
-                    if (!stats.has(chave)) {
-                        stats.set(chave, { total: 0, fitA: 0, weldA: 0, visualA: 0 });
+
+            const loadingIndicator = document.getElementById('loadingIndicator');
+            const progressBar = document.getElementById('progressBar');
+            document.querySelector('#loadingIndicator span').innerText = "Aplicando filtros...";
+            loadingIndicator.style.display = 'flex';
+            progressBar.style.width = '30%';
+
+            setTimeout(() => {
+                const filterAss = document.getElementById('assemblyFilter').value;
+                const filterStage = document.getElementById('stageFilter').value;
+                const stats = new Map();
+                let totals = { juntas: 0, fitA: 0, weldA: 0, visualA: 0, weld1A: 0, weld2A: 0, vis1A: 0, vis2A: 0 };
+                rawData.forEach(row => {
+                    const assembly = String(row[cols.ass] || "").trim();
+                    const item1 = String(row[cols.item] || "").trim();
+                    const stage = normalizeText(row[cols.stage]);
+                    const assLast3 = assembly.slice(-3); // últimos 3 chars do ASSEMBLY DRAWING
+                    let stageMatch = false;
+                    if (filterStage === "TODOS") {
+                        stageMatch = true;
+                    } else if (filterStage === "WORKSHOP" && stage.includes("WORKSHOP")) {
+                        stageMatch = true;
+                    } else if (filterStage === "ASSEMBLY" && stage.includes("ASSEMBLY")) {
+                        stageMatch = true;
+                    } else if (filterStage === "PRIMARIA" && ["103", "102", "172"].includes(assLast3)) {
+                        stageMatch = true;
+                    } else if (filterStage === "SECUNDARIA" && ["202", "203"].includes(assLast3)) {
+                        stageMatch = true;
                     }
-                    const s = stats.get(chave);
-                    const fitVal = normalizeText(row[cols.fitup]);
-                    const weldVal = normalizeText(row[cols.welding]);
-                    const visualVal = cols.visual ? normalizeText(row[cols.visual]) : "";
-                    s.total++;
-                    totals.juntas++;
-                    if (fitVal === "A") { s.fitA++; totals.fitA++; }
-                    if (weldVal === "A") { s.weldA++; totals.weldA++; }
-                    if (visualVal === "A") { s.visualA++; totals.visualA++; }
-                }
-            });
-            lastStats = stats;
-            lastTotals = totals;
-            renderUI(stats, totals, filterStage);
-            onPieceFilter();
+                    if ((filterAss === "TODOS" || assembly === filterAss) && stageMatch) {
+                        const chave = item1.length > 2 ? item1.substring(0, item1.length - 2) : item1;
+                        if (!chave || chave === "") return;
+                        if (!stats.has(chave)) {
+                            stats.set(chave, { total: 0, fitA: 0, weldA: 0, visualA: 0, weld1A: 0, weld2A: 0, vis1A: 0, vis2A: 0 });
+                        }
+                        const s = stats.get(chave);
+                        const fitVal = normalizeText(row[cols.fitup]);
+                        const weldVal = normalizeText(row[cols.welding]);
+                        const visualVal = cols.visual ? normalizeText(row[cols.visual]) : "";
+                        const w1Val = cols.weld1Rep ? normalizeText(row[cols.weld1Rep]) : "";
+                        const w2Val = cols.weld2Rep ? normalizeText(row[cols.weld2Rep]) : "";
+                        const v1Val = cols.visual1Rep ? normalizeText(row[cols.visual1Rep]) : "";
+                        const v2Val = cols.visual2Rep ? normalizeText(row[cols.visual2Rep]) : "";
+                        s.total++;
+                        totals.juntas++;
+                        if (fitVal === "A") { s.fitA++; totals.fitA++; }
+                        if (weldVal === "A") { s.weldA++; totals.weldA++; }
+                        if (visualVal === "A") { s.visualA++; totals.visualA++; }
+                        if (w1Val === "A") { s.weld1A++; totals.weld1A++; }
+                        if (w2Val === "A") { s.weld2A++; totals.weld2A++; }
+                        if (v1Val === "A") { s.vis1A++; totals.vis1A++; }
+                        if (v2Val === "A") { s.vis2A++; totals.vis2A++; }
+                    }
+                });
+                lastStats = stats;
+                lastTotals = totals;
+
+                progressBar.style.width = '70%';
+
+                setTimeout(() => {
+                    renderUI(stats, totals, filterStage);
+                    onPieceFilter();
+
+                    progressBar.style.width = '100%';
+                    setTimeout(() => {
+                        loadingIndicator.style.display = 'none';
+                        progressBar.style.width = '0%';
+                        document.querySelector('#loadingIndicator span').innerText = "Lendo o arquivo...";
+                    }, 400);
+                }, 50);
+            }, 50);
         }
         function getStatusClass(perc) {
             if (perc >= 0.8) return "status-green";
@@ -519,14 +578,20 @@
             const pctFitA = (totals.fitA / totals.juntas) || 0;
             const pctWeldA = (totals.weldA / totals.juntas) || 0;
             const pctVisualA = (totals.visualA / totals.juntas) || 0;
+            const pctWeld1A = (totals.weld1A / totals.juntas) || 0;
+            const pctWeld2A = (totals.weld2A / totals.juntas) || 0;
+            const pctVis1A = (totals.vis1A / totals.juntas) || 0;
+            const pctVis2A = (totals.vis2A / totals.juntas) || 0;
             const card = (label, value, cls = "") =>
                 `<div class="border border-gray-200 rounded-lg p-3 text-center shadow-sm bg-white">
                     <span class="block text-xs text-gray-500 mb-1">${label}</span>
                     <strong class="text-xl ${cls || 'text-primary'}">${value}</strong>
                  </div>`;
             const tbody = document.getElementById('tableBody');
+            const tbodyPct = document.getElementById('tableBodyPct');
             const datalist = document.getElementById('piecesDatalist');
             tbody.innerHTML = "";
+            tbodyPct.innerHTML = "";
             datalist.innerHTML = "";
             let totalAvancoTonGeral = 0;
             Array.from(stats.keys()).sort().forEach(key => {
@@ -534,6 +599,10 @@
                 const pFitA = (s.fitA / s.total) || 0;
                 const pWeldA = (s.weldA / s.total) || 0;
                 const pVisualA = (s.visualA / s.total) || 0;
+                const pWeld1A = (s.weld1A / s.total) || 0;
+                const pWeld2A = (s.weld2A / s.total) || 0;
+                const pVis1A = (s.vis1A / s.total) || 0;
+                const pVis2A = (s.vis2A / s.total) || 0;
                 let pesoDaPeca = 0;
                 const pesosItem = pesosSupabase[key] || { FABRICACAO: 0, MONTAGEM: 0 };
                 if (filterStage === "WORKSHOP") {
@@ -553,9 +622,22 @@
                     <td class="border border-gray-200 px-4 py-2 text-center">${s.fitA}</td>
                     <td class="border border-gray-200 px-4 py-2 text-center">${s.weldA}</td>
                     <td class="border border-gray-200 px-4 py-2 text-center">${s.visualA}</td>
+                    <td class="border border-gray-200 px-4 py-2 text-center">${s.weld1A}</td>
+                    <td class="border border-gray-200 px-4 py-2 text-center">${s.weld2A}</td>
+                    <td class="border border-gray-200 px-4 py-2 text-center">${s.vis1A}</td>
+                    <td class="border border-gray-200 px-4 py-2 text-center">${s.vis2A}</td>
+                </tr>`;
+
+                tbodyPct.innerHTML += `<tr>
+                    <td class="border border-gray-200 px-4 py-2 text-left font-bold text-primary">${key}</td>
+                    <td class="border border-gray-200 px-4 py-2 text-center">${s.total}</td>
                     <td class="border border-gray-200 px-4 py-2 text-center ${getStatusClass(pFitA)}">${(pFitA * 100).toFixed(2)}%</td>
                     <td class="border border-gray-200 px-4 py-2 text-center ${getStatusClass(pWeldA)}">${(pWeldA * 100).toFixed(2)}%</td>
                     <td class="border border-gray-200 px-4 py-2 text-center ${getStatusClass(pVisualA)}">${(pVisualA * 100).toFixed(2)}%</td>
+                    <td class="border border-gray-200 px-4 py-2 text-center ${getStatusClass(pWeld1A)}">${(pWeld1A * 100).toFixed(2)}%</td>
+                    <td class="border border-gray-200 px-4 py-2 text-center ${getStatusClass(pWeld2A)}">${(pWeld2A * 100).toFixed(2)}%</td>
+                    <td class="border border-gray-200 px-4 py-2 text-center ${getStatusClass(pVis1A)}">${(pVis1A * 100).toFixed(2)}%</td>
+                    <td class="border border-gray-200 px-4 py-2 text-center ${getStatusClass(pVis2A)}">${(pVis2A * 100).toFixed(2)}%</td>
                     <td class="border border-gray-200 px-4 py-2 text-center font-semibold text-primary">${avancoTotalTon.toFixed(2)}</td>
                 </tr>`;
                 const opt = document.createElement('option');
@@ -567,24 +649,52 @@
                 card("FIT-UP = A", totals.fitA) +
                 card("WELDING = A", totals.weldA) +
                 card("VISUAL TEST = A", totals.visualA) +
+                card("WELD 1º REV = A", totals.weld1A) +
+                card("WELD 2º REV = A", totals.weld2A) +
+                card("VISUAL 1º REV = A", totals.vis1A) +
+                card("VISUAL 2º REV = A", totals.vis2A) +
                 card("% FIT-UP = A", `${(pctFitA * 100).toFixed(2)}%`, getStatusClass(pctFitA)) +
                 card("% WELDING = A", `${(pctWeldA * 100).toFixed(2)}%`, getStatusClass(pctWeldA)) +
                 card("% VISUAL TEST = A", `${(pctVisualA * 100).toFixed(2)}%`, getStatusClass(pctVisualA)) +
+                card("% WELD 1º REV", `${(pctWeld1A * 100).toFixed(2)}%`, getStatusClass(pctWeld1A)) +
+                card("% WELD 2º REV", `${(pctWeld2A * 100).toFixed(2)}%`, getStatusClass(pctWeld2A)) +
+                card("% VISUAL 1º REV", `${(pctVis1A * 100).toFixed(2)}%`, getStatusClass(pctVis1A)) +
+                card("% VISUAL 2º REV", `${(pctVis2A * 100).toFixed(2)}%`, getStatusClass(pctVis2A)) +
                 card("% AVANÇO TON TOTAL", totalAvancoTonGeral.toFixed(2), "text-primary");
         }
         function filterTable() {
             const input = normalizeText(document.getElementById('pieceFilterInput').value);
-            const rows = document.getElementById('tableBody').getElementsByTagName('tr');
-            for (let i = 0; i < rows.length; i++) {
-                const cellText = normalizeText(rows[i].getElementsByTagName('td')[0].innerText);
-                rows[i].style.display = cellText.includes(input) ? '' : 'none';
+            const rows1 = document.getElementById('tableBody').getElementsByTagName('tr');
+            const rows2 = document.getElementById('tableBodyPct').getElementsByTagName('tr');
+            for (let i = 0; i < rows1.length; i++) {
+                const cellText = normalizeText(rows1[i].getElementsByTagName('td')[0].innerText);
+                const display = cellText.includes(input) ? '' : 'none';
+                rows1[i].style.display = display;
+                if (rows2[i]) rows2[i].style.display = display;
             }
         }
         function onPieceFilter() {
             filterTable();
+            openTables();
             if (document.getElementById('tab-graficos').classList.contains('active') && lastStats) {
                 renderCharts(lastStats, lastTotals);
             }
+        }
+        function toggleTable(containerId, headerElement) {
+            const container = document.getElementById(containerId);
+            const icon = headerElement ? headerElement.querySelector('svg') : null;
+            if (container.classList.contains('hidden')) {
+                container.classList.remove('hidden');
+                if (icon) icon.classList.add('rotate-180');
+            } else {
+                container.classList.add('hidden');
+                if (icon) icon.classList.remove('rotate-180');
+            }
+        }
+        function openTables() {
+            document.getElementById('containerTabelaAbs').classList.remove('hidden');
+            document.getElementById('containerTabelaPct').classList.remove('hidden');
+            document.querySelectorAll('.table-toggle-icon').forEach(icon => icon.classList.add('rotate-180'));
         }
         // ── Gráficos ─────────────────────────────────────────────────────
         function destroyChart(id) {

@@ -26,4 +26,4 @@ Este repositório reúne scripts, análises e documentações para:
 
 ## Documentação
 
-Consulte o arquivo 'Instrucao_Painel_Juntas.md' para detalhes técnicos.
+Consulte o arquivo `Instrucao_Painel_Juntas.md`  para detalhes técnicos.

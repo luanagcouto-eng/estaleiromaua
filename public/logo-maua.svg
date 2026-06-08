@@ -1,0 +1,10 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="160" height="72" viewBox="0 0 160 72">
+  <!-- Elipse superior (laranja) -->
+  <ellipse cx="80" cy="36" rx="75" ry="32" fill="none" stroke="#F18213" stroke-width="8"/>
+  <!-- Elipse inferior (azul) -->
+  <ellipse cx="80" cy="42" rx="75" ry="26" fill="none" stroke="#364B59" stroke-width="5"/>
+  <!-- Texto ESTALEIRO -->
+  <text x="80" y="32" text-anchor="middle" font-family="Georgia, serif" font-size="14" font-weight="bold" fill="#F18213" letter-spacing="1">ESTALEIRO</text>
+  <!-- Texto MAUÁ -->
+  <text x="80" y="50" text-anchor="middle" font-family="Georgia, serif" font-size="16" font-weight="bold" fill="#364B59" letter-spacing="2">MAUÁ</text>
+</svg>

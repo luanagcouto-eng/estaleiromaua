@@ -35,7 +35,7 @@ export default function UsersTable({ users, departments, allProfiles }: Props) {
 
   return (
     <div className="space-y-4">
-      <p className="text-sm text-muted">{users.length} usuário{users.length !== 1 ? "s" : ""} cadastrado{users.length !== 1 ? "s" : ""}</p>
+      <p className="text-sm text-muted-foreground">{users.length} usuário{users.length !== 1 ? "s" : ""} cadastrado{users.length !== 1 ? "s" : ""}</p>
 
       <div className="rounded-xl border border-border bg-white overflow-hidden">
         <Table>
@@ -52,7 +52,7 @@ export default function UsersTable({ users, departments, allProfiles }: Props) {
           <TableBody>
             {users.length === 0 && (
               <TableRow>
-                <TableCell colSpan={6} className="text-center text-muted py-10">
+                <TableCell colSpan={6} className="text-center text-muted-foreground py-10">
                   Nenhum usuário. Os colaboradores aparecem aqui após o primeiro login.
                 </TableCell>
               </TableRow>
@@ -60,14 +60,14 @@ export default function UsersTable({ users, departments, allProfiles }: Props) {
             {users.map(u => (
               <TableRow key={u.id} className="hover:bg-surface/50">
                 <TableCell className="font-medium">{u.name}</TableCell>
-                <TableCell className="text-sm text-muted">{u.email}</TableCell>
+                <TableCell className="text-sm text-muted-foreground">{u.email}</TableCell>
                 <TableCell className="text-center">
                   <span className={`text-xs font-semibold px-2 py-0.5 rounded-full ${ROLE_BADGES[u.role] ?? "bg-gray-100"}`}>
                     {ROLE_LABELS[u.role] ?? u.role}
                   </span>
                 </TableCell>
-                <TableCell className="text-sm">{u.department?.name ?? <span className="text-muted">—</span>}</TableCell>
-                <TableCell className="text-sm">{u.superior?.name ?? <span className="text-muted">—</span>}</TableCell>
+                <TableCell className="text-sm">{u.department?.name ?? <span className="text-muted-foreground">—</span>}</TableCell>
+                <TableCell className="text-sm">{u.superior?.name ?? <span className="text-muted-foreground">—</span>}</TableCell>
                 <TableCell className="text-right">
                   <Button size="sm" variant="ghost" className="text-xs h-7 px-2" onClick={() => openEdit(u)}>
                     Editar

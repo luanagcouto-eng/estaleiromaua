@@ -35,7 +35,7 @@ export default async function AdminGoalsPage() {
     <div className="space-y-6">
       <div>
         <h1 className="text-2xl font-bold text-[#364B59]">Configuração de Metas</h1>
-        <p className="text-muted text-sm mt-1">Crie e edite as metas anuais por gestor — peso total deve somar 100%</p>
+        <p className="text-muted-foreground text-sm mt-1">Crie e edite as metas anuais por gestor — peso total deve somar 100%</p>
       </div>
       <GoalsTable
         goals={goals ?? []}

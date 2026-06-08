@@ -38,7 +38,7 @@ export default function LoginCard() {
           />
           <div className="text-center">
             <h1 className="text-xl font-bold text-[#364B59]">Metas Mauá 2026</h1>
-            <p className="text-xs text-muted mt-1">Gestão de metas corporativas</p>
+            <p className="text-xs text-muted-foreground mt-1">Gestão de metas corporativas</p>
           </div>
         </div>
 
@@ -68,7 +68,7 @@ export default function LoginCard() {
             {loading ? "Redirecionando..." : "Entrar com Google"}
           </button>
 
-          <p className="text-center text-xs text-muted leading-relaxed">
+          <p className="text-center text-xs text-muted-foreground leading-relaxed">
             Acesso restrito a colaboradores<br />
             <span className="font-medium text-[#364B59]">@estaleiromaua.ind.br</span>
           </p>

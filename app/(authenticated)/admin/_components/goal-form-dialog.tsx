@@ -92,7 +92,7 @@ export default function GoalFormDialog({ open, onClose, goal, profiles, departme
 
             <FormField control={form.control} name="description" render={({ field }) => (
               <FormItem>
-                <FormLabel>Descrição <span className="text-muted">(opcional)</span></FormLabel>
+                <FormLabel>Descrição <span className="text-muted-foreground">(opcional)</span></FormLabel>
                 <FormControl><Textarea rows={2} placeholder="Detalhes, contexto ou critério de aceitação..." {...field} /></FormControl>
                 <FormMessage />
               </FormItem>

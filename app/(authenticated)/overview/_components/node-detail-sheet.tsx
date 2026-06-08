@@ -40,7 +40,7 @@ export default function NodeDetailSheet({ node, onClose }: Props) {
             <div className="px-4 pb-6 space-y-6">
               <div className="rounded-xl border border-border bg-surface p-4">
                 <div className="flex items-center justify-between">
-                  <span className="text-sm text-muted">Progresso consolidado 2026</span>
+                  <span className="text-sm text-muted-foreground">Progresso consolidado 2026</span>
                   <span className={`text-xs font-semibold px-2 py-0.5 rounded-full ${goalTextClass(node.progress)}`}>
                     {node.progress.toFixed(0)}%
                   </span>
@@ -51,7 +51,7 @@ export default function NodeDetailSheet({ node, onClose }: Props) {
                     style={{ width: `${Math.max(0, Math.min(100, node.progress))}%`, backgroundColor: "#F18213" }}
                   />
                 </div>
-                <div className="mt-3 flex gap-4 text-xs text-muted">
+                <div className="mt-3 flex gap-4 text-xs text-muted-foreground">
                   <span>{node.goalsCount} meta{node.goalsCount !== 1 ? "s" : ""}</span>
                   <span>{node.goalsCompleted} concluída{node.goalsCompleted !== 1 ? "s" : ""}</span>
                 </div>
@@ -74,7 +74,7 @@ export default function NodeDetailSheet({ node, onClose }: Props) {
               )}
 
               {node.isPlaceholder && (
-                <p className="text-xs text-muted italic">
+                <p className="text-xs text-muted-foreground italic">
                   Este cargo ainda não possui um responsável atribuído. Acesse Admin → Usuários para vincular um colaborador.
                 </p>
               )}

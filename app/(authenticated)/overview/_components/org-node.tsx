@@ -54,7 +54,7 @@ export default function OrgNode({ label, subtitle, progress, isPlaceholder, isCe
 
       <span className="relative flex flex-col gap-1 px-4 py-3.5">
         <span className="flex items-center justify-between gap-2">
-          <span className={`text-[11px] font-semibold uppercase tracking-wide ${pct >= 61 ? "text-white/80" : "text-muted"}`}>
+          <span className={`text-[11px] font-semibold uppercase tracking-wide ${pct >= 61 ? "text-white/80" : "text-muted-foreground"}`}>
             {isCeo ? "CEO" : "Diretoria"}
           </span>
           {isFull && (
@@ -66,7 +66,7 @@ export default function OrgNode({ label, subtitle, progress, isPlaceholder, isCe
           {label}
         </span>
 
-        <span className={`text-xs ${pct >= 61 ? "text-white/85" : "text-muted"} ${isPlaceholder ? "italic" : ""}`}>
+        <span className={`text-xs ${pct >= 61 ? "text-white/85" : "text-muted-foreground"} ${isPlaceholder ? "italic" : ""}`}>
           {subtitle}
         </span>
 

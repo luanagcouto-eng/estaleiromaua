@@ -75,7 +75,7 @@ export default function UserEditDialog({ open, onClose, user, allProfiles, depar
       <DialogContent className="max-w-md">
         <DialogHeader>
           <DialogTitle className="text-[#364B59]">Editar Usuário</DialogTitle>
-          {user && <p className="text-sm text-muted">{user.email}</p>}
+          {user && <p className="text-sm text-muted-foreground">{user.email}</p>}
         </DialogHeader>
 
         <Form {...form}>

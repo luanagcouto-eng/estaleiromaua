@@ -78,7 +78,7 @@ export default async function OverviewPage() {
     <div className="space-y-6">
       <div>
         <h1 className="text-2xl font-bold text-[#364B59]">Visão Geral da Empresa</h1>
-        <p className="text-muted text-sm mt-1">
+        <p className="text-muted-foreground text-sm mt-1">
           Organograma de metas 2026 — clique em uma diretoria para ver detalhes
         </p>
       </div>
@@ -96,7 +96,7 @@ export default async function OverviewPage() {
         />
       </div>
 
-      <div className="flex flex-wrap items-center gap-4 text-xs text-muted px-1">
+      <div className="flex flex-wrap items-center gap-4 text-xs text-muted-foreground px-1">
         <span className="font-medium text-text">Legenda:</span>
         <LegendSwatch color="var(--color-goal-empty)" label="0%" />
         <LegendSwatch color="var(--color-goal-low)" label="1–30%" />

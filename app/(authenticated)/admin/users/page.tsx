@@ -43,7 +43,7 @@ export default async function AdminUsersPage() {
     <div className="space-y-6">
       <div>
         <h1 className="text-2xl font-bold text-[#364B59]">Gestão de Usuários</h1>
-        <p className="text-muted text-sm mt-1">
+        <p className="text-muted-foreground text-sm mt-1">
           Atribua roles, departamentos e superiores. Novos usuários aparecem aqui após o primeiro login.
         </p>
       </div>

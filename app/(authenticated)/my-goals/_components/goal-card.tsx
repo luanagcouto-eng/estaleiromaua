@@ -41,9 +41,9 @@ export default function GoalCard({ goal }: { goal: GoalCardData }) {
           <div className="flex items-center gap-2 flex-wrap">
             <h3 className="font-semibold text-[#364B59]">{goal.title}</h3>
             <Badge variant="secondary" className="text-xs">{PERIOD_LABELS[goal.period] ?? goal.period}</Badge>
-            <span className="text-xs text-muted">peso {goal.weight}%</span>
+            <span className="text-xs text-muted-foreground">peso {goal.weight}%</span>
           </div>
-          {goal.description && <p className="mt-1 text-sm text-muted">{goal.description}</p>}
+          {goal.description && <p className="mt-1 text-sm text-muted-foreground">{goal.description}</p>}
         </div>
         <span className={`shrink-0 text-xs font-semibold px-2 py-0.5 rounded-full ${goalTextClass(pct)}`}>
           {pct}% {pct >= 90 ? "🏆" : ""}
@@ -57,7 +57,7 @@ export default function GoalCard({ goal }: { goal: GoalCardData }) {
             style={{ width: `${pct}%`, backgroundColor: fillColor }}
           />
         </div>
-        <div className="mt-1.5 flex items-center justify-between text-xs text-muted">
+        <div className="mt-1.5 flex items-center justify-between text-xs text-muted-foreground">
           <span>Atual: <span className="font-medium text-text">{formatGoalValue(goal.current_value, goal.unit)}</span></span>
           <span>Meta: <span className="font-medium text-text">{formatGoalValue(goal.target_value, goal.unit)}</span></span>
         </div>

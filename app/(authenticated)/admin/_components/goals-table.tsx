@@ -59,7 +59,7 @@ export default function GoalsTable({ goals, profiles, departments }: Props) {
   return (
     <div className="space-y-4">
       <div className="flex items-center justify-between">
-        <p className="text-sm text-muted">{goals.length} meta{goals.length !== 1 ? "s" : ""} cadastrada{goals.length !== 1 ? "s" : ""}</p>
+        <p className="text-sm text-muted-foreground">{goals.length} meta{goals.length !== 1 ? "s" : ""} cadastrada{goals.length !== 1 ? "s" : ""}</p>
         <Button onClick={openCreate} className="bg-[#364B59] hover:bg-[#2D3F4A] text-white text-sm">
           + Nova Meta
         </Button>
@@ -82,7 +82,7 @@ export default function GoalsTable({ goals, profiles, departments }: Props) {
           <TableBody>
             {goals.length === 0 && (
               <TableRow>
-                <TableCell colSpan={8} className="text-center text-muted py-10">
+                <TableCell colSpan={8} className="text-center text-muted-foreground py-10">
                   Nenhuma meta cadastrada. Clique em &quot;Nova Meta&quot; para começar.
                 </TableCell>
               </TableRow>
@@ -93,7 +93,7 @@ export default function GoalsTable({ goals, profiles, departments }: Props) {
                 <TableRow key={g.id} className="hover:bg-surface/50">
                   <TableCell className="font-medium max-w-[200px] truncate" title={g.title}>{g.title}</TableCell>
                   <TableCell className="text-sm">{g.owner?.name ?? "—"}</TableCell>
-                  <TableCell className="text-sm text-muted">{g.department?.name ?? "—"}</TableCell>
+                  <TableCell className="text-sm text-muted-foreground">{g.department?.name ?? "—"}</TableCell>
                   <TableCell className="text-center">
                     <span className="text-xs bg-gray-100 px-2 py-0.5 rounded-full">
                       {g.period.replace("2026-", "")}

@@ -69,14 +69,14 @@ export default async function MyGoalsPage() {
     <div className="space-y-6">
       <div>
         <h1 className="text-2xl font-bold text-[#364B59]">Minhas Metas</h1>
-        <p className="text-muted text-sm mt-1">Acompanhe suas metas de 2026 e registre seus resultados</p>
+        <p className="text-muted-foreground text-sm mt-1">Acompanhe suas metas de 2026 e registre seus resultados</p>
       </div>
 
       <div className="bg-white rounded-xl border border-border p-5">
         <div className="flex items-center justify-between">
           <div>
-            <p className="text-sm text-muted">Progresso consolidado 2026 (metas anuais)</p>
-            <p className="text-xs text-muted mt-0.5">
+            <p className="text-sm text-muted-foreground">Progresso consolidado 2026 (metas anuais)</p>
+            <p className="text-xs text-muted-foreground mt-0.5">
               {annualGoals.length} meta{annualGoals.length !== 1 ? "s" : ""} · peso total {totalWeight.toFixed(1)}%
             </p>
           </div>
@@ -93,7 +93,7 @@ export default async function MyGoalsPage() {
       </div>
 
       {goalCards.length === 0 ? (
-        <div className="bg-white rounded-xl border border-border p-10 text-center text-muted">
+        <div className="bg-white rounded-xl border border-border p-10 text-center text-muted-foreground">
           <p className="text-sm">Nenhuma meta atribuída a você ainda. Procure seu gestor ou o time de Admin.</p>
         </div>
       ) : (

@@ -15,7 +15,7 @@ export default function WeightIndicator({ used, adding = 0 }: WeightIndicatorPro
   return (
     <div className="space-y-1.5">
       <div className="flex justify-between text-xs font-medium">
-        <span className="text-muted">Peso total utilizado</span>
+        <span className="text-muted-foreground">Peso total utilizado</span>
         <span className={cn(over ? "text-red-500" : used === 100 ? "text-[#364B59]" : "text-[#F18213]")}>
           {(used + adding).toFixed(1)}% / 100%
         </span>
@@ -32,7 +32,7 @@ export default function WeightIndicator({ used, adding = 0 }: WeightIndicatorPro
       {over ? (
         <p className="text-xs text-red-500">Limite de 100% excedido em {(used + adding - 100).toFixed(1)}%</p>
       ) : (
-        <p className="text-xs text-muted">Disponível: {remaining.toFixed(1)}%</p>
+        <p className="text-xs text-muted-foreground">Disponível: {remaining.toFixed(1)}%</p>
       )}
     </div>
   );

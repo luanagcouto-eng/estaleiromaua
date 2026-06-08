@@ -56,7 +56,7 @@ export default function GoalEntryDialog({ open, onClose, goalId, goalTitle, unit
           <DialogTitle className="text-[#364B59]">Lançar resultado</DialogTitle>
         </DialogHeader>
 
-        <p className="text-sm text-muted -mt-2">
+        <p className="text-sm text-muted-foreground -mt-2">
           {goalTitle} · meta: <span className="font-medium text-text">{formatGoalValue(targetValue, unit)}</span>
         </p>
 
@@ -86,7 +86,7 @@ export default function GoalEntryDialog({ open, onClose, goalId, goalTitle, unit
 
             <FormField control={form.control} name="evidence_url" render={({ field }) => (
               <FormItem>
-                <FormLabel>Evidência <span className="text-muted">(opcional)</span></FormLabel>
+                <FormLabel>Evidência <span className="text-muted-foreground">(opcional)</span></FormLabel>
                 <FormControl>
                   <Input placeholder="Link para planilha, relatório, print ou documento..." {...field} />
                 </FormControl>

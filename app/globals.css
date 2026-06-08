@@ -25,7 +25,6 @@
   --color-surface:    var(--color-maua-gray-50);
   --color-border:     var(--color-maua-gray-200);
   --color-text:       var(--color-maua-gray-900);
-  --color-muted:      var(--color-maua-gray-500);
 
   /* Meta de progresso — gamificação */
   --color-goal-empty:   var(--color-maua-gray-100);

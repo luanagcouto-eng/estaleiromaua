@@ -104,19 +104,12 @@ export default function GoalFormDialog({ open, onClose, goal, profiles, departme
                 <Select onValueChange={field.onChange} value={field.value}>
                   <FormControl>
                     <SelectTrigger>
-                      <SelectValue placeholder="Selecione um responsável">
-                        {field.value
-                          ? profiles.find(p => p.id === field.value)?.name ?? "Selecione um responsável"
-                          : undefined}
-                      </SelectValue>
+                      <SelectValue placeholder="Selecione um responsável" />
                     </SelectTrigger>
                   </FormControl>
                   <SelectContent>
                     {profiles.map(p => (
-                      <SelectItem key={p.id} value={p.id}>
-                        <span className="font-medium">{p.name}</span>
-                        <span className="ml-2 text-xs text-muted-foreground">{p.email}</span>
-                      </SelectItem>
+                      <SelectItem key={p.id} value={p.id}>{p.name}</SelectItem>
                     ))}
                   </SelectContent>
                 </Select>
@@ -130,11 +123,7 @@ export default function GoalFormDialog({ open, onClose, goal, profiles, departme
                 <Select onValueChange={field.onChange} value={field.value}>
                   <FormControl>
                     <SelectTrigger>
-                      <SelectValue placeholder="Selecione um departamento">
-                        {field.value
-                          ? departments.find(d => d.id === field.value)?.name ?? "Selecione um departamento"
-                          : undefined}
-                      </SelectValue>
+                      <SelectValue placeholder="Selecione um departamento" />
                     </SelectTrigger>
                   </FormControl>
                   <SelectContent>

@@ -49,7 +49,7 @@ export default function LoginCard() {
         <div className="text-center mb-7 space-y-1">
           <h1
             className="text-[22px] font-black uppercase leading-tight text-slate-900"
-            style={{ fontFamily: "var(--font-montserrat, 'Inter'), sans-serif", letterSpacing: "-0.01em" }}
+            style={{ letterSpacing: "-0.01em" }}
           >
             Metas Estratégicas<br />2026
           </h1>
@@ -66,7 +66,6 @@ export default function LoginCard() {
           onClick={handleGoogleLogin}
           disabled={loading}
           className="w-full bg-[#C8D5DC] border-2 border-[#C8D5DC] text-[#364B59] font-black py-4 rounded-[1.5rem] shadow-md hover:bg-[#364B59] hover:border-[#364B59] hover:text-white transition-all flex justify-center items-center group active:scale-95 disabled:opacity-70 mb-4"
-          style={{ fontFamily: "var(--font-montserrat, 'Inter'), sans-serif" }}
         >
           {loading ? (
             <div className="h-5 w-5 border-2 border-[#364B59]/30 border-t-[#364B59] rounded-full animate-spin" />

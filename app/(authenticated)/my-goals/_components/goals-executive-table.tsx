@@ -8,6 +8,8 @@ import type { GoalCardData } from "./goal-card";
 
 // ─── helpers ─────────────────────────────────────────────────────────────────
 
+const OP_SYMBOL: Record<string, string> = { ">=": "≥", ">": ">", "<=": "≤", "<": "<" };
+
 function progressColor(pct: number) {
   if (pct >= 90) return "#22c55e";
   if (pct >= 60) return "#F18213";
@@ -152,6 +154,7 @@ function GoalTableSection({
                     </td>
                     <td className="py-3 px-4 text-slate-600 font-medium">{goal.weight}%</td>
                     <td className="py-3 px-4 text-slate-600 font-medium whitespace-nowrap">
+                      <span className="font-mono font-bold text-slate-400 mr-0.5">{OP_SYMBOL[goal.operator] ?? goal.operator}</span>
                       {formatGoalValue(goal.target_value, goal.unit)}
                     </td>
                     <td className="py-3 px-4">

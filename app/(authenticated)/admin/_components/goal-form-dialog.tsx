@@ -19,6 +19,7 @@ interface Department { id: string; name: string; sector: string; parent_id: stri
 interface Goal extends GoalFormValues { id: string; }
 
 const DEPTH_PREFIX: Record<number, string> = { 0: "", 1: "↳ ", 2: "  ↳ " };
+const OP_SYMBOL: Record<string, string> = { ">=": "≥", ">": ">", "<=": "≤", "<": "<" };
 
 interface Props {
   open: boolean;
@@ -55,7 +56,7 @@ export default function GoalFormDialog({ open, onClose, goal, profiles, departme
     resolver: zodResolver(goalSchema),
     defaultValues: goal ?? {
       title: "", description: "", period: "2026-ANUAL",
-      weight: 0, target_value: 0, unit: "%",
+      weight: 0, target_value: 0, unit: "%", operator: ">=",
       owner_id: "", department_id: "",
     },
   });
@@ -63,7 +64,7 @@ export default function GoalFormDialog({ open, onClose, goal, profiles, departme
   useEffect(() => {
     if (open) form.reset(goal ?? {
       title: "", description: "", period: "2026-ANUAL",
-      weight: 0, target_value: 0, unit: "%",
+      weight: 0, target_value: 0, unit: "%", operator: ">=",
       owner_id: "", department_id: "",
     });
   }, [open, goal, form]);
@@ -159,7 +160,7 @@ export default function GoalFormDialog({ open, onClose, goal, profiles, departme
               </FormItem>
             )} />
 
-            <div className="grid grid-cols-[1fr_1.5fr_1fr] gap-3">
+            <div className="grid grid-cols-[1fr_0.65fr_1.3fr_1fr] gap-3">
               <FormField control={form.control} name="period" render={({ field }) => (
                 <FormItem>
                   <FormLabel>Período</FormLabel>
@@ -167,6 +168,28 @@ export default function GoalFormDialog({ open, onClose, goal, profiles, departme
                     <FormControl><SelectTrigger><SelectValue /></SelectTrigger></FormControl>
                     <SelectContent>
                       {PERIODS.map(p => <SelectItem key={p} value={p}>{p.replace("2026-", "")}</SelectItem>)}
+                    </SelectContent>
+                  </Select>
+                  <FormMessage />
+                </FormItem>
+              )} />
+
+              <FormField control={form.control} name="operator" render={({ field }) => (
+                <FormItem>
+                  <FormLabel title="Operador: realização deve ser ≥ / > / ≤ / < ao valor alvo">
+                    Operador
+                  </FormLabel>
+                  <Select onValueChange={field.onChange} value={field.value}>
+                    <FormControl>
+                      <SelectTrigger className="font-mono font-bold text-base justify-center gap-0">
+                        <span>{OP_SYMBOL[field.value] ?? field.value}</span>
+                      </SelectTrigger>
+                    </FormControl>
+                    <SelectContent>
+                      <SelectItem value=">=" className="font-mono">≥ &nbsp;maior ou igual</SelectItem>
+                      <SelectItem value=">"  className="font-mono">&gt; &nbsp;maior que</SelectItem>
+                      <SelectItem value="<=" className="font-mono">≤ &nbsp;menor ou igual</SelectItem>
+                      <SelectItem value="<"  className="font-mono">&lt; &nbsp;menor que</SelectItem>
                     </SelectContent>
                   </Select>
                   <FormMessage />

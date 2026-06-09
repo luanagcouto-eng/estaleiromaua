@@ -8,6 +8,8 @@ import ProgressRing from "@/components/ui/progress-ring";
 import GoalEntryDialog from "./goal-entry-dialog";
 import GoalHistoryList, { type GoalHistoryEntry } from "./goal-history-list";
 
+const OP_SYMBOL: Record<string, string> = { ">=": "≥", ">": ">", "<=": "≤", "<": "<" };
+
 export interface GoalCardData {
   id: string;
   title: string;
@@ -17,6 +19,7 @@ export interface GoalCardData {
   target_value: number;
   current_value: number;
   unit: string;
+  operator: string;
   history: GoalHistoryEntry[];
 }
 
@@ -52,7 +55,11 @@ export default function GoalCard({ goal }: { goal: GoalCardData }) {
           </div>
           <div className="mt-2 flex items-center gap-4 text-xs text-muted-foreground">
             <span>Atual: <span className="font-medium text-text">{formatGoalValue(goal.current_value, goal.unit)}</span></span>
-            <span>Meta: <span className="font-medium text-text">{formatGoalValue(goal.target_value, goal.unit)}</span></span>
+            <span>
+              Meta:{" "}
+              <span className="font-bold font-mono">{OP_SYMBOL[goal.operator] ?? goal.operator}</span>{" "}
+              <span className="font-medium text-text">{formatGoalValue(goal.target_value, goal.unit)}</span>
+            </span>
           </div>
         </div>
       </div>

@@ -11,10 +11,12 @@ import type { GoalFormValues } from "@/lib/schemas/goal";
 
 interface Profile   { id: string; name: string; email: string; }
 interface Department { id: string; name: string; sector: string; parent_id: string | null; }
+const OP_SYMBOL: Record<string, string> = { ">=": "≥", ">": ">", "<=": "≤", "<": "<" };
+
 interface GoalRow {
   id: string; title: string; description: string | null;
   period: string; weight: number; target_value: number;
-  current_value: number; unit: string;
+  current_value: number; unit: string; operator: string;
   owner_id: string; department_id: string;
   owner: Profile | null; department: Pick<Department, "id" | "name" | "sector"> | null;
 }
@@ -28,28 +30,28 @@ interface Props {
 const MOCK_GOALS: GoalRow[] = [
   {
     id: "__mock_1", title: "Receita Bruta Anual", description: null,
-    period: "2026-ANUAL", weight: 40, target_value: 1200000, current_value: 480000, unit: "R$",
+    period: "2026-ANUAL", weight: 40, target_value: 1200000, current_value: 480000, unit: "R$", operator: ">=",
     owner_id: "__mock", department_id: "__mock",
     owner: { id: "__mock", name: "João da Silva", email: "" },
     department: { id: "__mock", name: "Operações Navais", sector: "" },
   },
   {
     id: "__mock_2", title: "Cumprimento de Prazo de Entrega", description: null,
-    period: "2026-ANUAL", weight: 30, target_value: 95, current_value: 72, unit: "%",
+    period: "2026-ANUAL", weight: 30, target_value: 95, current_value: 72, unit: "%", operator: ">=",
     owner_id: "__mock", department_id: "__mock",
     owner: { id: "__mock", name: "Maria Souza", email: "" },
     department: { id: "__mock", name: "Engenharia Naval", sector: "" },
   },
   {
     id: "__mock_3", title: "NPS — Satisfação do Cliente", description: null,
-    period: "2026-Q1", weight: 20, target_value: 80, current_value: 65, unit: "pontos",
+    period: "2026-Q1", weight: 20, target_value: 80, current_value: 65, unit: "pontos", operator: ">=",
     owner_id: "__mock", department_id: "__mock",
     owner: { id: "__mock", name: "Carlos Lima", email: "" },
     department: { id: "__mock", name: "Qualidade", sector: "" },
   },
   {
     id: "__mock_4", title: "Horas de Capacitação", description: null,
-    period: "2026-Q2", weight: 10, target_value: 200, current_value: 45, unit: "horas",
+    period: "2026-Q2", weight: 10, target_value: 200, current_value: 45, unit: "horas", operator: ">=",
     owner_id: "__mock", department_id: "__mock",
     owner: { id: "__mock", name: "Ana Pereira", email: "" },
     department: { id: "__mock", name: "Recursos Humanos", sector: "" },
@@ -80,6 +82,7 @@ export default function GoalsTable({ goals, profiles, departments }: Props) {
       weight: Number(g.weight),
       target_value: Number(g.target_value),
       unit: g.unit as GoalFormValues["unit"],
+      operator: (g.operator ?? ">=") as GoalFormValues["operator"],
       owner_id: g.owner_id, department_id: g.department_id,
     });
     setDialogOpen(true);
@@ -141,7 +144,8 @@ export default function GoalsTable({ goals, profiles, departments }: Props) {
                       {g.period.replace("2026-", "")}
                     </span>
                   </TableCell>
-                  <TableCell className="text-right text-sm font-mono">
+                  <TableCell className="text-right text-sm font-mono whitespace-nowrap">
+                    <span className="text-muted-foreground mr-0.5 font-bold">{OP_SYMBOL[g.operator] ?? g.operator}</span>
                     {formatGoalValue(Number(g.target_value), g.unit)}
                   </TableCell>
                   <TableCell className="text-center">

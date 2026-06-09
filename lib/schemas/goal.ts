@@ -12,6 +12,7 @@ export const goalSchema = z.object({
     .number("Informe um número válido")
     .min(0.01, "Meta deve ser maior que zero"),
   unit: z.enum(["%", "R$", "dias", "unidades", "pontos", "horas"]),
+  operator: z.enum([">=", ">", "<=", "<"]),
   owner_id: z.string().uuid("Selecione um responsável"),
   department_id: z.string().regex(/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i, "Selecione um departamento"),
 });

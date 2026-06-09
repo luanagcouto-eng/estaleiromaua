@@ -19,7 +19,7 @@ interface Department { id: string; name: string; sector: string; parent_id: stri
 interface Goal extends GoalFormValues { id: string; }
 
 const DEPTH_PREFIX: Record<number, string> = { 0: "", 1: "↳ ", 2: "  ↳ " };
-const OP_SYMBOL: Record<string, string> = { ">=": "≥", ">": ">", "<=": "≤", "<": "<" };
+const OP_SYMBOL: Record<string, string> = { ">=": "≥", ">": ">", "<=": "≤", "<": "<", "=": "=" };
 
 interface Props {
   open: boolean;
@@ -192,6 +192,7 @@ export default function GoalFormDialog({ open, onClose, goal, profiles, departme
                       <SelectItem value=">"  className="font-mono">&gt; &nbsp;maior que</SelectItem>
                       <SelectItem value="<=" className="font-mono">≤ &nbsp;menor ou igual</SelectItem>
                       <SelectItem value="<"  className="font-mono">&lt; &nbsp;menor que</SelectItem>
+                      <SelectItem value="="  className="font-mono">= &nbsp;igual a</SelectItem>
                     </SelectContent>
                   </Select>
                   <FormMessage />
@@ -202,8 +203,13 @@ export default function GoalFormDialog({ open, onClose, goal, profiles, departme
                 <FormItem>
                   <FormLabel>Meta</FormLabel>
                   <FormControl>
-                    <Input type="number" step="0.01" {...field}
-                      onChange={e => field.onChange(parseFloat(e.target.value))} />
+                    <Input
+                      type="number"
+                      step="0.01"
+                      className="[appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
+                      {...field}
+                      onChange={e => field.onChange(parseFloat(e.target.value))}
+                    />
                   </FormControl>
                   <FormMessage />
                 </FormItem>

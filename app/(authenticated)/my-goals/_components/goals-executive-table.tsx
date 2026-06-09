@@ -8,7 +8,7 @@ import type { GoalCardData } from "./goal-card";
 
 // ─── helpers ─────────────────────────────────────────────────────────────────
 
-const OP_SYMBOL: Record<string, string> = { ">=": "≥", ">": ">", "<=": "≤", "<": "<" };
+const OP_SYMBOL: Record<string, string> = { ">=": "≥", ">": ">", "<=": "≤", "<": "<", "=": "=" };
 
 function progressColor(pct: number) {
   if (pct >= 90) return "#22c55e";

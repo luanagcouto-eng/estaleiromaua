@@ -8,7 +8,7 @@ import ProgressRing from "@/components/ui/progress-ring";
 import GoalEntryDialog from "./goal-entry-dialog";
 import GoalHistoryList, { type GoalHistoryEntry } from "./goal-history-list";
 
-const OP_SYMBOL: Record<string, string> = { ">=": "≥", ">": ">", "<=": "≤", "<": "<" };
+const OP_SYMBOL: Record<string, string> = { ">=": "≥", ">": ">", "<=": "≤", "<": "<", "=": "=" };
 
 export interface GoalCardData {
   id: string;

@@ -19,6 +19,8 @@ interface GoalRow {
   unit: string;
   operator: string;
   sub_weight: number | null;
+  owner_id: string;
+  owner: { name: string }[] | null;
 }
 
 export default async function MyGoalsPage() {
@@ -29,19 +31,26 @@ export default async function MyGoalsPage() {
 
   const { data: profile } = await supabase
     .from("profiles")
-    .select("name")
+    .select("name, role")
     .eq("id", user.id)
     .single();
 
+  const isAdmin = profile?.role === "admin";
   const userName = profile?.name ?? user.email ?? "Usuário";
 
-  const { data: goals } = await supabase
+  // Admin fetches all goals; others fetch their own
+  let goalsQuery = supabase
     .from("goals")
-    .select("id, title, description, period, weight, sub_weight, target_value, current_value, unit, operator")
-    .eq("owner_id", user.id)
+    .select("id, title, description, period, weight, sub_weight, target_value, current_value, unit, operator, owner_id, owner:profiles!owner_id(name)")
     .like("period", "2026%")
     .order("period")
     .order("weight", { ascending: false });
+
+  if (!isAdmin) {
+    goalsQuery = goalsQuery.eq("owner_id", user.id);
+  }
+
+  const { data: goals } = await goalsQuery;
 
   const rows = (goals ?? []) as GoalRow[];
   const goalIds = rows.map((g) => g.id);
@@ -66,26 +75,46 @@ export default async function MyGoalsPage() {
     history: historyByGoal.get(g.id) ?? [],
   }));
 
-  // Alertas
-  const currentMonth = new Date().getMonth() + 1;
-  const currentQuarter =
-    currentMonth <= 3 ? "2026-Q1" :
-    currentMonth <= 6 ? "2026-Q2" :
-    currentMonth <= 9 ? "2026-Q3" : "2026-Q4";
+  // For admin: group goals by owner
+  const ownerGroups: { ownerId: string; ownerName: string; goals: GoalCardData[] }[] = [];
+  if (isAdmin) {
+    const seenOwners = new Map<string, number>();
+    for (const g of goalCards) {
+      const ownerId = g.owner_id ?? "unknown";
+      if (!seenOwners.has(ownerId)) {
+        seenOwners.set(ownerId, ownerGroups.length);
+        ownerGroups.push({
+          ownerId,
+          ownerName: g.owner?.[0]?.name ?? "Sem responsável",
+          goals: [],
+        });
+      }
+      ownerGroups[seenOwners.get(ownerId)!].goals.push(g);
+    }
+  }
 
-  const goalsWithHistory = new Set((history ?? []).map((e) => e.goal_id));
-
+  // Alertas (somente para o próprio usuário)
   const alerts: GoalAlert[] = [];
-  for (const g of rows) {
-    const hasHistory = goalsWithHistory.has(g.id);
-    const pct = calcProgress(Number(g.current_value), Number(g.target_value));
+  if (!isAdmin) {
+    const currentMonth = new Date().getMonth() + 1;
+    const currentQuarter =
+      currentMonth <= 3 ? "2026-Q1" :
+      currentMonth <= 6 ? "2026-Q2" :
+      currentMonth <= 9 ? "2026-Q3" : "2026-Q4";
 
-    if (!hasHistory && g.period !== currentQuarter) {
-      alerts.push({ type: "no-history", title: g.title, period: g.period });
-    } else if (!hasHistory && g.period === currentQuarter) {
-      alerts.push({ type: "quarter-pending", title: g.title, period: g.period });
-    } else if (g.period === "2026-ANUAL" && pct < 50) {
-      alerts.push({ type: "at-risk", title: g.title, period: g.period, progress: pct });
+    const goalsWithHistory = new Set((history ?? []).map((e) => e.goal_id));
+
+    for (const g of rows) {
+      const hasHistory = goalsWithHistory.has(g.id);
+      const pct = calcProgress(Number(g.current_value), Number(g.target_value));
+
+      if (!hasHistory && g.period !== currentQuarter) {
+        alerts.push({ type: "no-history", title: g.title, period: g.period });
+      } else if (!hasHistory && g.period === currentQuarter) {
+        alerts.push({ type: "quarter-pending", title: g.title, period: g.period });
+      } else if (g.period === "2026-ANUAL" && pct < 50) {
+        alerts.push({ type: "at-risk", title: g.title, period: g.period, progress: pct });
+      }
     }
   }
 
@@ -93,17 +122,37 @@ export default async function MyGoalsPage() {
     <div className="space-y-5">
       <div>
         <h1 className="text-2xl font-bold text-[#364B59]">Atualização de Metas</h1>
-        <p className="text-[#364B59] text-sm font-medium mt-0.5">{userName}</p>
+        <p className="text-[#364B59] text-sm font-medium mt-0.5">
+          {isAdmin ? "Todos os Colaboradores" : userName}
+        </p>
         <p className="text-muted-foreground text-xs mt-0.5">
-          Registre resultados e anexe evidências/memória de cálculo para cada meta
+          {isAdmin
+            ? "Visualize e lance resultados para qualquer meta da organização"
+            : "Registre resultados e anexe evidências/memória de cálculo para cada meta"}
         </p>
       </div>
 
-      <GoalAlertsPanel alerts={alerts} />
+      {!isAdmin && <GoalAlertsPanel alerts={alerts} />}
 
       {goalCards.length === 0 ? (
         <div className="bg-white rounded-xl border border-border p-10 text-center text-muted-foreground">
-          <p className="text-sm">Nenhuma meta atribuída a você ainda. Procure seu gestor ou o time de Admin.</p>
+          <p className="text-sm">
+            {isAdmin
+              ? "Nenhuma meta cadastrada na organização ainda."
+              : "Nenhuma meta atribuída a você ainda. Procure seu gestor ou o time de Admin."}
+          </p>
+        </div>
+      ) : isAdmin ? (
+        <div className="space-y-8">
+          {ownerGroups.map(({ ownerId, ownerName, goals: ownerGoals }) => (
+            <div key={ownerId} className="space-y-3">
+              <h2 className="text-sm font-bold text-[#364B59] border-b border-border pb-2 flex items-center gap-2">
+                <span className="w-1.5 h-1.5 rounded-full bg-[#F18213] inline-block" />
+                {ownerName}
+              </h2>
+              <GoalsExecutiveTable goals={ownerGoals} />
+            </div>
+          ))}
         </div>
       ) : (
         <GoalsExecutiveTable goals={goalCards} />

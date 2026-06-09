@@ -29,17 +29,69 @@ const ROLE_LABELS = {
   admin:    "Administrador",
 } as const;
 
+function DeptMultiSelect({
+  departments,
+  selected,
+  onChange,
+}: {
+  departments: Department[];
+  selected: string[];
+  onChange: (ids: string[]) => void;
+}) {
+  const [open, setOpen] = useState(false);
+  const selectedNames = departments.filter((d) => selected.includes(d.id)).map((d) => d.name);
+
+  function toggle(id: string) {
+    onChange(selected.includes(id) ? selected.filter((x) => x !== id) : [...selected, id]);
+  }
+
+  return (
+    <div className="relative">
+      <button
+        type="button"
+        onClick={() => setOpen((v) => !v)}
+        className="flex h-9 w-full items-center justify-between rounded-md border border-input bg-transparent px-3 py-2 text-sm shadow-sm ring-offset-background focus:outline-none focus:ring-1 focus:ring-ring"
+      >
+        <span className={selectedNames.length === 0 ? "text-muted-foreground" : ""}>
+          {selectedNames.length === 0 ? "Sem departamento" : selectedNames.join(", ")}
+        </span>
+        <svg className="h-4 w-4 opacity-50 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+        </svg>
+      </button>
+      {open && (
+        <div className="absolute z-50 mt-1 w-full max-h-52 overflow-y-auto rounded-md border border-border bg-white shadow-md">
+          {departments.map((d) => (
+            <label
+              key={d.id}
+              className="flex items-center gap-2 px-3 py-2 cursor-pointer hover:bg-surface text-sm"
+            >
+              <input
+                type="checkbox"
+                checked={selected.includes(d.id)}
+                onChange={() => toggle(d.id)}
+                className="h-3.5 w-3.5 rounded accent-[#364B59]"
+              />
+              {d.name}
+            </label>
+          ))}
+        </div>
+      )}
+    </div>
+  );
+}
+
 export default function UserCreateDialog({ open, onClose, allProfiles, departments }: Props) {
   const [pending, setPending] = useState(false);
 
   const form = useForm<UserCreateValues>({
     resolver: zodResolver(userCreateSchema),
     defaultValues: {
-      name:          "",
-      email:         "",
-      role:          "manager",
-      department_id: null,
-      superior_id:   null,
+      name:           "",
+      email:          "",
+      role:           "manager",
+      department_ids: [],
+      superior_id:    null,
     },
   });
 
@@ -108,29 +160,16 @@ export default function UserCreateDialog({ open, onClose, allProfiles, departmen
               </FormItem>
             )} />
 
-            <FormField control={form.control} name="department_id" render={({ field }) => (
+            <FormField control={form.control} name="department_ids" render={({ field }) => (
               <FormItem>
-                <FormLabel>Departamento</FormLabel>
-                <Select
-                  onValueChange={(v) => field.onChange(v === "none" ? null : v)}
-                  value={field.value ?? "none"}
-                >
-                  <FormControl>
-                    <SelectTrigger>
-                      <span className={!field.value ? "text-muted-foreground text-sm" : "text-sm"}>
-                        {field.value
-                          ? departments.find((d) => d.id === field.value)?.name ?? "Departamento"
-                          : "Sem departamento"}
-                      </span>
-                    </SelectTrigger>
-                  </FormControl>
-                  <SelectContent>
-                    <SelectItem value="none">Sem departamento</SelectItem>
-                    {departments.map((d) => (
-                      <SelectItem key={d.id} value={d.id}>{d.name}</SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
+                <FormLabel>Departamentos</FormLabel>
+                <FormControl>
+                  <DeptMultiSelect
+                    departments={departments}
+                    selected={field.value ?? []}
+                    onChange={field.onChange}
+                  />
+                </FormControl>
                 <FormMessage />
               </FormItem>
             )} />

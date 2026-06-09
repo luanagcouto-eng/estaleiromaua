@@ -15,8 +15,7 @@ export default async function AdminUsersPage() {
 
   if (profile?.role !== "admin" && profile?.role !== "ceo") redirect("/dashboard");
 
-  // Separate queries to avoid PostgREST self-join issues
-  const [{ data: rawProfiles }, { data: departments }] = await Promise.all([
+  const [{ data: rawProfiles }, { data: departments }, { data: profileDepts }] = await Promise.all([
     supabase
       .from("profiles")
       .select("id, name, email, role, department_id, superior_id, is_placeholder")
@@ -25,14 +24,25 @@ export default async function AdminUsersPage() {
       .from("departments")
       .select("id, name, sector")
       .order("name"),
+    supabase
+      .from("profile_departments")
+      .select("profile_id, department_id"),
   ]);
 
-  // Join department and superior in application code
   const profileMap = new Map((rawProfiles ?? []).map((p) => [p.id, p]));
   const deptMap    = new Map((departments  ?? []).map((d) => [d.id, d]));
 
+  // Build department_ids per profile from junction table, fallback to department_id column
+  const deptsByProfile = new Map<string, string[]>();
+  for (const pd of profileDepts ?? []) {
+    const list = deptsByProfile.get(pd.profile_id) ?? [];
+    list.push(pd.department_id);
+    deptsByProfile.set(pd.profile_id, list);
+  }
+
   const users = (rawProfiles ?? []).map((p) => ({
     ...p,
+    department_ids: deptsByProfile.get(p.id) ?? (p.department_id ? [p.department_id] : []),
     department: p.department_id ? (deptMap.get(p.department_id) ?? null) : null,
     superior:   p.superior_id   ? (profileMap.get(p.superior_id) ?? null) : null,
   }));

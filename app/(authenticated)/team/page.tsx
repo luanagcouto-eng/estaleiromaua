@@ -31,11 +31,27 @@ export default async function TeamPage() {
   const { data: { user } } = await supabase.auth.getUser();
   if (!user) redirect("/login");
 
-  const { data: subordinates } = await supabase
+  const { data: userProfile } = await supabase
+    .from("profiles")
+    .select("role")
+    .eq("id", user.id)
+    .single();
+
+  const isAdmin = userProfile?.role === "admin";
+
+  // Admin: fetch all profiles except self; others: fetch direct reports only
+  let subsQuery = supabase
     .from("profiles")
     .select("id, name, email, avatar_url, department:department_id(name)")
-    .eq("superior_id", user.id)
     .order("name");
+
+  if (isAdmin) {
+    subsQuery = subsQuery.neq("id", user.id);
+  } else {
+    subsQuery = subsQuery.eq("superior_id", user.id);
+  }
+
+  const { data: subordinates } = await subsQuery;
 
   const members = (subordinates ?? []) as unknown as SubordinateRow[];
   const memberIds = members.map((m) => m.id);
@@ -105,14 +121,22 @@ export default async function TeamPage() {
       <div className="flex items-start justify-between gap-4">
         <div>
           <h1 className="text-2xl font-bold text-[#364B59]">Minha Equipe</h1>
-          <p className="text-muted-foreground text-sm mt-1">Acompanhe as metas e o progresso dos seus subordinados diretos</p>
+          <p className="text-muted-foreground text-sm mt-1">
+            {isAdmin
+              ? "Visão geral de todos os colaboradores e suas metas"
+              : "Acompanhe as metas e o progresso dos seus subordinados diretos"}
+          </p>
         </div>
         <TeamPrintButton />
       </div>
 
       {teamData.length === 0 ? (
         <div className="bg-white rounded-xl border border-border p-10 text-center text-muted-foreground">
-          <p className="text-sm">Você ainda não possui subordinados diretos cadastrados.</p>
+          <p className="text-sm">
+            {isAdmin
+              ? "Nenhum colaborador cadastrado ainda."
+              : "Você ainda não possui subordinados diretos cadastrados."}
+          </p>
         </div>
       ) : (
         <div className="space-y-6">

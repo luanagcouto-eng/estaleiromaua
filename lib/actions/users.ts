@@ -8,13 +8,24 @@ export async function updateUserProfile(id: string, raw: unknown) {
   const parsed = userUpdateSchema.safeParse(raw);
   if (!parsed.success) return { error: parsed.error.flatten().fieldErrors };
 
+  const { department_ids = [], ...rest } = parsed.data;
+  const department_id = department_ids.length > 0 ? department_ids[0] : null;
+
   const supabase = await createClient();
   const { error } = await supabase
     .from("profiles")
-    .update(parsed.data)
+    .update({ ...rest, department_id })
     .eq("id", id);
 
   if (error) return { error: { _root: [error.message] } };
+
+  // Sync junction table
+  await supabase.from("profile_departments").delete().eq("profile_id", id);
+  if (department_ids.length > 0) {
+    await supabase.from("profile_departments").insert(
+      department_ids.map((did) => ({ profile_id: id, department_id: did }))
+    );
+  }
 
   revalidatePath("/admin/users");
   return { success: true };
@@ -24,13 +35,23 @@ export async function createUserProfile(raw: unknown) {
   const parsed = userCreateSchema.safeParse(raw);
   if (!parsed.success) return { error: parsed.error.flatten().fieldErrors };
 
+  const { department_ids = [], ...rest } = parsed.data;
+  const department_id = department_ids.length > 0 ? department_ids[0] : null;
+
   const supabase = await createClient();
-  const { error } = await supabase.from("profiles").insert({
-    ...parsed.data,
-    is_placeholder: true,
-  });
+  const { data: newProfile, error } = await supabase
+    .from("profiles")
+    .insert({ ...rest, department_id, is_placeholder: true })
+    .select("id")
+    .single();
 
   if (error) return { error: { _root: [error.message] } };
+
+  if (newProfile && department_ids.length > 0) {
+    await supabase.from("profile_departments").insert(
+      department_ids.map((did) => ({ profile_id: newProfile.id, department_id: did }))
+    );
+  }
 
   revalidatePath("/admin/users");
   return { success: true };
@@ -39,7 +60,6 @@ export async function createUserProfile(raw: unknown) {
 export async function deleteUserProfile(id: string) {
   const supabase = await createClient();
 
-  // Block deletion if user has goals assigned
   const { count: goalsCount } = await supabase
     .from("goals")
     .select("id", { count: "exact", head: true })
@@ -55,7 +75,6 @@ export async function deleteUserProfile(id: string) {
     };
   }
 
-  // Block deletion if user is superior of other profiles
   const { count: subCount } = await supabase
     .from("profiles")
     .select("id", { count: "exact", head: true })

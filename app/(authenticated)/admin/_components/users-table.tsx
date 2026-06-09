@@ -13,12 +13,13 @@ import { deleteUserProfile } from "@/lib/actions/users";
 interface Profile    { id: string; name: string; email: string; }
 interface Department { id: string; name: string; sector: string; }
 interface UserRow extends Profile {
-  role:          string;
-  department_id: string | null;
-  superior_id:   string | null;
+  role:            string;
+  department_id:   string | null;
+  department_ids?: string[];
+  superior_id:     string | null;
   is_placeholder?: boolean;
-  department:    Department | null;
-  superior:      Profile | null;
+  department:      Department | null;
+  superior:        Profile | null;
 }
 
 const ROLE_BADGES: Record<string, string> = {
@@ -34,6 +35,7 @@ const ROLE_LABELS: Record<string, string> = {
 interface Props { users: UserRow[]; departments: Department[]; allProfiles: Profile[]; }
 
 export default function UsersTable({ users, departments, allProfiles }: Props) {
+  const deptMap = new Map(departments.map((d) => [d.id, d]));
   const [editUser,     setEditUser]     = useState<UserRow | null>(null);
   const [editOpen,     setEditOpen]     = useState(false);
   const [createOpen,   setCreateOpen]   = useState(false);
@@ -105,7 +107,9 @@ export default function UsersTable({ users, departments, allProfiles }: Props) {
                     </span>
                   </TableCell>
                   <TableCell className="text-sm">
-                    {u.department?.name ?? <span className="text-muted-foreground">—</span>}
+                    {(u.department_ids ?? []).length > 0
+                      ? (u.department_ids ?? []).map((did) => deptMap.get(did)?.name).filter(Boolean).join(", ")
+                      : <span className="text-muted-foreground">—</span>}
                   </TableCell>
                   <TableCell className="text-sm">
                     {u.superior?.name ?? <span className="text-muted-foreground">—</span>}

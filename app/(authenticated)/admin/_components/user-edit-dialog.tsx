@@ -108,7 +108,15 @@ export default function UserEditDialog({ open, onClose, user, allProfiles, depar
               <FormItem>
                 <FormLabel>Departamento</FormLabel>
                 <Select onValueChange={v => field.onChange(v === "none" ? null : v)} value={field.value ?? "none"}>
-                  <FormControl><SelectTrigger><SelectValue placeholder="Sem departamento" /></SelectTrigger></FormControl>
+                  <FormControl>
+                    <SelectTrigger>
+                      <span className={!field.value ? "text-muted-foreground text-sm" : "text-sm"}>
+                        {field.value
+                          ? departments.find(d => d.id === field.value)?.name ?? "Departamento"
+                          : "Sem departamento"}
+                      </span>
+                    </SelectTrigger>
+                  </FormControl>
                   <SelectContent>
                     <SelectItem value="none">Sem departamento</SelectItem>
                     {departments.map(d => (
@@ -124,7 +132,15 @@ export default function UserEditDialog({ open, onClose, user, allProfiles, depar
               <FormItem>
                 <FormLabel>Superior imediato</FormLabel>
                 <Select onValueChange={v => field.onChange(v === "none" ? null : v)} value={field.value ?? "none"}>
-                  <FormControl><SelectTrigger><SelectValue placeholder="Sem superior" /></SelectTrigger></FormControl>
+                  <FormControl>
+                    <SelectTrigger>
+                      <span className={!field.value ? "text-muted-foreground text-sm" : "text-sm"}>
+                        {field.value
+                          ? superiorOptions.find(p => p.id === field.value)?.name ?? "Superior"
+                          : "Sem superior"}
+                      </span>
+                    </SelectTrigger>
+                  </FormControl>
                   <SelectContent>
                     <SelectItem value="none">Sem superior</SelectItem>
                     {superiorOptions.map(p => (

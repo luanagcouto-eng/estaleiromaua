@@ -65,9 +65,9 @@ const IconOrg = () => (
 // Admin:    todas as páginas
 const NAV_ITEMS: NavItem[] = [
   { label: "Visão Geral",  href: "/overview",     icon: <IconOrg />,    roles: ["ceo", "director", "manager", "admin"] },
-  { label: "Minhas Metas", href: "/my-goals",     icon: <IconTarget />, roles: ["director", "manager"] },
-  { label: "Minha Equipe", href: "/team",          icon: <IconUsers />,  roles: ["ceo", "director"] },
-  { label: "Relatórios",   href: "/reports",       icon: <IconChart />,  roles: ["ceo", "director"] },
+  { label: "Minhas Metas", href: "/my-goals",     icon: <IconTarget />, roles: ["director", "manager", "admin"] },
+  { label: "Minha Equipe", href: "/team",          icon: <IconUsers />,  roles: ["ceo", "director", "admin"] },
+  { label: "Relatórios",   href: "/reports",       icon: <IconChart />,  roles: ["ceo", "director", "admin"] },
   { label: "Usuários",     href: "/admin/users",   icon: <IconUsers />,  roles: ["admin"] },
   { label: "Metas",        href: "/admin/goals",   icon: <IconTarget />, roles: ["admin"] },
   { label: "Auditoria",    href: "/admin/audit",   icon: <IconAudit />,  roles: ["admin"] },

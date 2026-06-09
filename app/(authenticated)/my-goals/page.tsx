@@ -6,7 +6,7 @@ import type { GoalHistoryEntry } from "./_components/goal-history-list";
 import GoalsExecutiveTable from "./_components/goals-executive-table";
 import GoalAlertsPanel, { type GoalAlert } from "@/components/alerts/goal-alerts-panel";
 
-export const metadata = { title: "Minhas Metas — Metas Mauá 2026" };
+export const metadata = { title: "Atualização de Metas — Metas Mauá 2026" };
 
 interface GoalRow {
   id: string;
@@ -82,9 +82,9 @@ export default async function MyGoalsPage() {
   return (
     <div className="space-y-5">
       <div>
-        <h1 className="text-2xl font-bold text-[#364B59]">Minhas Metas</h1>
+        <h1 className="text-2xl font-bold text-[#364B59]">Atualização de Metas</h1>
         <p className="text-muted-foreground text-sm mt-1">
-          Acompanhe suas metas de 2026 e registre seus resultados
+          Registre resultados e anexe evidências/memória de cálculo para cada meta
         </p>
       </div>
 

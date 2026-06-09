@@ -10,9 +10,8 @@ export const goalEntrySchema = z.object({
     .max(1000, "Máximo 1000 caracteres"),
   evidence_url: z
     .string()
-    .url("Informe uma URL válida (ex: link para planilha, documento ou print)")
-    .optional()
-    .or(z.literal("")),
+    .min(1, "Evidência obrigatória — anexe um arquivo ou cole uma URL")
+    .url("URL inválida. Faça upload de um arquivo ou cole um link válido (https://...)"),
 });
 
 export type GoalEntryFormValues = z.infer<typeof goalEntrySchema>;

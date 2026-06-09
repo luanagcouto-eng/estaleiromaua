@@ -7,11 +7,18 @@ import { signOut } from "@/lib/actions/auth";
 import { cn } from "@/lib/utils";
 import type { UserRole } from "@/types";
 
-interface NavItem {
+interface SubNavItem {
   label: string;
   href: string;
+  roles: UserRole[];
+}
+
+interface NavItem {
+  label: string;
+  href?: string;
   icon: React.ReactNode;
   roles: UserRole[];
+  children?: SubNavItem[];
 }
 
 const IconChart = () => (
@@ -36,14 +43,6 @@ const IconUsers = () => (
   </svg>
 );
 
-const IconSettings = () => (
-  <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.8}
-      d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z" />
-    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.8} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
-  </svg>
-);
-
 const IconAudit = () => (
   <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.8}
@@ -59,18 +58,58 @@ const IconOrg = () => (
 );
 
 // Permissões por role:
-// CEO:      Visão Geral · Minha Equipe · Relatórios
-// Diretor:  Visão Geral · Minhas Metas · Minha Equipe · Relatórios
-// Gestor:   Visão Geral · Minhas Metas
+// CEO:      Visão Geral · Minha Equipe · Relatórios · Metas > Atualização
+// Diretor:  Visão Geral · Minha Equipe · Relatórios · Metas > Atualização
+// Gestor:   Visão Geral · Metas > Atualização
 // Admin:    todas as páginas
 const NAV_ITEMS: NavItem[] = [
-  { label: "Visão Geral",  href: "/overview",     icon: <IconOrg />,    roles: ["ceo", "director", "manager", "admin"] },
-  { label: "Minhas Metas", href: "/my-goals",     icon: <IconTarget />, roles: ["director", "manager", "admin"] },
-  { label: "Minha Equipe", href: "/team",          icon: <IconUsers />,  roles: ["ceo", "director", "admin"] },
-  { label: "Relatórios",   href: "/reports",       icon: <IconChart />,  roles: ["ceo", "director", "admin"] },
-  { label: "Usuários",     href: "/admin/users",   icon: <IconUsers />,  roles: ["admin"] },
-  { label: "Metas",        href: "/admin/goals",   icon: <IconTarget />, roles: ["admin"] },
-  { label: "Auditoria",    href: "/admin/audit",   icon: <IconAudit />,  roles: ["admin"] },
+  {
+    label: "Visão Geral",
+    href: "/overview",
+    icon: <IconOrg />,
+    roles: ["ceo", "director", "manager", "admin"],
+  },
+  {
+    label: "Minha Equipe",
+    href: "/team",
+    icon: <IconUsers />,
+    roles: ["ceo", "director", "admin"],
+  },
+  {
+    label: "Relatórios",
+    href: "/reports",
+    icon: <IconChart />,
+    roles: ["ceo", "director", "admin"],
+  },
+  {
+    label: "Metas",
+    icon: <IconTarget />,
+    roles: ["ceo", "director", "manager", "admin"],
+    children: [
+      {
+        label: "Atualização de Metas",
+        href: "/my-goals",
+        roles: ["ceo", "director", "manager", "admin"],
+      },
+      {
+        label: "Criação de Metas",
+        href: "/admin/goals",
+        roles: ["admin"],
+      },
+    ],
+  },
+  {
+    label: "Usuários",
+    href: "/admin/users",
+    icon: <IconUsers />,
+    roles: ["admin"],
+  },
+  {
+    label: "Auditoria",
+    href: "/admin/audit",
+    icon: <IconAudit />,
+    roles: ["admin"],
+  },
 ];
 
 const ROLE_LABELS: Record<UserRole, string> = {
@@ -89,7 +128,6 @@ interface AppSidebarProps {
 
 export default function AppSidebar({ name, email, role, avatarUrl }: AppSidebarProps) {
   const pathname = usePathname();
-  const visibleItems = NAV_ITEMS.filter((item) => item.roles.includes(role));
 
   return (
     <aside className="fixed left-0 top-0 h-full w-64 bg-[#364B59] flex flex-col z-40 select-none">
@@ -103,12 +141,60 @@ export default function AppSidebar({ name, email, role, avatarUrl }: AppSidebarP
 
       {/* Nav */}
       <nav aria-label="Navegação principal" className="flex-1 overflow-y-auto px-3 py-4 space-y-0.5">
-        {visibleItems.map((item) => {
-          const active = pathname === item.href || pathname.startsWith(item.href + "/");
+        {NAV_ITEMS.map((item) => {
+          if (!item.roles.includes(role)) return null;
+
+          // Item com sub-menu
+          if (item.children) {
+            const visibleChildren = item.children.filter((c) => c.roles.includes(role));
+            if (visibleChildren.length === 0) return null;
+
+            const parentActive = visibleChildren.some(
+              (c) => pathname === c.href || pathname.startsWith(c.href + "/")
+            );
+
+            return (
+              <div key={item.label} className="space-y-0.5">
+                {/* Rótulo do grupo — não é link */}
+                <div
+                  className={cn(
+                    "flex items-center gap-3 px-3 py-2 rounded-lg text-sm font-semibold",
+                    parentActive ? "text-[#F18213]" : "text-[#94A3B8]"
+                  )}
+                >
+                  <span aria-hidden="true">{item.icon}</span>
+                  {item.label}
+                </div>
+
+                {/* Sub-itens */}
+                {visibleChildren.map((child) => {
+                  const active = pathname === child.href || pathname.startsWith(child.href + "/");
+                  return (
+                    <Link
+                      key={child.href}
+                      href={child.href}
+                      aria-current={active ? "page" : undefined}
+                      className={cn(
+                        "flex items-center pl-11 pr-3 py-2 rounded-lg text-sm font-medium transition-colors",
+                        active
+                          ? "bg-[#F18213] text-white"
+                          : "text-[#C8D5DC] hover:bg-[#2D3F4A] hover:text-white"
+                      )}
+                    >
+                      {child.label}
+                    </Link>
+                  );
+                })}
+              </div>
+            );
+          }
+
+          // Item simples
+          const active = pathname === item.href || pathname.startsWith(item.href! + "/");
           return (
             <Link
               key={item.href}
-              href={item.href}
+              href={item.href!}
               aria-current={active ? "page" : undefined}
               className={cn(
                 "flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-colors",
@@ -136,7 +222,7 @@ export default function AppSidebar({ name, email, role, avatarUrl }: AppSidebarP
           )}
           <div className="min-w-0">
             <p className="text-white text-sm font-medium truncate">{name}</p>
-            <p className="text-[#94A3B8] text-xs truncate">{email}</p>
+            <p className="text-[#94A3B8] text-xs truncate">{ROLE_LABELS[role]}</p>
           </div>
         </div>
         <form action={signOut}>

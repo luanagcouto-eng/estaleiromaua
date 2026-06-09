@@ -136,9 +136,12 @@ export default function GoalEntryDialog({ open, onClose, goalId, goalTitle, unit
 
             <FormField control={form.control} name="evidence_url" render={({ field }) => (
               <FormItem>
-                <FormLabel>Evidência <span className="text-muted-foreground">(opcional)</span></FormLabel>
+                <FormLabel>
+                  Evidência{" "}
+                  <span className="text-red-500 font-medium">(obrigatória)</span>
+                </FormLabel>
 
-                {/* Upload de arquivo */}
+                {/* Upload de arquivo — ação principal */}
                 <div className="flex items-center gap-2">
                   <Button
                     type="button"
@@ -148,11 +151,15 @@ export default function GoalEntryDialog({ open, onClose, goalId, goalTitle, unit
                     onClick={() => fileRef.current?.click()}
                     className="shrink-0 text-[#364B59] border-[#364B59] hover:bg-[#364B59] hover:text-white"
                   >
-                    {uploading ? "Enviando..." : "Anexar arquivo"}
+                    {uploading ? "Enviando..." : "📎 Anexar arquivo"}
                   </Button>
-                  {fileName && (
-                    <span className="text-xs text-green-700 bg-green-50 border border-green-200 rounded px-2 py-1 truncate max-w-[160px]">
-                      {fileName}
+                  {fileName ? (
+                    <span className="text-xs text-green-700 bg-green-50 border border-green-200 rounded px-2 py-1 truncate max-w-[180px]">
+                      ✓ {fileName}
+                    </span>
+                  ) : (
+                    <span className="text-xs text-muted-foreground">
+                      PNG, JPG, PDF · máx. {MAX_FILE_MB} MB
                     </span>
                   )}
                   <input
@@ -164,13 +171,13 @@ export default function GoalEntryDialog({ open, onClose, goalId, goalTitle, unit
                   />
                 </div>
 
-                <FormDescription className="text-xs">Ou cole diretamente a URL:</FormDescription>
+                {/* URL alternativa */}
+                <FormDescription className="text-xs text-muted-foreground">
+                  Ou cole o link direto (Drive, SharePoint, etc.):
+                </FormDescription>
                 <FormControl>
                   <Input placeholder="https://drive.google.com/..." {...field} />
                 </FormControl>
-                <FormDescription>
-                  Aceita: PNG, JPG, PDF · máx. {MAX_FILE_MB} MB · ou link externo (Drive, SharePoint…)
-                </FormDescription>
                 <FormMessage />
               </FormItem>
             )} />

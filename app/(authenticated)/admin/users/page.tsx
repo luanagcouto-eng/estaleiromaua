@@ -15,14 +15,11 @@ export default async function AdminUsersPage() {
 
   if (profile?.role !== "admin" && profile?.role !== "ceo") redirect("/dashboard");
 
-  const [{ data: rawUsers }, { data: departments }] = await Promise.all([
+  // Separate queries to avoid PostgREST self-join issues
+  const [{ data: rawProfiles }, { data: departments }] = await Promise.all([
     supabase
       .from("profiles")
-      .select(`
-        id, name, email, role, department_id, superior_id,
-        department:departments(id,name,sector),
-        superior:profiles!superior_id(id,name,email)
-      `)
+      .select("id, name, email, role, department_id, superior_id, is_placeholder")
       .order("name"),
     supabase
       .from("departments")
@@ -30,14 +27,17 @@ export default async function AdminUsersPage() {
       .order("name"),
   ]);
 
-  // Supabase retorna relações como array — normaliza para objeto único
-  const users = (rawUsers ?? []).map((u) => ({
-    ...u,
-    department: Array.isArray(u.department) ? (u.department[0] ?? null) : u.department,
-    superior:   Array.isArray(u.superior)   ? (u.superior[0]   ?? null) : u.superior,
+  // Join department and superior in application code
+  const profileMap = new Map((rawProfiles ?? []).map((p) => [p.id, p]));
+  const deptMap    = new Map((departments  ?? []).map((d) => [d.id, d]));
+
+  const users = (rawProfiles ?? []).map((p) => ({
+    ...p,
+    department: p.department_id ? (deptMap.get(p.department_id) ?? null) : null,
+    superior:   p.superior_id   ? (profileMap.get(p.superior_id) ?? null) : null,
   }));
 
-  const allProfiles = users.map(u => ({ id: u.id, name: u.name, email: u.email }));
+  const allProfiles = users.map((u) => ({ id: u.id, name: u.name, email: u.email }));
 
   return (
     <div className="space-y-6">

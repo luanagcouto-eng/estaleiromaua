@@ -58,14 +58,19 @@ const IconOrg = () => (
   </svg>
 );
 
+// Permissões por role:
+// CEO:      Visão Geral · Minha Equipe · Relatórios
+// Diretor:  Visão Geral · Minhas Metas · Minha Equipe · Relatórios
+// Gestor:   Visão Geral · Minhas Metas
+// Admin:    todas as páginas
 const NAV_ITEMS: NavItem[] = [
-  { label: "Visão Geral",   href: "/overview",         icon: <IconOrg />,      roles: ["ceo"] },
-  { label: "Minhas Metas",  href: "/my-goals",         icon: <IconTarget />,   roles: ["ceo", "director", "manager"] },
-  { label: "Minha Equipe",  href: "/team",             icon: <IconUsers />,    roles: ["ceo", "director"] },
-  { label: "Relatórios",    href: "/reports",          icon: <IconChart />,    roles: ["ceo"] },
-  { label: "Usuários",      href: "/admin/users",      icon: <IconUsers />,    roles: ["admin", "ceo"] },
-  { label: "Metas",         href: "/admin/goals",      icon: <IconTarget />,   roles: ["admin", "ceo"] },
-  { label: "Auditoria",     href: "/admin/audit",      icon: <IconAudit />,    roles: ["admin", "ceo"] },
+  { label: "Visão Geral",  href: "/overview",     icon: <IconOrg />,    roles: ["ceo", "director", "manager", "admin"] },
+  { label: "Minhas Metas", href: "/my-goals",     icon: <IconTarget />, roles: ["director", "manager"] },
+  { label: "Minha Equipe", href: "/team",          icon: <IconUsers />,  roles: ["ceo", "director"] },
+  { label: "Relatórios",   href: "/reports",       icon: <IconChart />,  roles: ["ceo", "director"] },
+  { label: "Usuários",     href: "/admin/users",   icon: <IconUsers />,  roles: ["admin"] },
+  { label: "Metas",        href: "/admin/goals",   icon: <IconTarget />, roles: ["admin"] },
+  { label: "Auditoria",    href: "/admin/audit",   icon: <IconAudit />,  roles: ["admin"] },
 ];
 
 const ROLE_LABELS: Record<UserRole, string> = {

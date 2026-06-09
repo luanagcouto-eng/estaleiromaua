@@ -189,7 +189,7 @@ export default async function OverviewPage() {
 
       {/* Org chart + footer in unified white container */}
       <div className="bg-white rounded-xl border border-border overflow-hidden">
-        <div className="py-8">
+        <div className="py-8 bg-white">
           <OrgChart
             ceo={{
               name: ceoProfile?.name ?? null,

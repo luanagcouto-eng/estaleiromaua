@@ -15,7 +15,7 @@ const OP_SYMBOL: Record<string, string> = { ">=": "≥", ">": ">", "<=": "≤", 
 
 interface GoalRow {
   id: string; title: string; description: string | null;
-  period: string; weight: number; target_value: number;
+  period: string; weight: number; sub_weight: number | null; target_value: number;
   current_value: number; unit: string; operator: string;
   owner_id: string; department_id: string;
   owner: Profile | null; department: Pick<Department, "id" | "name" | "sector"> | null;
@@ -30,28 +30,28 @@ interface Props {
 const MOCK_GOALS: GoalRow[] = [
   {
     id: "__mock_1", title: "Receita Bruta Anual", description: null,
-    period: "2026-ANUAL", weight: 40, target_value: 1200000, current_value: 480000, unit: "R$", operator: ">=",
+    period: "2026-ANUAL", weight: 40, target_value: 1200000, current_value: 480000, unit: "R$", operator: ">=", sub_weight: null,
     owner_id: "__mock", department_id: "__mock",
     owner: { id: "__mock", name: "João da Silva", email: "" },
     department: { id: "__mock", name: "Operações Navais", sector: "" },
   },
   {
     id: "__mock_2", title: "Cumprimento de Prazo de Entrega", description: null,
-    period: "2026-ANUAL", weight: 30, target_value: 95, current_value: 72, unit: "%", operator: ">=",
+    period: "2026-ANUAL", weight: 30, target_value: 95, current_value: 72, unit: "%", operator: ">=", sub_weight: null,
     owner_id: "__mock", department_id: "__mock",
     owner: { id: "__mock", name: "Maria Souza", email: "" },
     department: { id: "__mock", name: "Engenharia Naval", sector: "" },
   },
   {
     id: "__mock_3", title: "NPS — Satisfação do Cliente", description: null,
-    period: "2026-Q1", weight: 20, target_value: 80, current_value: 65, unit: "pontos", operator: ">=",
+    period: "2026-Q1", weight: 20, target_value: 80, current_value: 65, unit: "pontos", operator: ">=", sub_weight: null,
     owner_id: "__mock", department_id: "__mock",
     owner: { id: "__mock", name: "Carlos Lima", email: "" },
     department: { id: "__mock", name: "Qualidade", sector: "" },
   },
   {
     id: "__mock_4", title: "Horas de Capacitação", description: null,
-    period: "2026-Q2", weight: 10, target_value: 200, current_value: 45, unit: "horas", operator: ">=",
+    period: "2026-Q2", weight: 10, target_value: 200, current_value: 45, unit: "horas", operator: ">=", sub_weight: null,
     owner_id: "__mock", department_id: "__mock",
     owner: { id: "__mock", name: "Ana Pereira", email: "" },
     department: { id: "__mock", name: "Recursos Humanos", sector: "" },
@@ -83,6 +83,7 @@ export default function GoalsTable({ goals, profiles, departments }: Props) {
       target_value: Number(g.target_value),
       unit: g.unit as GoalFormValues["unit"],
       operator: (g.operator ?? ">=") as GoalFormValues["operator"],
+      sub_weight: g.sub_weight ?? null,
       owner_id: g.owner_id, department_id: g.department_id,
     });
     setDialogOpen(true);
@@ -122,6 +123,7 @@ export default function GoalsTable({ goals, profiles, departments }: Props) {
               <TableHead className="text-center">Período</TableHead>
               <TableHead className="text-right">Meta</TableHead>
               <TableHead className="text-center">Peso</TableHead>
+              <TableHead className="text-center">Subpeso</TableHead>
               <TableHead className="text-center">Progresso</TableHead>
               <TableHead className="text-right">Ações</TableHead>
             </TableRow>
@@ -150,6 +152,12 @@ export default function GoalsTable({ goals, profiles, departments }: Props) {
                   </TableCell>
                   <TableCell className="text-center">
                     <span className="text-xs font-semibold text-[#F18213]">{g.weight}%</span>
+                  </TableCell>
+                  <TableCell className="text-center">
+                    {g.sub_weight != null
+                      ? <span className="text-xs font-semibold text-[#364B59]/70">{g.sub_weight}%</span>
+                      : <span className="text-xs text-muted-foreground">—</span>
+                    }
                   </TableCell>
                   <TableCell className="text-center">
                     <span className={`text-xs font-semibold px-2 py-0.5 rounded-full ${goalTextClass(pct)}`}>

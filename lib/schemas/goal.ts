@@ -13,6 +13,7 @@ export const goalSchema = z.object({
     .min(0.01, "Meta deve ser maior que zero"),
   unit: z.enum(["%", "R$", "dias", "unidades", "pontos", "horas"]),
   operator: z.enum([">=", ">", "<=", "<"]),
+  sub_weight: z.number().min(0, "Mínimo 0").max(100, "Máximo 100").nullable(),
   owner_id: z.string().uuid("Selecione um responsável"),
   department_id: z.string().regex(/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i, "Selecione um departamento"),
 });

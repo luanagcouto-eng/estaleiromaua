@@ -55,8 +55,8 @@ export default function OrgChart({ ceo, nodes }: Props) {
     : null;
 
   return (
-    <div className="overflow-x-auto pb-4">
-      <div className="min-w-[920px] flex flex-col items-center px-6 pt-2 gap-0">
+    <div className="overflow-x-auto pb-4 bg-white">
+      <div className="min-w-[920px] flex flex-col items-center px-6 pt-2 gap-0 bg-white">
 
         {/* ── Seção: Presidência ── */}
         <div className="flex flex-col items-center gap-0">

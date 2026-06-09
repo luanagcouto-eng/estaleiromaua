@@ -18,6 +18,7 @@ interface GoalRow {
   current_value: number;
   unit: string;
   operator: string;
+  sub_weight: number | null;
 }
 
 export default async function MyGoalsPage() {
@@ -36,7 +37,7 @@ export default async function MyGoalsPage() {
 
   const { data: goals } = await supabase
     .from("goals")
-    .select("id, title, description, period, weight, target_value, current_value, unit, operator")
+    .select("id, title, description, period, weight, sub_weight, target_value, current_value, unit, operator")
     .eq("owner_id", user.id)
     .like("period", "2026%")
     .order("period")

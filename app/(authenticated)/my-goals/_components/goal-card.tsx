@@ -20,6 +20,7 @@ export interface GoalCardData {
   current_value: number;
   unit: string;
   operator: string;
+  sub_weight: number | null;
   history: GoalHistoryEntry[];
 }
 

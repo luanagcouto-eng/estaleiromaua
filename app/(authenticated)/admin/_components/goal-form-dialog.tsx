@@ -57,6 +57,7 @@ export default function GoalFormDialog({ open, onClose, goal, profiles, departme
     defaultValues: goal ?? {
       title: "", description: "", period: "2026-ANUAL",
       weight: 0, target_value: 0, unit: "%", operator: ">=",
+      sub_weight: null,
       owner_id: "", department_id: "",
     },
   });
@@ -65,6 +66,7 @@ export default function GoalFormDialog({ open, onClose, goal, profiles, departme
     if (open) form.reset(goal ?? {
       title: "", description: "", period: "2026-ANUAL",
       weight: 0, target_value: 0, unit: "%", operator: ">=",
+      sub_weight: null,
       owner_id: "", department_id: "",
     });
   }, [open, goal, form]);
@@ -221,16 +223,36 @@ export default function GoalFormDialog({ open, onClose, goal, profiles, departme
               )} />
             </div>
 
-            <FormField control={form.control} name="weight" render={({ field }) => (
-              <FormItem>
-                <FormLabel>Peso (%)</FormLabel>
-                <FormControl>
-                  <Input type="number" step="0.1" min="0.1" max="100" {...field}
-                    onChange={e => field.onChange(parseFloat(e.target.value))} />
-                </FormControl>
-                <FormMessage />
-              </FormItem>
-            )} />
+            <div className="grid grid-cols-2 gap-3">
+              <FormField control={form.control} name="weight" render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Peso (%)</FormLabel>
+                  <FormControl>
+                    <Input type="number" step="0.1" min="0.1" max="100" {...field}
+                      onChange={e => field.onChange(parseFloat(e.target.value))} />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )} />
+
+              <FormField control={form.control} name="sub_weight" render={({ field }) => (
+                <FormItem>
+                  <FormLabel>
+                    Subpeso (%)
+                    <span className="ml-1 text-[10px] font-normal text-muted-foreground">(opcional)</span>
+                  </FormLabel>
+                  <FormControl>
+                    <Input
+                      type="number" step="0.1" min="0" max="100"
+                      placeholder="—"
+                      value={field.value ?? ""}
+                      onChange={e => field.onChange(e.target.value === "" ? null : parseFloat(e.target.value))}
+                    />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )} />
+            </div>
 
             {selectedOwner && (
               <WeightIndicator used={usedWeight} adding={currentWeight} />

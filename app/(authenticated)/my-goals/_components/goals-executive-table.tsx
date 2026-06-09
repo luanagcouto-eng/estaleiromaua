@@ -152,7 +152,9 @@ function GoalTableSection({
                         </div>
                       </div>
                     </td>
-                    <td className="py-3 px-4 text-slate-600 font-medium">{goal.weight}%</td>
+                    <td className="py-3 px-4 text-slate-600 font-medium">
+                      {goal.sub_weight != null ? `${goal.sub_weight}%` : `${goal.weight}%`}
+                    </td>
                     <td className="py-3 px-4 text-slate-600 font-medium whitespace-nowrap">
                       <span className="font-mono font-bold text-slate-400 mr-0.5">{OP_SYMBOL[goal.operator] ?? goal.operator}</span>
                       {formatGoalValue(goal.target_value, goal.unit)}

@@ -25,6 +25,14 @@ export default async function MyGoalsPage() {
   const { data: { user } } = await supabase.auth.getUser();
   if (!user) redirect("/login");
 
+  const { data: profile } = await supabase
+    .from("profiles")
+    .select("name")
+    .eq("id", user.id)
+    .single();
+
+  const userName = profile?.name ?? user.email ?? "Usuário";
+
   const { data: goals } = await supabase
     .from("goals")
     .select("id, title, description, period, weight, target_value, current_value, unit")
@@ -83,7 +91,8 @@ export default async function MyGoalsPage() {
     <div className="space-y-5">
       <div>
         <h1 className="text-2xl font-bold text-[#364B59]">Atualização de Metas</h1>
-        <p className="text-muted-foreground text-sm mt-1">
+        <p className="text-[#364B59] text-sm font-medium mt-0.5">{userName}</p>
+        <p className="text-muted-foreground text-xs mt-0.5">
           Registre resultados e anexe evidências/memória de cálculo para cada meta
         </p>
       </div>

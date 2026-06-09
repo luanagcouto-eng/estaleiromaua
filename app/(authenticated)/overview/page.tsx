@@ -1,5 +1,6 @@
 import { createClient } from "@/lib/supabase/server";
 import { redirect } from "next/navigation";
+import { calcProgress } from "@/lib/utils";
 import OrgChart, { type OrgChartNodeData } from "./_components/org-chart";
 
 export const metadata = { title: "Visão Geral — Metas Mauá 2026" };
@@ -25,10 +26,11 @@ export default async function OverviewPage() {
 
   if (profile?.role !== "ceo" && profile?.role !== "admin") redirect("/dashboard");
 
-  const [{ data: orgRows }, { data: companyRows }, { data: leaders }] = await Promise.all([
+  const [{ data: orgRows }, { data: companyRows }, { data: leaders }, { data: goalRows }] = await Promise.all([
     supabase.from("org_chart_progress").select("*"),
     supabase.from("company_progress").select("*"),
     supabase.from("profiles").select("id, name, department_id, role").in("role", ["ceo", "director"]),
+    supabase.from("goals").select("id, title, period, target_value, current_value, department_id").like("period", "2026%"),
   ]);
 
   const rows = (orgRows ?? []) as OrgChartProgressRow[];
@@ -44,6 +46,19 @@ export default async function OverviewPage() {
     const list = childrenByParent.get(row.parent_id) ?? [];
     list.push(row);
     childrenByParent.set(row.parent_id, list);
+  }
+
+  const goalsByDept = new Map<string, { id: string; title: string; period: string; progress: number }[]>();
+  for (const g of goalRows ?? []) {
+    if (!g.department_id) continue;
+    const list = goalsByDept.get(g.department_id) ?? [];
+    list.push({
+      id: g.id,
+      title: g.title,
+      period: g.period,
+      progress: calcProgress(Number(g.current_value), Number(g.target_value)),
+    });
+    goalsByDept.set(g.department_id, list);
   }
 
   const directorByDept = new Map(
@@ -66,6 +81,7 @@ export default async function OverviewPage() {
       progress: Number(dept.progress_pct),
       goalsCount: Number(dept.goals_count),
       goalsCompleted: Number(dept.goals_completed),
+      goals: goalsByDept.get(dept.department_id) ?? [],
       subDepartments: children.map((c) => ({
         id: c.department_id,
         name: c.department_name,
@@ -98,11 +114,9 @@ export default async function OverviewPage() {
 
       <div className="flex flex-wrap items-center gap-4 text-xs text-muted-foreground px-1">
         <span className="font-medium text-text">Legenda:</span>
-        <LegendSwatch color="var(--color-goal-empty)" label="0%" />
-        <LegendSwatch color="var(--color-goal-low)" label="1–30%" />
-        <LegendSwatch color="var(--color-goal-mid)" label="31–60%" />
-        <LegendSwatch color="var(--color-goal-high)" label="61–89%" />
-        <LegendSwatch color="var(--color-goal-full)" label="90–100% 🏆" />
+        <LegendSwatch color="#DFA1AA" label="0% – 33%" />
+        <LegendSwatch color="#F9E79F" label="33% – 66%" />
+        <LegendSwatch color="#9AD595" label="66% – 100%" />
       </div>
     </div>
   );

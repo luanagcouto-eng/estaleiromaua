@@ -7,20 +7,16 @@ export function cn(...inputs: ClassValue[]) {
 
 /** Retorna a cor CSS de gamificação com base no percentual (0–100) */
 export function goalColor(pct: number): string {
-  if (pct >= 90) return "var(--color-goal-full)";
-  if (pct >= 61) return "var(--color-goal-high)";
-  if (pct >= 31) return "var(--color-goal-mid)";
-  if (pct > 0)   return "var(--color-goal-low)";
-  return "var(--color-goal-empty)";
+  if (pct >= 66) return "var(--color-goal-high)";  // verde
+  if (pct >= 33) return "var(--color-goal-mid)";   // amarelo
+  return "var(--color-goal-low)";                   // vermelho
 }
 
 /** Classe Tailwind de texto conforme percentual (para badges) */
 export function goalTextClass(pct: number): string {
-  if (pct >= 90) return "text-white bg-[#364B59]";
-  if (pct >= 61) return "text-white bg-[#F18213]";
-  if (pct >= 31) return "text-gray-800 bg-[#F7A84E]";
-  if (pct > 0)   return "text-gray-700 bg-[#FDDCB0]";
-  return "text-gray-500 bg-gray-100";
+  if (pct >= 66) return "text-[#1B5E37] bg-[#9AD595]";  // verde
+  if (pct >= 33) return "text-[#7B5800] bg-[#F9E79F]";  // amarelo
+  return "text-[#7C2737] bg-[#DFA1AA]";                  // vermelho
 }
 
 /** Formata valor de meta conforme unidade */

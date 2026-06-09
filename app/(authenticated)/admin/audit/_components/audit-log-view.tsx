@@ -10,6 +10,19 @@ const ACTION_STYLE: Record<string, string> = {
   DELETE: "bg-red-50 text-red-700 border border-red-200",
 };
 
+function entityTypeFromAction(action: string): "goal" | "goal_history" | string {
+  if (action.endsWith("_GOAL_HISTORY")) return "goal_history";
+  if (action.endsWith("_GOAL")) return "goal";
+  return action;
+}
+
+function opFromAction(action: string): string {
+  if (action.startsWith("INSERT")) return "INSERT";
+  if (action.startsWith("UPDATE")) return "UPDATE";
+  if (action.startsWith("DELETE")) return "DELETE";
+  return action;
+}
+
 const ENTITY_LABELS: Record<string, string> = {
   goal: "Meta",
   goal_history: "Lançamento",
@@ -51,7 +64,7 @@ function ValueCell({ label, value }: { label: string; value: Record<string, unkn
 export default function AuditLogView({ rows }: { rows: AuditLogRow[] }) {
   const [filter, setFilter] = useState<"all" | "goal" | "goal_history">("all");
 
-  const filtered = filter === "all" ? rows : rows.filter((r) => r.entity_type === filter);
+  const filtered = filter === "all" ? rows : rows.filter((r) => entityTypeFromAction(r.action) === filter);
 
   return (
     <div className="space-y-4">
@@ -98,20 +111,23 @@ export default function AuditLogView({ rows }: { rows: AuditLogRow[] }) {
                 </TableCell>
               </TableRow>
             ) : (
-              filtered.map((row) => (
+              filtered.map((row) => {
+                const entityType = entityTypeFromAction(row.action);
+                const op = opFromAction(row.action);
+                return (
                 <TableRow key={row.id} className="hover:bg-surface/50 align-top">
                   <TableCell className="text-xs text-muted-foreground whitespace-nowrap">
-                    {formatDate(row.created_at)}
+                    {formatDate(row.timestamp)}
                   </TableCell>
                   <TableCell className="text-sm font-medium">{row.user_name}</TableCell>
                   <TableCell className="text-center">
                     <span className="text-xs bg-gray-100 px-2 py-0.5 rounded-full">
-                      {ENTITY_LABELS[row.entity_type] ?? row.entity_type}
+                      {ENTITY_LABELS[entityType] ?? entityType}
                     </span>
                   </TableCell>
                   <TableCell className="text-center">
-                    <span className={`text-xs font-semibold px-2 py-0.5 rounded-full ${ACTION_STYLE[row.action] ?? ""}`}>
-                      {row.action === "INSERT" ? "Criação" : row.action === "UPDATE" ? "Edição" : "Exclusão"}
+                    <span className={`text-xs font-semibold px-2 py-0.5 rounded-full ${ACTION_STYLE[op] ?? ""}`}>
+                      {op === "INSERT" ? "Criação" : op === "UPDATE" ? "Edição" : "Exclusão"}
                     </span>
                   </TableCell>
                   <TableCell>
@@ -121,7 +137,7 @@ export default function AuditLogView({ rows }: { rows: AuditLogRow[] }) {
                     <ValueCell label="Depois" value={row.new_value as Record<string, unknown> | null} />
                   </TableCell>
                 </TableRow>
-              ))
+              ); })
             )}
           </TableBody>
         </Table>

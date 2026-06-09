@@ -2,7 +2,15 @@
 
 import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetDescription } from "@/components/ui/sheet";
 import { Badge } from "@/components/ui/badge";
-import { goalTextClass } from "@/lib/utils";
+import { goalTextClass, goalColor } from "@/lib/utils";
+
+const PERIOD_LABELS: Record<string, string> = {
+  "2026-ANUAL": "Anual",
+  "2026-Q1": "T1",
+  "2026-Q2": "T2",
+  "2026-Q3": "T3",
+  "2026-Q4": "T4",
+};
 
 export interface NodeDetail {
   id: string;
@@ -13,6 +21,7 @@ export interface NodeDetail {
   goalsCount: number;
   goalsCompleted: number;
   subDepartments: { id: string; name: string; progress: number }[];
+  goals: { id: string; title: string; period: string; progress: number }[];
 }
 
 interface Props {
@@ -67,6 +76,35 @@ export default function NodeDetailSheet({ node, onClose }: Props) {
                         <Badge variant="secondary" className={goalTextClass(sub.progress)}>
                           {sub.progress.toFixed(0)}%
                         </Badge>
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+              )}
+
+              {node.goals.length > 0 && (
+                <div>
+                  <h3 className="text-sm font-semibold text-[#364B59] mb-2">Metas atribuídas</h3>
+                  <ul className="space-y-2">
+                    {node.goals.map((goal) => (
+                      <li key={goal.id} className="rounded-lg border border-border px-3 py-2.5 space-y-1.5">
+                        <div className="flex items-start justify-between gap-2">
+                          <span className="text-sm text-[#364B59] font-medium leading-snug">{goal.title}</span>
+                          <div className="flex items-center gap-1.5 shrink-0">
+                            <span className="text-[10px] bg-gray-100 px-1.5 py-0.5 rounded-full text-muted-foreground">
+                              {PERIOD_LABELS[goal.period] ?? goal.period}
+                            </span>
+                            <Badge className={`text-[10px] px-2 py-0.5 ${goalTextClass(goal.progress)}`}>
+                              {goal.progress}%
+                            </Badge>
+                          </div>
+                        </div>
+                        <div className="h-1.5 rounded-full bg-gray-100 overflow-hidden">
+                          <div
+                            className="h-full rounded-full transition-all duration-500"
+                            style={{ width: `${Math.min(100, goal.progress)}%`, backgroundColor: goalColor(goal.progress) }}
+                          />
+                        </div>
                       </li>
                     ))}
                   </ul>

@@ -4,6 +4,13 @@ import { useState } from "react";
 import OrgNode from "./org-node";
 import NodeDetailSheet, { type NodeDetail } from "./node-detail-sheet";
 
+export interface GoalItem {
+  id: string;
+  title: string;
+  period: string;
+  progress: number;
+}
+
 export interface OrgChartNodeData {
   id: string;
   name: string;
@@ -13,6 +20,7 @@ export interface OrgChartNodeData {
   goalsCount: number;
   goalsCompleted: number;
   subDepartments: { id: string; name: string; progress: number }[];
+  goals: GoalItem[];
 }
 
 interface Props {
@@ -34,6 +42,7 @@ export default function OrgChart({ ceo, nodes }: Props) {
         goalsCount: selectedNode.goalsCount,
         goalsCompleted: selectedNode.goalsCompleted,
         subDepartments: selectedNode.subDepartments,
+        goals: selectedNode.goals,
       }
     : null;
 
@@ -52,16 +61,16 @@ export default function OrgChart({ ceo, nodes }: Props) {
         </div>
 
         {/* Conector vertical CEO → linha horizontal */}
-        <div className="h-8 w-px bg-border" />
+        <div className="h-8 w-px bg-slate-400" />
 
         {/* Linha horizontal conectando as 5 diretorias */}
         <div className="relative w-full">
-          <div className="absolute top-0 left-[10%] right-[10%] h-px bg-border" />
+          <div className="absolute top-0 left-[10%] right-[10%] h-px bg-slate-400" />
 
           <div className="grid grid-cols-5 gap-4 pt-8">
             {nodes.map((node) => (
               <div key={node.id} className="relative flex flex-col items-center">
-                <div className="absolute -top-8 h-8 w-px bg-border" />
+                <div className="absolute -top-8 h-8 w-px bg-slate-400" />
                 <OrgNode
                   label={node.name}
                   subtitle={node.isPlaceholder ? "Em aberto" : node.director ?? ""}

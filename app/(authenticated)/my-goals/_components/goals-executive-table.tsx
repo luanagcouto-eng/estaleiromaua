@@ -30,6 +30,23 @@ const PERIOD_LABELS: Record<string, string> = {
 };
 const PERIOD_ORDER = ["2026-ANUAL", "2026-Q1", "2026-Q2", "2026-Q3", "2026-Q4"] as const;
 
+const PERIOD_FILTERS = [
+  { label: "Todas",  value: "all"        },
+  { label: "Anual",  value: "2026-ANUAL" },
+  { label: "T1",     value: "2026-Q1"    },
+  { label: "T2",     value: "2026-Q2"    },
+  { label: "T3",     value: "2026-Q3"    },
+  { label: "T4",     value: "2026-Q4"    },
+];
+
+const CURRENT_QUARTER = (() => {
+  const m = new Date().getMonth() + 1;
+  if (m <= 3) return "2026-Q1";
+  if (m <= 6) return "2026-Q2";
+  if (m <= 9) return "2026-Q3";
+  return "2026-Q4";
+})();
+
 // ─── KPI Card ─────────────────────────────────────────────────────────────────
 
 function KpiCard({ goal }: { goal: GoalCardData }) {
@@ -192,27 +209,62 @@ function GoalTableSection({
 export default function GoalsExecutiveTable({ goals }: { goals: GoalCardData[] }) {
   const [expandedId, setExpandedId] = useState<string | null>(null);
   const [entryGoal, setEntryGoal]   = useState<GoalCardData | null>(null);
+  const [periodFilter, setPeriodFilter] = useState("all");
 
   function toggle(id: string) {
     setExpandedId((prev) => (prev === id ? null : id));
   }
 
+  const filtered = periodFilter === "all" ? goals : goals.filter((g) => g.period === periodFilter);
   const grouped = PERIOD_ORDER
-    .map((period) => ({ period, list: goals.filter((g) => g.period === period) }))
+    .map((period) => ({ period, list: filtered.filter((g) => g.period === period) }))
     .filter(({ list }) => list.length > 0);
 
   return (
     <div className="space-y-5">
+      {/* Filtro de período */}
+      <div className="flex items-center gap-1 bg-white border border-border rounded-lg p-1 w-fit">
+        {PERIOD_FILTERS.map((f) => (
+          <button
+            key={f.value}
+            onClick={() => setPeriodFilter(f.value)}
+            aria-pressed={periodFilter === f.value}
+            className={`px-3 py-1.5 text-sm rounded-md transition-colors relative ${
+              periodFilter === f.value
+                ? "bg-[#364B59] text-white font-medium"
+                : "text-muted-foreground hover:text-[#364B59] hover:bg-surface"
+            }`}
+          >
+            {f.label}
+            {f.value === CURRENT_QUARTER && (
+              <span className="absolute -top-1 -right-1 w-2 h-2 rounded-full bg-[#F18213] border border-white" title="Trimestre atual — lançamento obrigatório" />
+            )}
+          </button>
+        ))}
+      </div>
+
       {/* KPI Cards */}
       <div className="flex gap-3 overflow-x-auto pb-1">
-        {goals.map((g) => <KpiCard key={g.id} goal={g} />)}
+        {filtered.map((g) => <KpiCard key={g.id} goal={g} />)}
       </div>
+
+      {grouped.length === 0 && (
+        <div className="bg-white rounded-xl border border-border p-8 text-center text-muted-foreground text-sm">
+          Nenhuma meta encontrada para este período.
+        </div>
+      )}
 
       {/* Tables per period */}
       {grouped.map(({ period, list }) => (
         <GoalTableSection
           key={period}
-          title={PERIOD_LABELS[period] ?? period}
+          title={
+            PERIOD_LABELS[period] === undefined
+              ? period
+              : period === CURRENT_QUARTER
+              ? `${PERIOD_LABELS[period]} · ⚠ Trimestre atual — lançamento obrigatório`
+              : PERIOD_LABELS[period]
+          }
           goals={list}
           expandedId={expandedId}
           onToggle={toggle}

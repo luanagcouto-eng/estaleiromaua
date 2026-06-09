@@ -48,29 +48,29 @@ export default function OrgNode({ label, subtitle, progress, isPlaceholder, isCe
         style={{
           backgroundColor: fillColor,
           clipPath: `inset(${100 - pct}% 0 0 0)`,
-          opacity: isFull ? 1 : 0.85,
+          opacity: 0.9,
         }}
       />
 
       <span className="relative flex flex-col gap-1 px-4 py-3.5">
         <span className="flex items-center justify-between gap-2">
-          <span className={`text-[11px] font-semibold uppercase tracking-wide ${pct >= 61 ? "text-white/80" : "text-muted-foreground"}`}>
+          <span className="text-[11px] font-semibold uppercase tracking-wide text-[#364B59]/70">
             {isCeo ? "CEO" : "Diretoria"}
           </span>
           {isFull && (
-            <TrophyIcon className={`h-4 w-4 ${pct >= 61 ? "text-white" : "text-[#364B59]"}`} />
+            <TrophyIcon className="h-4 w-4 text-[#364B59]" />
           )}
         </span>
 
-        <span className={`text-sm font-bold leading-tight ${pct >= 61 ? "text-white" : "text-[#364B59]"}`}>
+        <span className="text-sm font-bold leading-tight text-[#364B59]">
           {label}
         </span>
 
-        <span className={`text-xs ${pct >= 61 ? "text-white/85" : "text-muted-foreground"} ${isPlaceholder ? "italic" : ""}`}>
+        <span className={`text-xs text-[#364B59]/70 ${isPlaceholder ? "italic" : ""}`}>
           {subtitle}
         </span>
 
-        <span className={`mt-1.5 text-xl font-extrabold tabular-nums ${pct >= 61 ? "text-white" : "text-[#364B59]"}`}>
+        <span className="mt-1.5 text-xl font-extrabold tabular-nums text-[#364B59]">
           {pct.toFixed(0)}%
         </span>
       </span>

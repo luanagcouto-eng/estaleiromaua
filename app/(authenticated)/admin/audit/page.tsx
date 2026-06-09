@@ -8,12 +8,11 @@ export interface AuditLogRow {
   id: string;
   user_id: string | null;
   user_name: string | null;
-  entity_type: string;
-  entity_id: string | null;
   action: string;
+  entity_id: string | null;
   old_value: Record<string, unknown> | null;
   new_value: Record<string, unknown> | null;
-  created_at: string;
+  timestamp: string;
 }
 
 export default async function AuditPage() {
@@ -32,8 +31,8 @@ export default async function AuditPage() {
 
   const { data: logs } = await supabase
     .from("audit_log")
-    .select("id, user_id, entity_type, entity_id, action, old_value, new_value, created_at")
-    .order("created_at", { ascending: false })
+    .select("id, user_id, entity_id, action, old_value, new_value, timestamp")
+    .order("timestamp", { ascending: false })
     .limit(200);
 
   const userIds = [...new Set((logs ?? []).map((l) => l.user_id).filter(Boolean))] as string[];
@@ -48,8 +47,14 @@ export default async function AuditPage() {
   }
 
   const rows: AuditLogRow[] = (logs ?? []).map((l) => ({
-    ...l,
+    id: l.id,
+    user_id: l.user_id ?? null,
     user_name: l.user_id ? (nameMap[l.user_id] ?? "Usuário removido") : "Sistema",
+    action: l.action,
+    entity_id: l.entity_id ?? null,
+    old_value: l.old_value as Record<string, unknown> | null,
+    new_value: l.new_value as Record<string, unknown> | null,
+    timestamp: l.timestamp,
   }));
 
   return (

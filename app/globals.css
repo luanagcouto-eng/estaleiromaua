@@ -26,12 +26,10 @@
   --color-border:     var(--color-maua-gray-200);
   --color-text:       var(--color-maua-gray-900);
 
-  /* Meta de progresso — gamificação */
-  --color-goal-empty:   var(--color-maua-gray-100);
-  --color-goal-low:     #FDDCB0;   /* 0–30%  laranja fraco */
-  --color-goal-mid:     #F7A84E;   /* 31–60% laranja médio */
-  --color-goal-high:    var(--color-maua-orange);  /* 61–89% laranja pleno */
-  --color-goal-full:    var(--color-maua-navy);    /* 90–100% navy (conquista) */
+  /* Meta de progresso — gamificação (3 faixas: vermelho / amarelo / verde) */
+  --color-goal-low:     #DFA1AA;   /*  0–32%  vermelho */
+  --color-goal-mid:     #F9E79F;   /* 33–65%  amarelo  */
+  --color-goal-high:    #9AD595;   /* 66–100% verde    */
 
   /* Tipografia */
   --font-sans: 'Inter', ui-sans-serif, system-ui, sans-serif;

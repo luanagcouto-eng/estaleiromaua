@@ -28,8 +28,11 @@ export default function GoalHistoryList({ entries, unit }: Props) {
         <li key={entry.id} className="rounded-lg border border-border bg-surface px-3 py-2 text-sm">
           <div className="flex items-center justify-between gap-2">
             <span className="font-medium text-text">{formatGoalValue(entry.value, unit)}</span>
-            <span className="text-xs text-muted-foreground">
-              {new Date(entry.recorded_at).toLocaleDateString("pt-BR", { day: "2-digit", month: "short", year: "numeric" })}
+            <span className="text-xs text-muted-foreground whitespace-nowrap">
+              {new Date(entry.recorded_at).toLocaleString("pt-BR", {
+                day: "2-digit", month: "short", year: "numeric",
+                hour: "2-digit", minute: "2-digit", hour12: false,
+              })}
             </span>
           </div>
           {entry.notes && <p className="mt-1 text-xs text-muted-foreground whitespace-pre-wrap">{entry.notes}</p>}

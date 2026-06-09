@@ -5,6 +5,7 @@ import { calcProgress, formatGoalValue } from "@/lib/utils";
 import GoalEntryDialog from "./goal-entry-dialog";
 import GoalHistoryList from "./goal-history-list";
 import type { GoalCardData } from "./goal-card";
+import { Input } from "@/components/ui/input";
 
 // ─── helpers ─────────────────────────────────────────────────────────────────
 
@@ -215,18 +216,38 @@ export default function GoalsExecutiveTable({ goals }: { goals: GoalCardData[] }
   const [expandedId, setExpandedId] = useState<string | null>(null);
   const [entryGoal, setEntryGoal]   = useState<GoalCardData | null>(null);
   const [periodFilter, setPeriodFilter] = useState("all");
+  const [titleFilter, setTitleFilter]   = useState("");
 
   function toggle(id: string) {
     setExpandedId((prev) => (prev === id ? null : id));
   }
 
-  const filtered = periodFilter === "all" ? goals : goals.filter((g) => g.period === periodFilter);
-  const grouped = PERIOD_ORDER
+  const byTitle  = titleFilter ? goals.filter((g) => g.title.toLowerCase().includes(titleFilter.toLowerCase())) : goals;
+  const filtered = periodFilter === "all" ? byTitle : byTitle.filter((g) => g.period === periodFilter);
+  const grouped  = PERIOD_ORDER
     .map((period) => ({ period, list: filtered.filter((g) => g.period === period) }))
     .filter(({ list }) => list.length > 0);
 
   return (
     <div className="space-y-5">
+      {/* Barra de filtros */}
+      <div className="flex items-center gap-3 flex-wrap">
+        <Input
+          placeholder="Buscar por título..."
+          value={titleFilter}
+          onChange={(e) => setTitleFilter(e.target.value)}
+          className="h-8 text-sm w-[220px]"
+        />
+        {titleFilter && (
+          <button
+            onClick={() => setTitleFilter("")}
+            className="text-xs text-muted-foreground hover:text-red-500 transition-colors"
+          >
+            ✕ Limpar
+          </button>
+        )}
+      </div>
+
       {/* Filtro de período */}
       <div className="flex items-center gap-1 bg-white border border-border rounded-lg p-1 w-fit">
         {PERIOD_FILTERS.map((f) => (
@@ -255,7 +276,9 @@ export default function GoalsExecutiveTable({ goals }: { goals: GoalCardData[] }
 
       {grouped.length === 0 && (
         <div className="bg-white rounded-xl border border-border p-8 text-center text-muted-foreground text-sm">
-          Nenhuma meta encontrada para este período.
+          {titleFilter
+            ? `Nenhuma meta encontrada para "${titleFilter}".`
+            : "Nenhuma meta encontrada para este período."}
         </div>
       )}
 

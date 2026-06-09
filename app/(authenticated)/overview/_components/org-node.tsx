@@ -35,7 +35,6 @@ export default function OrgNode({
       className={`group relative w-full overflow-hidden rounded-2xl border text-left shadow-sm transition-all
         ${isCeo ? "border-[#364B59]/30" : "border-border"}
         ${selected ? "ring-2 ring-[#F18213] ring-offset-2" : "hover:shadow-md hover:-translate-y-0.5"}
-        ${isPlaceholder ? "opacity-60" : ""}
         bg-white`}
       aria-pressed={selected}
     >

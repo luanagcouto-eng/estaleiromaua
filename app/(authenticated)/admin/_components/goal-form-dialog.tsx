@@ -74,7 +74,7 @@ export default function GoalFormDialog({ open, onClose, goal, profiles, departme
 
   return (
     <Dialog open={open} onOpenChange={onClose}>
-      <DialogContent className="max-w-lg max-h-[90vh] overflow-y-auto">
+      <DialogContent className="max-w-xl max-h-[90vh] overflow-y-auto">
         <DialogHeader>
           <DialogTitle className="text-[#364B59]">{isEdit ? "Editar Meta" : "Nova Meta"}</DialogTitle>
         </DialogHeader>
@@ -98,39 +98,59 @@ export default function GoalFormDialog({ open, onClose, goal, profiles, departme
               </FormItem>
             )} />
 
-            <div className="grid grid-cols-2 gap-3">
-              <FormField control={form.control} name="owner_id" render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Responsável</FormLabel>
-                  <Select onValueChange={field.onChange} value={field.value}>
-                    <FormControl><SelectTrigger><SelectValue placeholder="Selecione..." /></SelectTrigger></FormControl>
-                    <SelectContent>
-                      {profiles.map(p => (
-                        <SelectItem key={p.id} value={p.id}>{p.name}</SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
-                  <FormMessage />
-                </FormItem>
-              )} />
+            <FormField control={form.control} name="owner_id" render={({ field }) => (
+              <FormItem>
+                <FormLabel>Responsável</FormLabel>
+                <Select onValueChange={field.onChange} value={field.value}>
+                  <FormControl>
+                    <SelectTrigger>
+                      <SelectValue placeholder="Selecione um responsável">
+                        {field.value
+                          ? profiles.find(p => p.id === field.value)?.name ?? "Selecione um responsável"
+                          : undefined}
+                      </SelectValue>
+                    </SelectTrigger>
+                  </FormControl>
+                  <SelectContent>
+                    {profiles.map(p => (
+                      <SelectItem key={p.id} value={p.id}>
+                        <span className="font-medium">{p.name}</span>
+                        <span className="ml-2 text-xs text-muted-foreground">{p.email}</span>
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+                <FormMessage />
+              </FormItem>
+            )} />
 
-              <FormField control={form.control} name="department_id" render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Departamento</FormLabel>
-                  <Select onValueChange={field.onChange} value={field.value}>
-                    <FormControl><SelectTrigger><SelectValue placeholder="Selecione..." /></SelectTrigger></FormControl>
-                    <SelectContent>
-                      {departments.map(d => (
-                        <SelectItem key={d.id} value={d.id}>{d.name}</SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
-                  <FormMessage />
-                </FormItem>
-              )} />
-            </div>
+            <FormField control={form.control} name="department_id" render={({ field }) => (
+              <FormItem>
+                <FormLabel>Departamento</FormLabel>
+                <Select onValueChange={field.onChange} value={field.value}>
+                  <FormControl>
+                    <SelectTrigger>
+                      <SelectValue placeholder="Selecione um departamento">
+                        {field.value
+                          ? departments.find(d => d.id === field.value)?.name ?? "Selecione um departamento"
+                          : undefined}
+                      </SelectValue>
+                    </SelectTrigger>
+                  </FormControl>
+                  <SelectContent>
+                    {departments.map(d => (
+                      <SelectItem key={d.id} value={d.id}>
+                        <span className="font-medium">{d.name}</span>
+                        <span className="ml-2 text-xs text-muted-foreground">{d.sector}</span>
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+                <FormMessage />
+              </FormItem>
+            )} />
 
-            <div className="grid grid-cols-3 gap-3">
+            <div className="grid grid-cols-[1fr_1.5fr_1fr] gap-3">
               <FormField control={form.control} name="period" render={({ field }) => (
                 <FormItem>
                   <FormLabel>Período</FormLabel>

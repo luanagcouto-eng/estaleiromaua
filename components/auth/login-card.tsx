@@ -29,10 +29,10 @@ export default function LoginCard() {
         {/* Logo */}
         <div className="flex flex-col items-center gap-4">
           <Image
-            src="/logo-maua.svg"
+            src="/logo-maua.png"
             alt="Estaleiro Mauá"
-            width={160}
-            height={72}
+            width={180}
+            height={80}
             priority
             className="object-contain"
           />

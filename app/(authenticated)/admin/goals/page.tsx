@@ -23,7 +23,6 @@ export default async function AdminGoalsPage() {
     supabase
       .from("profiles")
       .select("id, name, email")
-      .eq("is_placeholder", false)
       .order("name"),
     supabase
       .from("departments")

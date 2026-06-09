@@ -1,6 +1,9 @@
 import { z } from "zod";
 
+export const GOAL_PERIODS = ["2026-ANUAL", "2026-Q1", "2026-Q2", "2026-Q3", "2026-Q4"] as const;
+
 export const goalEntrySchema = z.object({
+  period: z.enum(GOAL_PERIODS, { error: "Selecione o período de referência" }),
   value: z
     .number("Informe um número válido")
     .min(0, "Valor não pode ser negativo"),

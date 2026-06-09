@@ -89,6 +89,7 @@ export default function GoalCard({ goal }: { goal: GoalCardData }) {
         goalTitle={goal.title}
         unit={goal.unit}
         targetValue={goal.target_value}
+        goalPeriod={goal.period}
       />
     </div>
   );

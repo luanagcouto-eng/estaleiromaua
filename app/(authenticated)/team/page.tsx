@@ -2,6 +2,7 @@ import { createClient } from "@/lib/supabase/server";
 import { redirect } from "next/navigation";
 import TeamMemberCard, { type TeamMemberData, type TeamGoalData } from "./_components/team-member-card";
 import TeamComparisonTable from "./_components/team-comparison-table";
+import TeamPrintButton from "./_components/team-print-button";
 
 export const metadata = { title: "Minha Equipe — Metas Mauá 2026" };
 
@@ -101,9 +102,12 @@ export default async function TeamPage() {
 
   return (
     <div className="space-y-6">
-      <div>
-        <h1 className="text-2xl font-bold text-[#364B59]">Minha Equipe</h1>
-        <p className="text-muted-foreground text-sm mt-1">Acompanhe as metas e o progresso dos seus subordinados diretos</p>
+      <div className="flex items-start justify-between gap-4">
+        <div>
+          <h1 className="text-2xl font-bold text-[#364B59]">Minha Equipe</h1>
+          <p className="text-muted-foreground text-sm mt-1">Acompanhe as metas e o progresso dos seus subordinados diretos</p>
+        </div>
+        <TeamPrintButton />
       </div>
 
       {teamData.length === 0 ? (

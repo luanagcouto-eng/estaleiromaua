@@ -14,12 +14,13 @@ export async function createGoalEntry(goalId: string, raw: unknown) {
   } = await supabase.auth.getUser();
   if (!user) return { error: { _root: ["Sessão expirada. Faça login novamente."] } };
 
-  const { value, notes, evidence_url } = parsed.data;
+  const { value, notes, evidence_url, period } = parsed.data;
 
   const { error: historyError } = await supabase.from("goal_history").insert({
     goal_id: goalId,
     value,
     notes,
+    period,
     evidence_url: evidence_url ? [evidence_url] : null,
     recorded_by: user.id,
   });

@@ -44,12 +44,7 @@ export default function UsersTable({ users, departments, allProfiles }: Props) {
       {/* Header row */}
       <div className="flex items-center justify-between">
         <p className="text-sm text-muted-foreground">
-          {realUsers.length} usuário{realUsers.length !== 1 ? "s" : ""} ativo{realUsers.length !== 1 ? "s" : ""}
-          {placeholderUsers.length > 0 && (
-            <span className="ml-2 text-amber-600">
-              · {placeholderUsers.length} aguardando primeiro login
-            </span>
-          )}
+          {users.length} usuário{users.length !== 1 ? "s" : ""} cadastrado{users.length !== 1 ? "s" : ""}
         </p>
         <Button
           size="sm"
@@ -97,15 +92,9 @@ export default function UsersTable({ users, departments, allProfiles }: Props) {
                     {u.superior?.name ?? <span className="text-muted-foreground">—</span>}
                   </TableCell>
                   <TableCell className="text-center">
-                    {u.is_placeholder ? (
-                      <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-amber-50 text-amber-700">
-                        Pendente login
-                      </span>
-                    ) : (
-                      <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-emerald-50 text-emerald-700">
-                        Ativo
-                      </span>
-                    )}
+                    <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-emerald-50 text-emerald-700">
+                      Ativo
+                    </span>
                   </TableCell>
                   <TableCell className="text-right">
                     <Button

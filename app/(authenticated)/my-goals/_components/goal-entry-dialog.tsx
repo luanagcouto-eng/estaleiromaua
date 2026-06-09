@@ -4,7 +4,7 @@ import { useEffect, useRef, useState } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { toast } from "sonner";
-import { goalEntrySchema, type GoalEntryFormValues } from "@/lib/schemas/goal-entry";
+import { goalEntrySchema, GOAL_PERIODS, type GoalEntryFormValues } from "@/lib/schemas/goal-entry";
 import { createGoalEntry } from "@/lib/actions/goal-history";
 import { createClient } from "@/lib/supabase/client";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
@@ -12,7 +12,16 @@ import { Form, FormField, FormItem, FormLabel, FormControl, FormMessage, FormDes
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Button } from "@/components/ui/button";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { formatGoalValue } from "@/lib/utils";
+
+const PERIOD_LABELS: Record<string, string> = {
+  "2026-ANUAL": "Anual (2026)",
+  "2026-Q1": "1º Trimestre (T1)",
+  "2026-Q2": "2º Trimestre (T2)",
+  "2026-Q3": "3º Trimestre (T3)",
+  "2026-Q4": "4º Trimestre (T4)",
+};
 
 interface Props {
   open: boolean;
@@ -21,12 +30,13 @@ interface Props {
   goalTitle: string;
   unit: string;
   targetValue: number;
+  goalPeriod: string;
 }
 
-const DEFAULTS: GoalEntryFormValues = { value: 0, notes: "", evidence_url: "" };
+const DEFAULTS: GoalEntryFormValues = { period: "2026-Q2", value: 0, notes: "", evidence_url: "" };
 const MAX_FILE_MB = 10;
 
-export default function GoalEntryDialog({ open, onClose, goalId, goalTitle, unit, targetValue }: Props) {
+export default function GoalEntryDialog({ open, onClose, goalId, goalTitle, unit, targetValue, goalPeriod }: Props) {
   const [pending, setPending] = useState(false);
   const [uploading, setUploading] = useState(false);
   const [fileName, setFileName] = useState<string | null>(null);
@@ -39,10 +49,10 @@ export default function GoalEntryDialog({ open, onClose, goalId, goalTitle, unit
 
   useEffect(() => {
     if (open) {
-      form.reset(DEFAULTS);
+      form.reset({ ...DEFAULTS, period: (GOAL_PERIODS as readonly string[]).includes(goalPeriod) ? goalPeriod as typeof GOAL_PERIODS[number] : "2026-Q2" });
       setFileName(null);
     }
-  }, [open, form]);
+  }, [open, form, goalPeriod]);
 
   async function handleFileChange(e: React.ChangeEvent<HTMLInputElement>) {
     const file = e.target.files?.[0];
@@ -112,6 +122,27 @@ export default function GoalEntryDialog({ open, onClose, goalId, goalTitle, unit
 
         <Form {...form}>
           <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
+
+            <FormField control={form.control} name="period" render={({ field }) => (
+              <FormItem>
+                <FormLabel>Período de referência</FormLabel>
+                <Select onValueChange={field.onChange} value={field.value}>
+                  <FormControl>
+                    <SelectTrigger>
+                      <span className={!field.value ? "text-muted-foreground text-sm" : "text-sm"}>
+                        {field.value ? (PERIOD_LABELS[field.value] ?? field.value) : "Selecione o período"}
+                      </span>
+                    </SelectTrigger>
+                  </FormControl>
+                  <SelectContent>
+                    {GOAL_PERIODS.map((p) => (
+                      <SelectItem key={p} value={p}>{PERIOD_LABELS[p]}</SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+                <FormMessage />
+              </FormItem>
+            )} />
 
             <FormField control={form.control} name="value" render={({ field }) => (
               <FormItem>

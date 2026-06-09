@@ -258,13 +258,7 @@ export default function GoalsExecutiveTable({ goals }: { goals: GoalCardData[] }
       {grouped.map(({ period, list }) => (
         <GoalTableSection
           key={period}
-          title={
-            PERIOD_LABELS[period] === undefined
-              ? period
-              : period === CURRENT_QUARTER
-              ? `${PERIOD_LABELS[period]} · ⚠ Trimestre atual — lançamento obrigatório`
-              : PERIOD_LABELS[period]
-          }
+          title={PERIOD_LABELS[period] ?? period}
           goals={list}
           expandedId={expandedId}
           onToggle={toggle}
@@ -281,6 +275,7 @@ export default function GoalsExecutiveTable({ goals }: { goals: GoalCardData[] }
           goalTitle={entryGoal.title}
           unit={entryGoal.unit}
           targetValue={entryGoal.target_value}
+          goalPeriod={entryGoal.period}
         />
       )}
     </div>

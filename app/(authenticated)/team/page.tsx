@@ -1,6 +1,7 @@
 import { createClient } from "@/lib/supabase/server";
 import { redirect } from "next/navigation";
 import TeamMemberCard, { type TeamMemberData, type TeamGoalData } from "./_components/team-member-card";
+import TeamComparisonTable from "./_components/team-comparison-table";
 
 export const metadata = { title: "Minha Equipe — Metas Mauá 2026" };
 
@@ -110,10 +111,13 @@ export default async function TeamPage() {
           <p className="text-sm">Você ainda não possui subordinados diretos cadastrados.</p>
         </div>
       ) : (
-        <div className="space-y-4">
-          {teamData.map((member) => (
-            <TeamMemberCard key={member.id} member={member} />
-          ))}
+        <div className="space-y-6">
+          {teamData.length > 1 && <TeamComparisonTable members={teamData} />}
+          <div className="space-y-4">
+            {teamData.map((member) => (
+              <TeamMemberCard key={member.id} member={member} />
+            ))}
+          </div>
         </div>
       )}
     </div>

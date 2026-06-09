@@ -3,7 +3,8 @@
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { calcProgress, formatGoalValue, goalColor, goalTextClass } from "@/lib/utils";
+import { calcProgress, formatGoalValue } from "@/lib/utils";
+import ProgressRing from "@/components/ui/progress-ring";
 import GoalEntryDialog from "./goal-entry-dialog";
 import GoalHistoryList, { type GoalHistoryEntry } from "./goal-history-list";
 
@@ -32,34 +33,27 @@ export default function GoalCard({ goal }: { goal: GoalCardData }) {
   const [historyOpen, setHistoryOpen] = useState(false);
 
   const pct = calcProgress(goal.current_value, goal.target_value);
-  const fillColor = goalColor(pct);
 
   return (
     <div className="bg-white rounded-xl border border-border p-5 space-y-4">
-      <div className="flex items-start justify-between gap-3">
-        <div>
-          <div className="flex items-center gap-2 flex-wrap">
-            <h3 className="font-semibold text-[#364B59]">{goal.title}</h3>
-            <Badge variant="secondary" className="text-xs">{PERIOD_LABELS[goal.period] ?? goal.period}</Badge>
-            <span className="text-xs text-muted-foreground">peso {goal.weight}%</span>
+      <div className="flex items-start gap-4">
+        <ProgressRing pct={pct} size={72} stroke={7} />
+        <div className="flex-1 min-w-0">
+          <div className="flex items-start justify-between gap-3">
+            <div>
+              <div className="flex items-center gap-2 flex-wrap">
+                <h3 className="font-semibold text-[#364B59]">{goal.title}</h3>
+                <Badge variant="secondary" className="text-xs">{PERIOD_LABELS[goal.period] ?? goal.period}</Badge>
+                <span className="text-xs text-muted-foreground">peso {goal.weight}%</span>
+              </div>
+              {goal.description && <p className="mt-1 text-sm text-muted-foreground">{goal.description}</p>}
+            </div>
+            {pct >= 90 && <span className="text-lg shrink-0">🏆</span>}
           </div>
-          {goal.description && <p className="mt-1 text-sm text-muted-foreground">{goal.description}</p>}
-        </div>
-        <span className={`shrink-0 text-xs font-semibold px-2 py-0.5 rounded-full ${goalTextClass(pct)}`}>
-          {pct}% {pct >= 90 ? "🏆" : ""}
-        </span>
-      </div>
-
-      <div>
-        <div className="h-2.5 rounded-full bg-surface overflow-hidden border border-border">
-          <div
-            className="h-full rounded-full transition-all duration-700"
-            style={{ width: `${pct}%`, backgroundColor: fillColor }}
-          />
-        </div>
-        <div className="mt-1.5 flex items-center justify-between text-xs text-muted-foreground">
-          <span>Atual: <span className="font-medium text-text">{formatGoalValue(goal.current_value, goal.unit)}</span></span>
-          <span>Meta: <span className="font-medium text-text">{formatGoalValue(goal.target_value, goal.unit)}</span></span>
+          <div className="mt-2 flex items-center gap-4 text-xs text-muted-foreground">
+            <span>Atual: <span className="font-medium text-text">{formatGoalValue(goal.current_value, goal.unit)}</span></span>
+            <span>Meta: <span className="font-medium text-text">{formatGoalValue(goal.target_value, goal.unit)}</span></span>
+          </div>
         </div>
       </div>
 

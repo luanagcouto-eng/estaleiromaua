@@ -25,9 +25,43 @@ interface Props {
   departments: Department[];
 }
 
+const MOCK_GOALS: GoalRow[] = [
+  {
+    id: "__mock_1", title: "Receita Bruta Anual", description: null,
+    period: "2026-ANUAL", weight: 40, target_value: 1200000, current_value: 480000, unit: "R$",
+    owner_id: "__mock", department_id: "__mock",
+    owner: { id: "__mock", name: "João da Silva", email: "" },
+    department: { id: "__mock", name: "Operações Navais", sector: "" },
+  },
+  {
+    id: "__mock_2", title: "Cumprimento de Prazo de Entrega", description: null,
+    period: "2026-ANUAL", weight: 30, target_value: 95, current_value: 72, unit: "%",
+    owner_id: "__mock", department_id: "__mock",
+    owner: { id: "__mock", name: "Maria Souza", email: "" },
+    department: { id: "__mock", name: "Engenharia Naval", sector: "" },
+  },
+  {
+    id: "__mock_3", title: "NPS — Satisfação do Cliente", description: null,
+    period: "2026-Q1", weight: 20, target_value: 80, current_value: 65, unit: "pontos",
+    owner_id: "__mock", department_id: "__mock",
+    owner: { id: "__mock", name: "Carlos Lima", email: "" },
+    department: { id: "__mock", name: "Qualidade", sector: "" },
+  },
+  {
+    id: "__mock_4", title: "Horas de Capacitação", description: null,
+    period: "2026-Q2", weight: 10, target_value: 200, current_value: 45, unit: "horas",
+    owner_id: "__mock", department_id: "__mock",
+    owner: { id: "__mock", name: "Ana Pereira", email: "" },
+    department: { id: "__mock", name: "Recursos Humanos", sector: "" },
+  },
+];
+
 export default function GoalsTable({ goals, profiles, departments }: Props) {
   const [dialogOpen, setDialogOpen] = useState(false);
   const [editing, setEditing]       = useState<(GoalFormValues & { id: string }) | null>(null);
+
+  const isMock = goals.length === 0;
+  const displayGoals = isMock ? MOCK_GOALS : goals;
 
   // Mapa owner_id → peso total já utilizado
   const goalsByOwner = goals.reduce<Record<string, number>>((acc, g) => {
@@ -59,13 +93,21 @@ export default function GoalsTable({ goals, profiles, departments }: Props) {
   return (
     <div className="space-y-4">
       <div className="flex items-center justify-between">
-        <p className="text-sm text-muted-foreground">{goals.length} meta{goals.length !== 1 ? "s" : ""} cadastrada{goals.length !== 1 ? "s" : ""}</p>
+        <p className="text-sm text-muted-foreground">
+          {isMock ? "Nenhuma meta cadastrada" : `${goals.length} meta${goals.length !== 1 ? "s" : ""} cadastrada${goals.length !== 1 ? "s" : ""}`}
+        </p>
         <Button onClick={openCreate} className="bg-[#364B59] hover:bg-[#2D3F4A] text-white text-sm">
           + Nova Meta
         </Button>
       </div>
 
-      <div className="rounded-xl border border-border bg-white overflow-hidden">
+      {isMock && (
+        <p className="text-xs text-amber-700 bg-amber-50 border border-amber-200 rounded-lg px-3 py-2">
+          Pré-visualização — os dados abaixo são apenas um exemplo. Clique em &quot;+ Nova Meta&quot; para cadastrar a primeira meta real.
+        </p>
+      )}
+
+      <div className={`rounded-xl border border-border bg-white overflow-hidden${isMock ? " opacity-50 pointer-events-none select-none" : ""}`}>
         <Table>
           <TableHeader>
             <TableRow className="bg-surface">
@@ -80,14 +122,7 @@ export default function GoalsTable({ goals, profiles, departments }: Props) {
             </TableRow>
           </TableHeader>
           <TableBody>
-            {goals.length === 0 && (
-              <TableRow>
-                <TableCell colSpan={8} className="text-center text-muted-foreground py-10">
-                  Nenhuma meta cadastrada. Clique em &quot;Nova Meta&quot; para começar.
-                </TableCell>
-              </TableRow>
-            )}
-            {goals.map(g => {
+            {displayGoals.map(g => {
               const pct = calcProgress(Number(g.current_value), Number(g.target_value));
               return (
                 <TableRow key={g.id} className="hover:bg-surface/50">
@@ -111,10 +146,12 @@ export default function GoalsTable({ goals, profiles, departments }: Props) {
                     </span>
                   </TableCell>
                   <TableCell className="text-right">
-                    <div className="flex items-center justify-end gap-1">
-                      <Button size="sm" variant="ghost" className="text-xs h-7 px-2" onClick={() => openEdit(g)}>Editar</Button>
-                      <Button size="sm" variant="ghost" className="text-xs h-7 px-2 text-red-500 hover:text-red-600" onClick={() => handleDelete(g.id)}>Excluir</Button>
-                    </div>
+                    {!isMock && (
+                      <div className="flex items-center justify-end gap-1">
+                        <Button size="sm" variant="ghost" className="text-xs h-7 px-2" onClick={() => openEdit(g)}>Editar</Button>
+                        <Button size="sm" variant="ghost" className="text-xs h-7 px-2 text-red-500 hover:text-red-600" onClick={() => handleDelete(g.id)}>Excluir</Button>
+                      </div>
+                    )}
                   </TableCell>
                 </TableRow>
               );

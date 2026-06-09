@@ -56,9 +56,8 @@ const NAV_ITEMS: NavItem[] = [
   { label: "Minhas Metas",  href: "/my-goals",         icon: <IconTarget />,   roles: ["ceo", "director", "manager"] },
   { label: "Minha Equipe",  href: "/team",             icon: <IconUsers />,    roles: ["ceo", "director"] },
   { label: "Relatórios",    href: "/reports",          icon: <IconChart />,    roles: ["ceo"] },
-  { label: "Usuários",      href: "/admin/users",      icon: <IconUsers />,    roles: ["admin"] },
-  { label: "Metas",         href: "/admin/goals",      icon: <IconTarget />,   roles: ["admin"] },
-  { label: "Configurações", href: "/admin/settings",   icon: <IconSettings />, roles: ["admin"] },
+  { label: "Usuários",      href: "/admin/users",      icon: <IconUsers />,    roles: ["admin", "ceo"] },
+  { label: "Metas",         href: "/admin/goals",      icon: <IconTarget />,   roles: ["admin", "ceo"] },
 ];
 
 const ROLE_LABELS: Record<UserRole, string> = {

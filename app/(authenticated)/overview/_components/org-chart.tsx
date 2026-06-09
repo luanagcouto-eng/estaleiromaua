@@ -19,7 +19,7 @@ export interface OrgChartNodeData {
   progress: number;
   goalsCount: number;
   goalsCompleted: number;
-  subDepartments: { id: string; name: string; progress: number }[];
+  subDepartments: { id: string; name: string; progress: number; sectors: { id: string; name: string }[] }[];
   goals: GoalItem[];
 }
 

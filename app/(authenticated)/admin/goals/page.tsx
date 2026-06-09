@@ -26,7 +26,7 @@ export default async function AdminGoalsPage() {
       .order("name"),
     supabase
       .from("departments")
-      .select("id, name, sector")
+      .select("id, name, sector, parent_id")
       .order("name"),
   ]);
 

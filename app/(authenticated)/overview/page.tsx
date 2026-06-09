@@ -136,6 +136,10 @@ export default async function OverviewPage() {
         id: c.department_id,
         name: c.department_name,
         progress: Number(c.progress_pct),
+        sectors: (childrenByParent.get(c.department_id) ?? []).map((s) => ({
+          id: s.department_id,
+          name: s.department_name,
+        })),
       })),
     };
   });

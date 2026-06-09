@@ -20,7 +20,7 @@ export interface NodeDetail {
   progress: number;
   goalsCount: number;
   goalsCompleted: number;
-  subDepartments: { id: string; name: string; progress: number }[];
+  subDepartments: { id: string; name: string; progress: number; sectors: { id: string; name: string }[] }[];
   goals: { id: string; title: string; period: string; progress: number }[];
 }
 
@@ -71,11 +71,25 @@ export default function NodeDetailSheet({ node, onClose }: Props) {
                   <h3 className="text-sm font-semibold text-[#364B59] mb-2">Áreas subordinadas</h3>
                   <ul className="space-y-2">
                     {node.subDepartments.map((sub) => (
-                      <li key={sub.id} className="flex items-center justify-between rounded-lg border border-border px-3 py-2 text-sm">
-                        <span className="text-text">{sub.name}</span>
-                        <Badge variant="secondary" className={goalTextClass(sub.progress)}>
-                          {sub.progress.toFixed(0)}%
-                        </Badge>
+                      <li key={sub.id} className="rounded-lg border border-border px-3 py-2 text-sm">
+                        <div className="flex items-center justify-between">
+                          <span className="text-text font-medium">{sub.name}</span>
+                          <Badge variant="secondary" className={goalTextClass(sub.progress)}>
+                            {sub.progress.toFixed(0)}%
+                          </Badge>
+                        </div>
+                        {sub.sectors.length > 0 && (
+                          <div className="mt-1.5 flex flex-wrap gap-1">
+                            {sub.sectors.map((s) => (
+                              <span
+                                key={s.id}
+                                className="text-[10px] bg-[#364B59]/5 border border-[#364B59]/10 px-2 py-0.5 rounded-full text-[#364B59]/60"
+                              >
+                                {s.name}
+                              </span>
+                            ))}
+                          </div>
+                        )}
                       </li>
                     ))}
                   </ul>

@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { toast } from "sonner";
@@ -15,8 +15,10 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import WeightIndicator from "./weight-indicator";
 
 interface Profile { id: string; name: string; email: string; }
-interface Department { id: string; name: string; sector: string; }
+interface Department { id: string; name: string; sector: string; parent_id: string | null; }
 interface Goal extends GoalFormValues { id: string; }
+
+const DEPTH_PREFIX: Record<number, string> = { 0: "", 1: "↳ ", 2: "  ↳ " };
 
 interface Props {
   open: boolean;
@@ -33,6 +35,21 @@ const UNITS   = ["%", "R$", "dias", "unidades", "pontos", "horas"] as const;
 export default function GoalFormDialog({ open, onClose, goal, profiles, departments, goalsByOwner }: Props) {
   const isEdit = !!goal;
   const [pending, setPending] = useState(false);
+
+  const hierarchicalDepts = useMemo(() => {
+    const result: Array<{ dept: Department; depth: number }> = [];
+    function addChildren(parentId: string | null, depth: number) {
+      const children = departments
+        .filter(d => d.parent_id === parentId)
+        .sort((a, b) => a.name.localeCompare(b.name, "pt-BR"));
+      for (const child of children) {
+        result.push({ dept: child, depth });
+        addChildren(child.id, depth + 1);
+      }
+    }
+    addChildren(null, 0);
+    return result;
+  }, [departments]);
 
   const form = useForm<GoalFormValues>({
     resolver: zodResolver(goalSchema),
@@ -119,16 +136,22 @@ export default function GoalFormDialog({ open, onClose, goal, profiles, departme
 
             <FormField control={form.control} name="department_id" render={({ field }) => (
               <FormItem>
-                <FormLabel>Departamento</FormLabel>
+                <FormLabel>Departamento / Setor</FormLabel>
                 <Select onValueChange={field.onChange} value={field.value}>
                   <FormControl>
                     <SelectTrigger>
-                      <SelectValue placeholder="Selecione um departamento" />
+                      <SelectValue placeholder="Selecione departamento ou setor" />
                     </SelectTrigger>
                   </FormControl>
                   <SelectContent>
-                    {departments.map(d => (
-                      <SelectItem key={d.id} value={d.id}>{d.name}</SelectItem>
+                    {hierarchicalDepts.map(({ dept, depth }) => (
+                      <SelectItem
+                        key={dept.id}
+                        value={dept.id}
+                        className={depth === 1 ? "pl-7" : depth === 2 ? "pl-11" : "font-semibold"}
+                      >
+                        {DEPTH_PREFIX[depth] ?? "  ↳ "}{dept.name}
+                      </SelectItem>
                     ))}
                   </SelectContent>
                 </Select>

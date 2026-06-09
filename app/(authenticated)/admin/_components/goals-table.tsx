@@ -10,13 +10,13 @@ import GoalFormDialog from "./goal-form-dialog";
 import type { GoalFormValues } from "@/lib/schemas/goal";
 
 interface Profile   { id: string; name: string; email: string; }
-interface Department { id: string; name: string; sector: string; }
+interface Department { id: string; name: string; sector: string; parent_id: string | null; }
 interface GoalRow {
   id: string; title: string; description: string | null;
   period: string; weight: number; target_value: number;
   current_value: number; unit: string;
   owner_id: string; department_id: string;
-  owner: Profile | null; department: Department | null;
+  owner: Profile | null; department: Pick<Department, "id" | "name" | "sector"> | null;
 }
 
 interface Props {
@@ -62,6 +62,8 @@ export default function GoalsTable({ goals, profiles, departments }: Props) {
 
   const isMock = goals.length === 0;
   const displayGoals = isMock ? MOCK_GOALS : goals;
+
+  const deptMap = new Map(departments.map(d => [d.id, d]));
 
   // Mapa owner_id → peso total já utilizado
   const goalsByOwner = goals.reduce<Record<string, number>>((acc, g) => {
@@ -124,11 +126,16 @@ export default function GoalsTable({ goals, profiles, departments }: Props) {
           <TableBody>
             {displayGoals.map(g => {
               const pct = calcProgress(Number(g.current_value), Number(g.target_value));
+              const dept = deptMap.get(g.department_id);
+              const parentDept = dept?.parent_id ? deptMap.get(dept.parent_id) : null;
+              const deptDisplay = dept
+                ? parentDept ? `${parentDept.name} › ${dept.name}` : dept.name
+                : g.department?.name ?? "—";
               return (
                 <TableRow key={g.id} className="hover:bg-surface/50">
                   <TableCell className="font-medium max-w-[200px] truncate" title={g.title}>{g.title}</TableCell>
                   <TableCell className="text-sm">{g.owner?.name ?? "—"}</TableCell>
-                  <TableCell className="text-sm text-muted-foreground">{g.department?.name ?? "—"}</TableCell>
+                  <TableCell className="text-sm text-muted-foreground max-w-[180px] truncate" title={deptDisplay}>{deptDisplay}</TableCell>
                   <TableCell className="text-center">
                     <span className="text-xs bg-gray-100 px-2 py-0.5 rounded-full">
                       {g.period.replace("2026-", "")}

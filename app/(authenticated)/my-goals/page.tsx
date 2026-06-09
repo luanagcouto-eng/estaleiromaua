@@ -1,8 +1,9 @@
 import { createClient } from "@/lib/supabase/server";
 import { redirect } from "next/navigation";
-import { goalTextClass, calcProgress } from "@/lib/utils";
-import GoalCard, { type GoalCardData } from "./_components/goal-card";
+import { calcProgress } from "@/lib/utils";
+import type { GoalCardData } from "./_components/goal-card";
 import type { GoalHistoryEntry } from "./_components/goal-history-list";
+import GoalsExecutiveTable from "./_components/goals-executive-table";
 import GoalAlertsPanel, { type GoalAlert } from "@/components/alerts/goal-alerts-panel";
 
 export const metadata = { title: "Minhas Metas — Metas Mauá 2026" };
@@ -55,27 +56,14 @@ export default async function MyGoalsPage() {
     history: historyByGoal.get(g.id) ?? [],
   }));
 
-  const annualGoals = rows.filter((g) => g.period === "2026-ANUAL");
-  const totalWeight = annualGoals.reduce((sum, g) => sum + Number(g.weight), 0);
-  const consolidatedPct = totalWeight > 0
-    ? Math.round(
-        annualGoals.reduce((sum, g) => {
-          const pct = g.target_value > 0 ? (g.current_value / g.target_value) : 0;
-          return sum + pct * Number(g.weight);
-        }, 0) / totalWeight * 100
-      )
-    : 0;
-
-  // Alertas: determina trimestre atual e computa os 3 tipos de alerta
+  // Alertas
   const currentMonth = new Date().getMonth() + 1;
   const currentQuarter =
     currentMonth <= 3 ? "2026-Q1" :
     currentMonth <= 6 ? "2026-Q2" :
     currentMonth <= 9 ? "2026-Q3" : "2026-Q4";
 
-  const goalsWithHistory = new Set(
-    (history ?? []).map((e) => e.goal_id)
-  );
+  const goalsWithHistory = new Set((history ?? []).map((e) => e.goal_id));
 
   const alerts: GoalAlert[] = [];
   for (const g of rows) {
@@ -92,30 +80,12 @@ export default async function MyGoalsPage() {
   }
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-5">
       <div>
         <h1 className="text-2xl font-bold text-[#364B59]">Minhas Metas</h1>
-        <p className="text-muted-foreground text-sm mt-1">Acompanhe suas metas de 2026 e registre seus resultados</p>
-      </div>
-
-      <div className="bg-white rounded-xl border border-border p-5">
-        <div className="flex items-center justify-between">
-          <div>
-            <p className="text-sm text-muted-foreground">Progresso consolidado 2026 (metas anuais)</p>
-            <p className="text-xs text-muted-foreground mt-0.5">
-              {annualGoals.length} meta{annualGoals.length !== 1 ? "s" : ""} · peso total {totalWeight.toFixed(1)}%
-            </p>
-          </div>
-          <span className={`text-sm font-semibold px-3 py-1 rounded-full ${goalTextClass(consolidatedPct)}`}>
-            {consolidatedPct}% {consolidatedPct >= 90 ? "🏆" : ""}
-          </span>
-        </div>
-        <div className="mt-3 h-2.5 rounded-full bg-surface overflow-hidden border border-border">
-          <div
-            className="h-full rounded-full transition-all duration-700"
-            style={{ width: `${Math.min(100, consolidatedPct)}%`, backgroundColor: "#F18213" }}
-          />
-        </div>
+        <p className="text-muted-foreground text-sm mt-1">
+          Acompanhe suas metas de 2026 e registre seus resultados
+        </p>
       </div>
 
       <GoalAlertsPanel alerts={alerts} />
@@ -125,11 +95,7 @@ export default async function MyGoalsPage() {
           <p className="text-sm">Nenhuma meta atribuída a você ainda. Procure seu gestor ou o time de Admin.</p>
         </div>
       ) : (
-        <div className="space-y-4">
-          {goalCards.map((goal) => (
-            <GoalCard key={goal.id} goal={goal} />
-          ))}
-        </div>
+        <GoalsExecutiveTable goals={goalCards} />
       )}
     </div>
   );

@@ -130,12 +130,13 @@ export default function ReportsView({ rows }: { rows: GoalReportRow[] }) {
       )}
 
       {/* Filters + export */}
-      <div className="flex items-center justify-between gap-4 flex-wrap">
+      <div className="no-print flex items-center justify-between gap-4 flex-wrap">
         <div className="flex items-center gap-1 bg-white border border-border rounded-lg p-1">
           {FILTERS.map((f) => (
             <button
               key={f.value}
               onClick={() => setFilter(f.value)}
+              aria-pressed={filter === f.value}
               className={`px-3 py-1.5 text-sm rounded-md transition-colors ${
                 filter === f.value
                   ? "bg-[#364B59] text-white font-medium"
@@ -146,15 +147,27 @@ export default function ReportsView({ rows }: { rows: GoalReportRow[] }) {
             </button>
           ))}
         </div>
-        <Button
-          variant="outline"
-          size="sm"
-          onClick={() => exportCSV(filtered)}
-          disabled={isMock}
-          className="text-[#364B59] border-[#364B59] hover:bg-[#364B59] hover:text-white"
-        >
-          Exportar CSV
-        </Button>
+        <div className="flex items-center gap-2">
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={() => exportCSV(filtered)}
+            disabled={isMock}
+            className="text-[#364B59] border-[#364B59] hover:bg-[#364B59] hover:text-white"
+          >
+            Exportar CSV
+          </Button>
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={() => window.print()}
+            disabled={isMock}
+            aria-label="Imprimir relatório como PDF"
+            className="text-[#364B59] border-[#364B59] hover:bg-[#364B59] hover:text-white"
+          >
+            Imprimir / PDF
+          </Button>
+        </div>
       </div>
 
       {/* Table */}

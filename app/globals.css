@@ -199,3 +199,50 @@ html {
     @apply font-sans;
   }
 }
+
+/* ─── Print / PDF ────────────────────────────────────────────── */
+@media print {
+  @page {
+    size: A4 landscape;
+    margin: 1.2cm;
+  }
+
+  aside,
+  .no-print {
+    display: none !important;
+  }
+
+  main {
+    margin-left: 0 !important;
+  }
+
+  body {
+    background: white !important;
+    color: #111827 !important;
+    font-size: 11px;
+  }
+
+  .rounded-xl,
+  .rounded-lg {
+    border-radius: 0 !important;
+  }
+
+  table {
+    width: 100%;
+    border-collapse: collapse;
+  }
+
+  th,
+  td {
+    border: 1px solid #e2e8f0 !important;
+    padding: 4px 8px !important;
+    font-size: 10px;
+  }
+
+  .truncate {
+    overflow: visible !important;
+    white-space: normal !important;
+    text-overflow: unset !important;
+    max-width: none !important;
+  }
+}

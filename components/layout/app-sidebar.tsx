@@ -87,13 +87,14 @@ export default function AppSidebar({ name, email, role, avatarUrl }: AppSidebarP
       </div>
 
       {/* Nav */}
-      <nav className="flex-1 overflow-y-auto px-3 py-4 space-y-0.5">
+      <nav aria-label="Navegação principal" className="flex-1 overflow-y-auto px-3 py-4 space-y-0.5">
         {visibleItems.map((item) => {
           const active = pathname === item.href || pathname.startsWith(item.href + "/");
           return (
             <Link
               key={item.href}
               href={item.href}
+              aria-current={active ? "page" : undefined}
               className={cn(
                 "flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-colors",
                 active
@@ -101,7 +102,7 @@ export default function AppSidebar({ name, email, role, avatarUrl }: AppSidebarP
                   : "text-[#C8D5DC] hover:bg-[#2D3F4A] hover:text-white"
               )}
             >
-              {item.icon}
+              <span aria-hidden="true">{item.icon}</span>
               {item.label}
             </Link>
           );
@@ -126,6 +127,7 @@ export default function AppSidebar({ name, email, role, avatarUrl }: AppSidebarP
         <form action={signOut}>
           <button
             type="submit"
+            aria-label="Sair da conta"
             className="w-full flex items-center justify-center gap-2 text-xs text-[#94A3B8] hover:text-white py-2 rounded-lg hover:bg-[#2D3F4A] transition-colors"
           >
             <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">

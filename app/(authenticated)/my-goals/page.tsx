@@ -1,8 +1,9 @@
 import { createClient } from "@/lib/supabase/server";
 import { redirect } from "next/navigation";
-import { goalTextClass } from "@/lib/utils";
+import { goalTextClass, calcProgress } from "@/lib/utils";
 import GoalCard, { type GoalCardData } from "./_components/goal-card";
 import type { GoalHistoryEntry } from "./_components/goal-history-list";
+import GoalAlertsPanel, { type GoalAlert } from "@/components/alerts/goal-alerts-panel";
 
 export const metadata = { title: "Minhas Metas — Metas Mauá 2026" };
 
@@ -65,6 +66,31 @@ export default async function MyGoalsPage() {
       )
     : 0;
 
+  // Alertas: determina trimestre atual e computa os 3 tipos de alerta
+  const currentMonth = new Date().getMonth() + 1;
+  const currentQuarter =
+    currentMonth <= 3 ? "2026-Q1" :
+    currentMonth <= 6 ? "2026-Q2" :
+    currentMonth <= 9 ? "2026-Q3" : "2026-Q4";
+
+  const goalsWithHistory = new Set(
+    (history ?? []).map((e) => e.goal_id)
+  );
+
+  const alerts: GoalAlert[] = [];
+  for (const g of rows) {
+    const hasHistory = goalsWithHistory.has(g.id);
+    const pct = calcProgress(Number(g.current_value), Number(g.target_value));
+
+    if (!hasHistory && g.period !== currentQuarter) {
+      alerts.push({ type: "no-history", title: g.title, period: g.period });
+    } else if (!hasHistory && g.period === currentQuarter) {
+      alerts.push({ type: "quarter-pending", title: g.title, period: g.period });
+    } else if (g.period === "2026-ANUAL" && pct < 50) {
+      alerts.push({ type: "at-risk", title: g.title, period: g.period, progress: pct });
+    }
+  }
+
   return (
     <div className="space-y-6">
       <div>
@@ -91,6 +117,8 @@ export default async function MyGoalsPage() {
           />
         </div>
       </div>
+
+      <GoalAlertsPanel alerts={alerts} />
 
       {goalCards.length === 0 ? (
         <div className="bg-white rounded-xl border border-border p-10 text-center text-muted-foreground">

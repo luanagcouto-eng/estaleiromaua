@@ -90,8 +90,10 @@ export default function AppSidebar({ name, email, role, avatarUrl }: AppSidebarP
     <aside className="fixed left-0 top-0 h-full w-64 bg-[#364B59] flex flex-col z-40 select-none">
 
       {/* Logo */}
-      <div className="flex items-center gap-3 px-5 py-5 border-b border-[#2D3F4A]">
-        <Image src="/logo-maua.svg" alt="Estaleiro Mauá" width={100} height={44} className="object-contain brightness-0 invert" />
+      <div className="flex items-center justify-center px-4 py-4 border-b border-[#2D3F4A]">
+        <div className="bg-white rounded-xl px-3 py-2">
+          <Image src="/logo-maua.png" alt="Estaleiro Mauá" width={140} height={56} className="object-contain" />
+        </div>
       </div>
 
       {/* Nav */}

@@ -145,6 +145,9 @@ function GoalTableSection({
                         </svg>
                         <div>
                           <p className="font-semibold text-[#364B59]">{goal.title}</p>
+                          {goal.ownerName && (
+                            <p className="text-[10px] text-[#F18213] font-semibold mt-0.5">{goal.ownerName}</p>
+                          )}
                           {goal.description && (
                             <p className="text-xs text-slate-400 mt-0.5 line-clamp-1 max-w-sm">
                               {goal.description}

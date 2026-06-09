@@ -20,7 +20,6 @@ interface GoalRow {
   operator: string;
   sub_weight: number | null;
   owner_id: string;
-  owner: { name: string }[] | null;
 }
 
 export default async function MyGoalsPage() {
@@ -38,10 +37,10 @@ export default async function MyGoalsPage() {
   const isAdmin = profile?.role === "admin";
   const userName = profile?.name ?? user.email ?? "Usuário";
 
-  // Admin fetches all goals; others fetch their own
+  // Goals — sem join para evitar duplicação de linhas
   let goalsQuery = supabase
     .from("goals")
-    .select("id, title, description, period, weight, sub_weight, target_value, current_value, unit, operator, owner_id, owner:profiles!owner_id(name)")
+    .select("id, title, description, period, weight, sub_weight, target_value, current_value, unit, operator, owner_id")
     .like("period", "2026%")
     .order("period")
     .order("weight", { ascending: false });
@@ -51,8 +50,15 @@ export default async function MyGoalsPage() {
   }
 
   const { data: goals } = await goalsQuery;
-
   const rows = (goals ?? []) as GoalRow[];
+
+  // Para admin: buscar nomes dos responsáveis em query separada
+  const ownerNameMap = new Map<string, string>();
+  if (isAdmin) {
+    const { data: profiles } = await supabase.from("profiles").select("id, name");
+    for (const p of profiles ?? []) ownerNameMap.set(p.id, p.name);
+  }
+
   const goalIds = rows.map((g) => g.id);
 
   const { data: history } = goalIds.length
@@ -72,28 +78,11 @@ export default async function MyGoalsPage() {
 
   const goalCards: GoalCardData[] = rows.map((g) => ({
     ...g,
+    ownerName: isAdmin ? (ownerNameMap.get(g.owner_id) ?? undefined) : undefined,
     history: historyByGoal.get(g.id) ?? [],
   }));
 
-  // For admin: group goals by owner
-  const ownerGroups: { ownerId: string; ownerName: string; goals: GoalCardData[] }[] = [];
-  if (isAdmin) {
-    const seenOwners = new Map<string, number>();
-    for (const g of goalCards) {
-      const ownerId = g.owner_id ?? "unknown";
-      if (!seenOwners.has(ownerId)) {
-        seenOwners.set(ownerId, ownerGroups.length);
-        ownerGroups.push({
-          ownerId,
-          ownerName: g.owner?.[0]?.name ?? "Sem responsável",
-          goals: [],
-        });
-      }
-      ownerGroups[seenOwners.get(ownerId)!].goals.push(g);
-    }
-  }
-
-  // Alertas (somente para o próprio usuário)
+  // Alertas — somente para o próprio usuário
   const alerts: GoalAlert[] = [];
   if (!isAdmin) {
     const currentMonth = new Date().getMonth() + 1;
@@ -141,18 +130,6 @@ export default async function MyGoalsPage() {
               ? "Nenhuma meta cadastrada na organização ainda."
               : "Nenhuma meta atribuída a você ainda. Procure seu gestor ou o time de Admin."}
           </p>
-        </div>
-      ) : isAdmin ? (
-        <div className="space-y-8">
-          {ownerGroups.map(({ ownerId, ownerName, goals: ownerGoals }) => (
-            <div key={ownerId} className="space-y-3">
-              <h2 className="text-sm font-bold text-[#364B59] border-b border-border pb-2 flex items-center gap-2">
-                <span className="w-1.5 h-1.5 rounded-full bg-[#F18213] inline-block" />
-                {ownerName}
-              </h2>
-              <GoalsExecutiveTable goals={ownerGoals} />
-            </div>
-          ))}
         </div>
       ) : (
         <GoalsExecutiveTable goals={goalCards} />

@@ -22,7 +22,7 @@ export interface GoalCardData {
   operator: string;
   sub_weight: number | null;
   owner_id?: string;
-  owner?: { name: string }[] | null;
+  ownerName?: string;
   history: GoalHistoryEntry[];
 }
 

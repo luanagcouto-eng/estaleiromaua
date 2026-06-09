@@ -139,10 +139,7 @@ export default function GoalFormDialog({ open, onClose, goal, profiles, departme
                   </FormControl>
                   <SelectContent>
                     {departments.map(d => (
-                      <SelectItem key={d.id} value={d.id}>
-                        <span className="font-medium">{d.name}</span>
-                        <span className="ml-2 text-xs text-muted-foreground">{d.sector}</span>
-                      </SelectItem>
+                      <SelectItem key={d.id} value={d.id}>{d.name}</SelectItem>
                     ))}
                   </SelectContent>
                 </Select>

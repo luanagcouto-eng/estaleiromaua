@@ -1,7 +1,10 @@
 import { createClient } from "@/lib/supabase/server";
 import { redirect } from "next/navigation";
 import { calcProgress } from "@/lib/utils";
+import { Users, Target, TrendingUp, Flag, Info } from "lucide-react";
 import OrgChart, { type OrgChartNodeData } from "./_components/org-chart";
+import OrgChartFooter from "./_components/org-chart-footer";
+import type { ReactNode } from "react";
 
 export const metadata = { title: "Visão Geral — Metas Mauá 2026" };
 
@@ -13,6 +16,49 @@ interface OrgChartProgressRow {
   progress_pct: number;
   goals_count: number;
   goals_completed: number;
+}
+
+// ── KPI card ──────────────────────────────────────────────────────
+function KpiCard({
+  icon,
+  value,
+  label,
+  sublabel,
+  accent,
+}: {
+  icon: ReactNode;
+  value: string;
+  label: string;
+  sublabel: string;
+  accent?: string;
+}) {
+  return (
+    <div className="bg-white rounded-xl border border-border p-5 flex items-start gap-4">
+      <span className="w-10 h-10 rounded-full bg-surface flex items-center justify-center shrink-0 text-muted-foreground">
+        {icon}
+      </span>
+      <div className="min-w-0">
+        <p
+          className="text-2xl font-black tabular-nums leading-none"
+          style={{ color: accent ?? "#364B59" }}
+        >
+          {value}
+        </p>
+        <p className="text-sm font-semibold text-[#364B59] mt-0.5 leading-tight">{label}</p>
+        <p className="text-xs text-muted-foreground mt-0.5">{sublabel}</p>
+      </div>
+    </div>
+  );
+}
+
+// ── Legend swatch ─────────────────────────────────────────────────
+function LegendSwatch({ color, label }: { color: string; label: string }) {
+  return (
+    <span className="inline-flex items-center gap-1.5">
+      <span className="h-3 w-3 rounded-full border border-border" style={{ backgroundColor: color }} />
+      {label}
+    </span>
+  );
 }
 
 export default async function OverviewPage() {
@@ -34,7 +80,11 @@ export default async function OverviewPage() {
   ]);
 
   const rows = (orgRows ?? []) as OrgChartProgressRow[];
-  const company = (companyRows ?? [])[0] as { progress_pct: number; goals_count: number; goals_completed: number } | undefined;
+  const company = (companyRows ?? [])[0] as {
+    progress_pct: number;
+    goals_count: number;
+    goals_completed: number;
+  } | undefined;
 
   const topLevel = rows
     .filter((r) => r.parent_id === null)
@@ -90,8 +140,12 @@ export default async function OverviewPage() {
     };
   });
 
+  const avgProgress = Number(company?.progress_pct ?? 0);
+  const progressAccent = avgProgress >= 66 ? "#22c55e" : avgProgress >= 33 ? "#F18213" : "#ef4444";
+
   return (
     <div className="space-y-6">
+      {/* Page header */}
       <div>
         <h1 className="text-2xl font-bold text-[#364B59]">Visão Geral da Empresa</h1>
         <p className="text-muted-foreground text-sm mt-1">
@@ -99,34 +153,82 @@ export default async function OverviewPage() {
         </p>
       </div>
 
-      <div className="bg-white rounded-xl border border-border py-8">
-        <OrgChart
-          ceo={{
-            name: ceoProfile?.name ?? null,
-            isPlaceholder: !ceoProfile,
-            progress: Number(company?.progress_pct ?? 0),
-            goalsCount: Number(company?.goals_count ?? 0),
-            goalsCompleted: Number(company?.goals_completed ?? 0),
-          }}
-          nodes={nodes}
+      {/* KPI Summary */}
+      <div className="grid grid-cols-4 gap-4">
+        <KpiCard
+          icon={<Users className="w-5 h-5" />}
+          value={String(nodes.length)}
+          label="Diretorias"
+          sublabel="Estrutura organizacional"
+        />
+        <KpiCard
+          icon={<Target className="w-5 h-5" />}
+          value={String(company?.goals_count ?? 0)}
+          label="Metas ativas"
+          sublabel="Total de metas cadastradas"
+        />
+        <KpiCard
+          icon={<TrendingUp className="w-5 h-5" />}
+          value={`${avgProgress.toFixed(0)}%`}
+          label="Progresso médio"
+          sublabel="Média geral atingida"
+          accent={progressAccent}
+        />
+        <KpiCard
+          icon={<Flag className="w-5 h-5" />}
+          value="66%"
+          label="Meta esperada"
+          sublabel="Média esperada para o período"
+          accent="#F18213"
         />
       </div>
 
-      <div className="flex flex-wrap items-center gap-4 text-xs text-muted-foreground px-1">
-        <span className="font-medium text-text">Legenda:</span>
-        <LegendSwatch color="#DFA1AA" label="0% – 33%" />
-        <LegendSwatch color="#F9E79F" label="33% – 66%" />
-        <LegendSwatch color="#9AD595" label="66% – 100%" />
+      {/* Org chart + footer in unified white container */}
+      <div className="bg-white rounded-xl border border-border overflow-hidden">
+        <div className="py-8">
+          <OrgChart
+            ceo={{
+              name: ceoProfile?.name ?? null,
+              isPlaceholder: !ceoProfile,
+              progress: Number(company?.progress_pct ?? 0),
+              goalsCount: Number(company?.goals_count ?? 0),
+              goalsCompleted: Number(company?.goals_completed ?? 0),
+            }}
+            nodes={nodes}
+          />
+        </div>
+
+        {/* Container footer: legend + info + last update */}
+        <div className="px-8 pb-6 border-t border-border">
+          <div className="flex items-start justify-between gap-6 pt-5">
+            {/* Legend */}
+            <div>
+              <p className="text-xs font-semibold text-[#364B59] mb-2">Legenda de progresso</p>
+              <div className="flex flex-wrap items-center gap-4 text-xs text-muted-foreground">
+                <LegendSwatch color="#DFA1AA" label="0% – 33%" />
+                <LegendSwatch color="#F9E79F" label="33% – 66%" />
+                <LegendSwatch color="#9AD595" label="66% – 100%" />
+              </div>
+            </div>
+
+            {/* Info card */}
+            <div className="flex items-start gap-3 bg-surface border border-border rounded-xl px-4 py-3 max-w-sm">
+              <Info className="w-4 h-4 text-[#364B59]/50 shrink-0 mt-0.5" aria-hidden />
+              <div>
+                <p className="text-xs font-semibold text-[#364B59] leading-snug">
+                  Clique em uma diretoria para visualizar as metas, responsáveis e iniciativas.
+                </p>
+                <p className="text-xs text-muted-foreground mt-1">
+                  Acompanhe o desempenho e foque nas prioridades para alcançar os resultados esperados.
+                </p>
+              </div>
+            </div>
+          </div>
+
+          {/* Last update + refresh */}
+          <OrgChartFooter />
+        </div>
       </div>
     </div>
-  );
-}
-
-function LegendSwatch({ color, label }: { color: string; label: string }) {
-  return (
-    <span className="inline-flex items-center gap-1.5">
-      <span className="h-3 w-3 rounded-full border border-border" style={{ backgroundColor: color }} />
-      {label}
-    </span>
   );
 }

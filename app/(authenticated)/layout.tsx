@@ -1,6 +1,7 @@
 import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
 import AppSidebar from "@/components/layout/app-sidebar";
+import PrintElements from "@/components/layout/print-elements";
 import type { UserRole } from "@/types";
 
 export default async function AuthenticatedLayout({
@@ -37,7 +38,8 @@ export default async function AuthenticatedLayout({
         avatarUrl={profile.avatar_url}
       />
       <main id="main-content" className="flex-1 ml-64 min-h-screen" tabIndex={-1}>
-        <div className="p-8">{children}</div>
+        <PrintElements />
+        <div className="p-8 print-content">{children}</div>
       </main>
     </div>
   );

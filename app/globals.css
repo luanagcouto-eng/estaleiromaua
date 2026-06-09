@@ -198,11 +198,16 @@ html {
   }
 }
 
+/* ─── Print-only elements (hidden on screen, shown on print) ─── */
+.print-only {
+  display: none !important;
+}
+
 /* ─── Print / PDF ────────────────────────────────────────────── */
 @media print {
   @page {
     size: A4 landscape;
-    margin: 1.2cm;
+    margin: 1.8cm 1.2cm 1.2cm 1.2cm; /* extra top for fixed header */
   }
 
   aside,
@@ -242,5 +247,75 @@ html {
     white-space: normal !important;
     text-overflow: unset !important;
     max-width: none !important;
+  }
+
+  /* ── Print header / footer ──────────────────────────────── */
+  .print-only {
+    display: block !important;
+  }
+
+  /* Fixed position repeats header/footer on every page (Chrome/Edge) */
+  .print-page-header {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    background: white;
+    padding-bottom: 4px;
+    z-index: 9999;
+  }
+
+  .print-page-footer {
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    background: white;
+    padding-top: 2px;
+  }
+
+  .print-header-inner {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding-bottom: 6px;
+  }
+
+  .print-logo {
+    height: 30px;
+    object-fit: contain;
+  }
+
+  .print-system-name {
+    font-size: 10px;
+    font-weight: 700;
+    color: #364B59;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+  }
+
+  .print-rule {
+    border: none;
+    border-top: 1.5px solid #364B59;
+    margin: 0;
+  }
+
+  .print-rule-light {
+    border-top-width: 1px;
+    border-top-color: #E2E8F0;
+  }
+
+  .print-footer-inner {
+    display: flex;
+    justify-content: space-between;
+    font-size: 8px;
+    color: #6B7280;
+    padding-top: 4px;
+  }
+
+  /* Prevent content from overlapping fixed header/footer */
+  .print-content {
+    padding-top: 68px !important;
+    padding-bottom: 44px !important;
   }
 }

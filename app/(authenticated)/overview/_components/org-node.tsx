@@ -1,5 +1,6 @@
 "use client";
 
+import { Building2, UserCircle2, ChevronRight } from "lucide-react";
 import { goalColor } from "@/lib/utils";
 
 interface OrgNodeProps {
@@ -25,6 +26,7 @@ export default function OrgNode({
 }: OrgNodeProps) {
   const pct = Math.max(0, Math.min(100, progress));
   const fillColor = goalColor(pct);
+  const Icon = isCeo ? UserCircle2 : Building2;
 
   return (
     <button
@@ -45,9 +47,14 @@ export default function OrgNode({
       />
 
       <span className="relative flex flex-col gap-1 px-4 pt-4 pb-3.5">
-        {/* Role label */}
-        <span className="text-[10px] font-bold uppercase tracking-widest text-[#364B59]/50">
-          {isCeo ? "Presidência" : "Diretoria"}
+        {/* Avatar circle + role label */}
+        <span className="flex items-center gap-2.5 mb-0.5">
+          <span className="w-9 h-9 rounded-full bg-[#364B59]/10 border border-[#364B59]/10 flex items-center justify-center shrink-0">
+            <Icon className="w-5 h-5 text-[#364B59]/60" aria-hidden />
+          </span>
+          <span className="text-[10px] font-bold uppercase tracking-widest text-[#364B59]/50">
+            {isCeo ? "Presidência" : "Diretoria"}
+          </span>
         </span>
 
         {/* Name */}
@@ -88,6 +95,14 @@ export default function OrgNode({
         {goalsCount !== undefined && goalsCount > 0 && (
           <span className="mt-1 text-[10px] text-[#364B59]/40">
             {goalsCount} meta{goalsCount !== 1 ? "s" : ""}
+          </span>
+        )}
+
+        {/* "Ver detalhes" CTA — only for directorate cards */}
+        {!isCeo && (
+          <span className="mt-2 pt-2.5 border-t border-[#364B59]/10 flex items-center justify-between text-[11px] font-semibold text-[#364B59]/50 group-hover:text-[#364B59] transition-colors">
+            Ver detalhes
+            <ChevronRight className="w-3.5 h-3.5" />
           </span>
         )}
       </span>

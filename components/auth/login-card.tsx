@@ -65,11 +65,11 @@ export default function LoginCard() {
         <button
           onClick={handleGoogleLogin}
           disabled={loading}
-          className="w-full bg-slate-900 border-2 border-slate-900 text-white font-black py-4 rounded-[1.5rem] shadow-xl hover:bg-transparent hover:text-slate-900 transition-all flex justify-center items-center group active:scale-95 disabled:opacity-70 mb-4"
+          className="w-full bg-[#C8D5DC] border-2 border-[#C8D5DC] text-[#364B59] font-black py-4 rounded-[1.5rem] shadow-md hover:bg-[#364B59] hover:border-[#364B59] hover:text-white transition-all flex justify-center items-center group active:scale-95 disabled:opacity-70 mb-4"
           style={{ fontFamily: "var(--font-montserrat, 'Inter'), sans-serif" }}
         >
           {loading ? (
-            <div className="h-5 w-5 border-2 border-white/30 border-t-white rounded-full animate-spin" />
+            <div className="h-5 w-5 border-2 border-[#364B59]/30 border-t-[#364B59] rounded-full animate-spin" />
           ) : (
             <div className="flex items-center gap-3">
               <span className="text-xs uppercase" style={{ letterSpacing: "0.3em" }}>
@@ -130,7 +130,7 @@ export default function LoginCard() {
           className="mt-8 w-full text-center border-t border-slate-100 pt-6 text-slate-400 font-bold uppercase opacity-60"
           style={{ fontSize: "9px", letterSpacing: "0.4em" }}
         >
-          Estaleiro Mauá S.A. · Naval 2026
+          ESTALEIRO MAUÁ
         </div>
       </div>
 

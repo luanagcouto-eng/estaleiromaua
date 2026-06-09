@@ -1,10 +1,14 @@
 "use client";
 
 import { useState } from "react";
+import { Trash2 } from "lucide-react";
+import { toast } from "sonner";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Button } from "@/components/ui/button";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
 import UserEditDialog   from "./user-edit-dialog";
 import UserCreateDialog from "./user-create-dialog";
+import { deleteUserProfile } from "@/lib/actions/users";
 
 interface Profile    { id: string; name: string; email: string; }
 interface Department { id: string; name: string; sector: string; }
@@ -33,11 +37,26 @@ export default function UsersTable({ users, departments, allProfiles }: Props) {
   const [editUser,     setEditUser]     = useState<UserRow | null>(null);
   const [editOpen,     setEditOpen]     = useState(false);
   const [createOpen,   setCreateOpen]   = useState(false);
+  const [deleteTarget, setDeleteTarget] = useState<UserRow | null>(null);
+  const [deleting,     setDeleting]     = useState(false);
 
   function openEdit(u: UserRow) { setEditUser(u); setEditOpen(true); }
 
-  const realUsers        = users.filter((u) => !u.is_placeholder);
-  const placeholderUsers = users.filter((u) =>  u.is_placeholder);
+  async function handleDelete() {
+    if (!deleteTarget) return;
+    setDeleting(true);
+    const result = await deleteUserProfile(deleteTarget.id);
+    setDeleting(false);
+
+    if (result?.error) {
+      const msg = (result.error as Record<string, string[]>)._root?.[0] ?? "Erro ao excluir usuário.";
+      toast.error(msg);
+      setDeleteTarget(null);
+      return;
+    }
+    toast.success(`Usuário "${deleteTarget.name}" excluído com sucesso.`);
+    setDeleteTarget(null);
+  }
 
   return (
     <div className="space-y-4">
@@ -65,7 +84,7 @@ export default function UsersTable({ users, departments, allProfiles }: Props) {
               <TableHead>Departamento</TableHead>
               <TableHead>Superior</TableHead>
               <TableHead className="text-center">Status</TableHead>
-              <TableHead className="text-right">Ação</TableHead>
+              <TableHead className="text-right">Ações</TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>
@@ -97,14 +116,25 @@ export default function UsersTable({ users, departments, allProfiles }: Props) {
                     </span>
                   </TableCell>
                   <TableCell className="text-right">
-                    <Button
-                      size="sm"
-                      variant="ghost"
-                      className="text-xs h-7 px-2"
-                      onClick={() => openEdit(u)}
-                    >
-                      Editar
-                    </Button>
+                    <div className="flex items-center justify-end gap-1">
+                      <Button
+                        size="sm"
+                        variant="ghost"
+                        className="text-xs h-7 px-2"
+                        onClick={() => openEdit(u)}
+                      >
+                        Editar
+                      </Button>
+                      <Button
+                        size="sm"
+                        variant="ghost"
+                        className="h-7 w-7 p-0 text-red-400 hover:text-red-600 hover:bg-red-50"
+                        title="Excluir usuário"
+                        onClick={() => setDeleteTarget(u)}
+                      >
+                        <Trash2 className="h-3.5 w-3.5" />
+                      </Button>
+                    </div>
                   </TableCell>
                 </TableRow>
               ))
@@ -127,6 +157,32 @@ export default function UsersTable({ users, departments, allProfiles }: Props) {
         allProfiles={allProfiles}
         departments={departments}
       />
+
+      {/* Confirm delete dialog */}
+      <Dialog open={!!deleteTarget} onOpenChange={(open) => !open && setDeleteTarget(null)}>
+        <DialogContent className="max-w-sm">
+          <DialogHeader>
+            <DialogTitle className="text-[#364B59]">Excluir usuário</DialogTitle>
+          </DialogHeader>
+          <p className="text-sm text-muted-foreground">
+            Tem certeza que deseja excluir{" "}
+            <span className="font-semibold text-text">{deleteTarget?.name}</span>?{" "}
+            Esta ação não pode ser desfeita.
+          </p>
+          <DialogFooter className="gap-2">
+            <Button variant="outline" onClick={() => setDeleteTarget(null)} disabled={deleting}>
+              Cancelar
+            </Button>
+            <Button
+              onClick={handleDelete}
+              disabled={deleting}
+              className="bg-red-600 hover:bg-red-700 text-white"
+            >
+              {deleting ? "Excluindo..." : "Excluir"}
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }

@@ -6,29 +6,25 @@ interface OrgNodeProps {
   label: string;
   subtitle: string;
   progress: number;
+  goalsCount?: number;
   isPlaceholder?: boolean;
   isCeo?: boolean;
   selected?: boolean;
   onClick?: () => void;
 }
 
-function TrophyIcon({ className }: { className?: string }) {
-  return (
-    <svg viewBox="0 0 24 24" fill="none" className={className} aria-hidden="true">
-      <path
-        d="M7 4h10v3a5 5 0 0 1-5 5 5 5 0 0 1-5-5V4Z"
-        stroke="currentColor" strokeWidth="1.6" strokeLinejoin="round"
-      />
-      <path d="M7 5H4v1a4 4 0 0 0 4 4M17 5h3v1a4 4 0 0 1-4 4" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" />
-      <path d="M12 12v3M9 19h6M9.5 19c0-1.5.5-2.5 2.5-2.5s2.5 1 2.5 2.5" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round" />
-    </svg>
-  );
-}
-
-export default function OrgNode({ label, subtitle, progress, isPlaceholder, isCeo, selected, onClick }: OrgNodeProps) {
+export default function OrgNode({
+  label,
+  subtitle,
+  progress,
+  goalsCount,
+  isPlaceholder,
+  isCeo,
+  selected,
+  onClick,
+}: OrgNodeProps) {
   const pct = Math.max(0, Math.min(100, progress));
   const fillColor = goalColor(pct);
-  const isFull = pct >= 90;
 
   return (
     <button
@@ -41,38 +37,59 @@ export default function OrgNode({ label, subtitle, progress, isPlaceholder, isCe
         bg-white`}
       aria-pressed={selected}
     >
-      {/* Fill gamificado — sobe de baixo para cima conforme o percentual */}
+      {/* Colored top accent bar */}
       <span
         aria-hidden="true"
-        className="absolute inset-0 transition-[clip-path] duration-700 ease-out"
-        style={{
-          backgroundColor: fillColor,
-          clipPath: `inset(${100 - pct}% 0 0 0)`,
-          opacity: 0.9,
-        }}
+        className="absolute top-0 inset-x-0 h-1"
+        style={{ backgroundColor: fillColor }}
       />
 
-      <span className="relative flex flex-col gap-1 px-4 py-3.5">
-        <span className="flex items-center justify-between gap-2">
-          <span className="text-[11px] font-semibold uppercase tracking-wide text-[#364B59]/70">
-            {isCeo ? "CEO" : "Diretoria"}
-          </span>
-          {isFull && (
-            <TrophyIcon className="h-4 w-4 text-[#364B59]" />
-          )}
+      <span className="relative flex flex-col gap-1 px-4 pt-4 pb-3.5">
+        {/* Role label */}
+        <span className="text-[10px] font-bold uppercase tracking-widest text-[#364B59]/50">
+          {isCeo ? "Presidência" : "Diretoria"}
         </span>
 
-        <span className="text-sm font-bold leading-tight text-[#364B59]">
-          {label}
-        </span>
+        {/* Name */}
+        <span className="text-sm font-bold leading-tight text-[#364B59]">{label}</span>
 
-        <span className={`text-xs text-[#364B59]/70 ${isPlaceholder ? "italic" : ""}`}>
+        {/* Director / subtitle */}
+        <span
+          className={`text-xs truncate ${
+            isPlaceholder ? "italic text-[#364B59]/40" : "text-[#364B59]/60"
+          }`}
+        >
           {subtitle}
         </span>
 
-        <span className="mt-1.5 text-xl font-extrabold tabular-nums text-[#364B59]">
-          {pct.toFixed(0)}%
-        </span>
+        {/* Progress section */}
+        <div className="mt-3 space-y-1.5">
+          <div className="flex items-center justify-between">
+            <span className="text-[10px] font-semibold uppercase tracking-wide text-[#364B59]/40">
+              Progresso
+            </span>
+            <span
+              className="text-sm font-extrabold tabular-nums"
+              style={{ color: fillColor }}
+            >
+              {pct.toFixed(0)}%
+            </span>
+          </div>
+          {/* Explicit progress bar */}
+          <div className="h-2 rounded-full bg-gray-100 overflow-hidden">
+            <div
+              className="h-full rounded-full transition-all duration-700"
+              style={{ width: `${pct}%`, backgroundColor: fillColor }}
+            />
+          </div>
+        </div>
+
+        {/* Goals count */}
+        {goalsCount !== undefined && goalsCount > 0 && (
+          <span className="mt-1 text-[10px] text-[#364B59]/40">
+            {goalsCount} meta{goalsCount !== 1 ? "s" : ""}
+          </span>
+        )}
       </span>
     </button>
   );

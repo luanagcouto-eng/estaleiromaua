@@ -80,7 +80,7 @@ function SubDeptCard({ dept, selected, onClick }: { dept: OrgChartSubDept; selec
         </span>
         <div className="min-w-0 flex-1">
           <p className="text-sm font-bold text-[#364B59] leading-tight truncate">{dept.name}</p>
-          <p className={`text-xs truncate ${dept.director ? "text-[#364B59]/60" : "italic text-[#364B59]/40"}`}>
+          <p className={`text-xs truncate ${dept.director ? "font-semibold text-[#364B59]" : "italic text-[#364B59]/40"}`}>
             {dept.director ?? "Em aberto"}
           </p>
         </div>

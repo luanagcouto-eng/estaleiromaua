@@ -65,7 +65,11 @@ export default function OrgNode({
         {/* Director / subtitle */}
         <span
           className={`truncate ${isCeo ? "text-sm" : "text-xs"} ${
-            isPlaceholder ? "italic text-[#364B59]/40" : "text-[#364B59]/60"
+            isPlaceholder
+              ? "italic text-[#364B59]/40"
+              : isCeo
+                ? "text-[#364B59]/60"
+                : "font-semibold text-[#364B59]"
           }`}
         >
           {subtitle}

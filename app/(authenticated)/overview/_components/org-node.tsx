@@ -1,7 +1,15 @@
 "use client";
 
-import { Building2, UserCircle2, ChevronRight } from "lucide-react";
+import { UserCircle2, ChevronRight, Handshake, Cog, HardHat, Banknote, ShieldCheck, Building2 } from "lucide-react";
 import { goalColor } from "@/lib/utils";
+
+const DIRECTORATE_ICONS: Record<string, typeof Building2> = {
+  "Diretoria Comercial":     Handshake,
+  "Diretoria de Operações":  Cog,
+  "Diretoria RH / QSMS":     HardHat,
+  "Gerência Financeiro":     Banknote,
+  "Gerência GGCQ":           ShieldCheck,
+};
 
 interface OrgNodeProps {
   label: string;
@@ -26,25 +34,18 @@ export default function OrgNode({
 }: OrgNodeProps) {
   const pct = Math.max(0, Math.min(100, progress));
   const fillColor = goalColor(pct);
-  const Icon = isCeo ? UserCircle2 : Building2;
+  const Icon = isCeo ? UserCircle2 : (DIRECTORATE_ICONS[label] ?? Building2);
 
   return (
     <button
       type="button"
       onClick={onClick}
-      className={`group relative w-full overflow-hidden rounded-2xl border text-left shadow-sm transition-all
+      className={`group relative w-full rounded-2xl border text-left shadow-sm transition-all
         ${isCeo ? "border-[#364B59]/30" : "border-border"}
         ${selected ? "ring-2 ring-[#F18213] ring-offset-2" : "hover:shadow-md hover:-translate-y-0.5"}
         bg-white`}
       aria-pressed={selected}
     >
-      {/* Colored top accent bar */}
-      <span
-        aria-hidden="true"
-        className="absolute top-0 inset-x-0 h-1"
-        style={{ backgroundColor: fillColor }}
-      />
-
       <span className="relative flex flex-col gap-1 px-4 pt-4 pb-3.5">
         {/* Avatar circle + role label */}
         <span className="flex items-center gap-2.5 mb-0.5">

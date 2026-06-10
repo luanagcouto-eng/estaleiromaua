@@ -33,9 +33,9 @@ export default function OrgChartSection({
 
   return (
     <div className="bg-white">
-      <div className="px-6 flex items-center justify-between mb-4">
-        <h3 className="flex items-center gap-1.5 text-sm font-semibold text-[#364B59]">
-          <Network className="w-4 h-4" aria-hidden />
+      <div className="-mt-8 mb-4 px-6 py-3 flex items-center justify-between bg-[#364B59]/20">
+        <h3 className="flex items-center gap-2 text-base font-semibold text-[#364B59]">
+          <Network className="w-5 h-5" aria-hidden />
           Organograma
         </h3>
 

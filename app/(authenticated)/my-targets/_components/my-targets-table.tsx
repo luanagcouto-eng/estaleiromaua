@@ -166,7 +166,7 @@ export default function MyTargetsTable({ goals }: { goals: GoalCardData[] }) {
           placeholder="Buscar por título..."
           value={titleFilter}
           onChange={(e) => setTitleFilter(e.target.value)}
-          className="h-8 text-sm w-[220px]"
+          className="h-8 text-sm w-[220px] bg-white"
         />
         {titleFilter && (
           <button

@@ -182,7 +182,7 @@ export default function GoalsTable({ goals, profiles, departments }: Props) {
             placeholder="Buscar por título..."
             value={filterTitle}
             onChange={(e) => setFilterTitle(e.target.value)}
-            className="h-8 text-sm w-[200px]"
+            className="h-8 text-sm w-[200px] bg-white"
           />
           <Select value={filterOwner} onValueChange={(v) => setFilterOwner(v ?? "all")}>
             <SelectTrigger className="h-8 text-sm w-[190px]">

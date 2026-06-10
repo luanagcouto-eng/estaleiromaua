@@ -53,12 +53,14 @@ export default function OrgNode({
             <Icon className="w-5 h-5 text-[#364B59]/60" aria-hidden />
           </span>
           <span className="text-[10px] font-bold uppercase tracking-widest text-[#364B59]/50">
-            {isCeo ? "CEO" : "Diretoria"}
+            {isCeo ? "CEO" : label}
           </span>
         </span>
 
-        {/* Name */}
-        <span className="text-sm font-bold leading-tight text-[#364B59]">{label}</span>
+        {/* Name — only the CEO card needs this (the tag above already shows the directorate name) */}
+        {isCeo && (
+          <span className="text-sm font-bold leading-tight text-[#364B59]">{label}</span>
+        )}
 
         {/* Director / subtitle */}
         <span

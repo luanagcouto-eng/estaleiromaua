@@ -176,7 +176,7 @@ export default function OrgChart({ ceo, nodes, scopeId }: Props) {
 
   return (
     <div className="overflow-x-auto pb-4 bg-white">
-      <div className={`flex flex-col items-center px-6 pt-2 gap-0 bg-white ${scopedNode ? "w-full" : "min-w-[920px]"}`}>
+      <div className="flex flex-col items-center px-6 pt-2 gap-0 bg-white w-full">
 
         {!scopedNode && (
           <>
@@ -184,7 +184,7 @@ export default function OrgChart({ ceo, nodes, scopeId }: Props) {
             <div className="flex flex-col items-center gap-0">
               <SectionChip label="CEO" />
               <div className="h-3 w-px bg-slate-300" />
-              <div className="w-64">
+              <div className="w-full max-w-64">
                 <OrgNode
                   label={ceo.name ?? "CEO"}
                   subtitle={ceo.isPlaceholder ? "Cargo em aberto" : "Estaleiro Mauá"}
@@ -205,14 +205,14 @@ export default function OrgChart({ ceo, nodes, scopeId }: Props) {
 
             {/* ── Seção: Diretorias ── */}
             <div className="relative w-full">
-              {/* Linha horizontal conectando as diretorias */}
-              <div className="absolute top-0 left-[10%] right-[10%] h-px bg-slate-400" />
+              {/* Linha horizontal conectando as diretorias — só faz sentido quando o grid exibe uma única linha */}
+              <div className="hidden lg:block absolute top-0 left-[10%] right-[10%] h-px bg-slate-400" />
 
-              <div className="grid grid-cols-5 gap-4 pt-8">
+              <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-4 lg:pt-8">
                 {nodes.map((node) => (
                   <div key={node.id} className="relative flex flex-col items-center">
                     {/* Conector vertical descendo da linha horizontal */}
-                    <div className="absolute -top-8 h-8 w-px bg-slate-400" />
+                    <div className="hidden lg:block absolute -top-8 h-8 w-px bg-slate-400" />
                     <OrgNode
                       label={node.name}
                       subtitle={node.isPlaceholder ? "Em aberto" : node.director ?? ""}
@@ -226,10 +226,6 @@ export default function OrgChart({ ceo, nodes, scopeId }: Props) {
                 ))}
               </div>
             </div>
-
-            <p className="mt-6 text-[10px] text-slate-400 text-center">
-              Clique em uma diretoria para ver metas e áreas subordinadas
-            </p>
           </>
         )}
 
@@ -239,7 +235,7 @@ export default function OrgChart({ ceo, nodes, scopeId }: Props) {
             <div className="flex flex-col items-center gap-0">
               <SectionChip label="Diretoria" />
               <div className="h-3 w-px bg-slate-300" />
-              <div className="w-64">
+              <div className="w-full max-w-64">
                 <OrgNode
                   label={scopedNode.name}
                   subtitle={scopedNode.isPlaceholder ? "Em aberto" : scopedNode.director ?? ""}
@@ -261,18 +257,15 @@ export default function OrgChart({ ceo, nodes, scopeId }: Props) {
 
             {/* ── Gerências ── */}
             {scopedNode.subDepartments.length > 0 ? (
-              <div className="relative w-full">
-                <div className="absolute top-0 left-[10%] right-[10%] h-px bg-slate-400" />
-                <div className="flex flex-row gap-4 pt-8">
+              <div className="w-full pt-2">
+                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
                   {scopedNode.subDepartments.map((dept) => (
-                    <div key={dept.id} className="relative flex-1 min-w-0">
-                      <div className="absolute -top-8 left-1/2 -translate-x-1/2 h-8 w-px bg-slate-400" />
-                      <SubDeptCard
-                        dept={dept}
-                        selected={selectedId === dept.id}
-                        onClick={() => setSelectedId(dept.id)}
-                      />
-                    </div>
+                    <SubDeptCard
+                      key={dept.id}
+                      dept={dept}
+                      selected={selectedId === dept.id}
+                      onClick={() => setSelectedId(dept.id)}
+                    />
                   ))}
                 </div>
               </div>

@@ -1,7 +1,7 @@
 import { createClient } from "@/lib/supabase/server";
 import { redirect } from "next/navigation";
 import { calcProgress } from "@/lib/utils";
-import { Users, Target, TrendingUp, Flag, Info } from "lucide-react";
+import { Users, Target, TrendingUp, Flag } from "lucide-react";
 import { type OrgChartNodeData, type GoalItem } from "./_components/org-chart";
 import OrgChartSection from "./_components/org-chart-section";
 import { type ActionPlanItem } from "./_components/action-plans-section";
@@ -50,16 +50,6 @@ function KpiCard({
         <p className="text-xs text-muted-foreground mt-0.5">{sublabel}</p>
       </div>
     </div>
-  );
-}
-
-// ── Legend swatch ─────────────────────────────────────────────────
-function LegendSwatch({ color, label }: { color: string; label: string }) {
-  return (
-    <span className="inline-flex items-center gap-1">
-      <span className="h-2 w-2 rounded-full border border-border" style={{ backgroundColor: color }} />
-      {label}
-    </span>
   );
 }
 
@@ -286,34 +276,8 @@ export default async function OverviewPage() {
           />
         </div>
 
-        {/* Container footer: legend + info + last update */}
-        <div className="px-8 pb-6 border-t border-border">
-          <div className="flex items-start justify-between gap-6 pt-5">
-            {/* Legend */}
-            <div>
-              <p className="text-[11px] font-semibold text-[#364B59] mb-1.5">Legenda de progresso</p>
-              <div className="flex flex-wrap items-center gap-3 text-[11px] text-muted-foreground">
-                <LegendSwatch color="#DFA1AA" label="0% – 33%" />
-                <LegendSwatch color="#F9E79F" label="33% – 66%" />
-                <LegendSwatch color="#9AD595" label="66% – 100%" />
-              </div>
-            </div>
-
-            {/* Info card */}
-            <div className="flex items-start gap-3 bg-surface border border-border rounded-xl px-4 py-3 max-w-sm">
-              <Info className="w-4 h-4 text-[#364B59]/50 shrink-0 mt-0.5" aria-hidden />
-              <div>
-                <p className="text-xs font-semibold text-[#364B59] leading-snug">
-                  Clique em uma diretoria para visualizar as metas, responsáveis e iniciativas.
-                </p>
-                <p className="text-xs text-muted-foreground mt-1">
-                  Acompanhe o desempenho e foque nas prioridades para alcançar os resultados esperados.
-                </p>
-              </div>
-            </div>
-          </div>
-
-          {/* Last update + refresh */}
+        {/* Last update + refresh */}
+        <div className="px-8 pb-6">
           <OrgChartFooter />
         </div>
       </div>

@@ -36,12 +36,15 @@ export default function ActionPlansSection({ actionPlans, scopeId }: Props) {
     scopeId === "all" ? actionPlans : actionPlans.filter((p) => p.directorateId === scopeId);
 
   return (
-    <div className="px-8 pt-2 pb-6">
-      <h3 className="flex items-center gap-1.5 text-sm font-semibold text-[#364B59] mb-3">
-        <ClipboardList className="w-4 h-4" aria-hidden />
-        Planos de ação em andamento
-      </h3>
+    <div className="bg-white">
+      <div className="mb-4 px-6 py-3 bg-[#364B59]/20">
+        <h3 className="flex items-center gap-2 text-base font-semibold text-[#364B59]">
+          <ClipboardList className="w-5 h-5" aria-hidden />
+          Planos de ação em andamento
+        </h3>
+      </div>
 
+      <div className="px-8 pb-6">
       {filtered.length === 0 ? (
         <p className="text-xs text-muted-foreground italic">
           Nenhum plano de ação em andamento para o escopo selecionado.
@@ -80,6 +83,7 @@ export default function ActionPlansSection({ actionPlans, scopeId }: Props) {
           ))}
         </div>
       )}
+      </div>
     </div>
   );
 }

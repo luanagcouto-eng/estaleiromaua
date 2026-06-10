@@ -1,8 +1,10 @@
 "use client";
 
+import { useState } from "react";
 import Link from "next/link";
 import Image from "next/image";
 import { usePathname } from "next/navigation";
+import { Menu, X } from "lucide-react";
 import { signOut } from "@/lib/actions/auth";
 import { cn } from "@/lib/utils";
 import type { UserRole } from "@/types";
@@ -141,15 +143,59 @@ interface AppSidebarProps {
 
 export default function AppSidebar({ name, email, role, avatarUrl }: AppSidebarProps) {
   const pathname = usePathname();
+  const [open, setOpen] = useState(false);
+  const [lastPathname, setLastPathname] = useState(pathname);
+
+  if (pathname !== lastPathname) {
+    setLastPathname(pathname);
+    setOpen(false);
+  }
 
   return (
-    <aside className="fixed left-0 top-0 h-full w-64 bg-[#364B59] flex flex-col z-40 select-none">
+    <>
+      {/* Mobile top bar */}
+      <div className="md:hidden fixed top-0 left-0 right-0 h-14 bg-[#364B59] flex items-center justify-between px-4 z-30">
+        <button
+          type="button"
+          onClick={() => setOpen(true)}
+          aria-label="Abrir menu de navegação"
+          className="text-white p-2 -ml-2"
+        >
+          <Menu className="w-6 h-6" aria-hidden />
+        </button>
+        <Image src="/logo-maua.png" alt="Estaleiro Mauá" width={110} height={44} className="object-contain" />
+        <span className="w-10" aria-hidden />
+      </div>
+
+      {/* Overlay (mobile) */}
+      {open && (
+        <div
+          className="md:hidden fixed inset-0 bg-black/40 z-40"
+          onClick={() => setOpen(false)}
+          aria-hidden="true"
+        />
+      )}
+
+      <aside
+        className={cn(
+          "fixed left-0 top-0 h-full w-64 bg-[#364B59] flex flex-col z-50 select-none transition-transform duration-200 md:translate-x-0",
+          open ? "translate-x-0" : "-translate-x-full"
+        )}
+      >
 
       {/* Logo */}
-      <div className="flex items-center justify-center px-4 py-4 border-b border-[#2D3F4A]">
+      <div className="flex items-center justify-center px-4 py-4 border-b border-[#2D3F4A] relative">
         <div className="bg-white rounded-xl px-3 py-2">
           <Image src="/logo-maua.png" alt="Estaleiro Mauá" width={140} height={56} className="object-contain" />
         </div>
+        <button
+          type="button"
+          onClick={() => setOpen(false)}
+          aria-label="Fechar menu de navegação"
+          className="md:hidden absolute right-3 top-1/2 -translate-y-1/2 text-[#94A3B8] hover:text-white p-1"
+        >
+          <X className="w-5 h-5" aria-hidden />
+        </button>
       </div>
 
       {/* Nav */}
@@ -253,6 +299,7 @@ export default function AppSidebar({ name, email, role, avatarUrl }: AppSidebarP
         </form>
       </div>
 
-    </aside>
+      </aside>
+    </>
   );
 }

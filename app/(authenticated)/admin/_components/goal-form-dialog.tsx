@@ -167,7 +167,7 @@ export default function GoalFormDialog({ open, onClose, goal, profiles, departme
               </FormItem>
             )} />
 
-            <div className="grid grid-cols-[1fr_0.65fr_1.3fr_1fr] gap-3">
+            <div className="grid grid-cols-2 sm:grid-cols-[1fr_0.65fr_1.3fr_1fr] gap-3">
               <FormField control={form.control} name="period" render={({ field }) => (
                 <FormItem>
                   <FormLabel>Período</FormLabel>
@@ -234,7 +234,7 @@ export default function GoalFormDialog({ open, onClose, goal, profiles, departme
               )} />
             </div>
 
-            <div className="grid grid-cols-2 gap-3">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
               <FormField control={form.control} name="weight" render={({ field }) => (
                 <FormItem>
                   <FormLabel>Peso (%)</FormLabel>

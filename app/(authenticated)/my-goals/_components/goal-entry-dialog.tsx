@@ -184,7 +184,7 @@ export default function GoalEntryDialog({ open, onClose, goalId, goalTitle, unit
         <Form {...form}>
           <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-5">
 
-            <div className="grid grid-cols-2 gap-x-8 gap-y-4">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-x-8 gap-y-4">
               <FormField control={form.control} name="period" render={({ field }) => (
                 <FormItem>
                   <FormLabel>Período de referência</FormLabel>
@@ -218,7 +218,7 @@ export default function GoalEntryDialog({ open, onClose, goalId, goalTitle, unit
               )} />
             </div>
 
-            <div className="grid grid-cols-2 gap-x-8 gap-y-4">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-x-8 gap-y-4">
               <FormField control={form.control} name="data_source" render={({ field }) => (
                 <FormItem>
                   <FormLabel>Fonte de dados</FormLabel>

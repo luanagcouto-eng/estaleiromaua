@@ -37,9 +37,9 @@ export default async function AuthenticatedLayout({
         role={profile.role as UserRole}
         avatarUrl={profile.avatar_url}
       />
-      <main id="main-content" className="flex-1 ml-64 min-h-screen" tabIndex={-1}>
+      <main id="main-content" className="flex-1 ml-0 md:ml-64 min-h-screen pt-14 md:pt-0" tabIndex={-1}>
         <PrintElements />
-        <div className="p-8 print-content">{children}</div>
+        <div className="p-4 md:p-8 print-content">{children}</div>
       </main>
     </div>
   );

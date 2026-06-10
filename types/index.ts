@@ -63,6 +63,12 @@ export interface GoalHistory {
   goal_id: string;
   value: number;
   notes: string | null;
+  data_source: string | null;
+  criteria: string | null;
+  formula_used: string | null;
+  justification: string | null;
+  five_whys: string[] | null;
+  action_plan: string | null;
   evidence_url: string[] | null;
   recorded_at: string;
   recorded_by: string;

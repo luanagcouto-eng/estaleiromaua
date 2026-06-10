@@ -4,6 +4,12 @@ export interface GoalHistoryEntry {
   id: string;
   value: number;
   notes: string | null;
+  data_source: string | null;
+  criteria: string | null;
+  formula_used: string | null;
+  justification: string | null;
+  five_whys: string[] | null;
+  action_plan: string | null;
   evidence_url: string[] | null;
   recorded_at: string;
 }
@@ -35,7 +41,60 @@ export default function GoalHistoryList({ entries, unit }: Props) {
               })}
             </span>
           </div>
+
+          {(entry.data_source || entry.criteria || entry.formula_used) && (
+            <dl className="mt-1.5 grid grid-cols-1 sm:grid-cols-3 gap-x-3 gap-y-1 text-xs text-muted-foreground">
+              {entry.data_source && (
+                <div>
+                  <dt className="font-semibold text-text">Fonte de dados</dt>
+                  <dd className="whitespace-pre-wrap">{entry.data_source}</dd>
+                </div>
+              )}
+              {entry.criteria && (
+                <div>
+                  <dt className="font-semibold text-text">Critério</dt>
+                  <dd className="whitespace-pre-wrap">{entry.criteria}</dd>
+                </div>
+              )}
+              {entry.formula_used && (
+                <div>
+                  <dt className="font-semibold text-text">Fórmula utilizada</dt>
+                  <dd className="whitespace-pre-wrap">{entry.formula_used}</dd>
+                </div>
+              )}
+            </dl>
+          )}
+
           {entry.notes && <p className="mt-1 text-xs text-muted-foreground whitespace-pre-wrap">{entry.notes}</p>}
+
+          {entry.justification && (
+            <div className="mt-2 rounded-md border border-amber-300 bg-amber-50 px-2.5 py-2 space-y-1.5">
+              <p className="text-[10px] font-bold uppercase tracking-wide text-amber-700">
+                ⚠️ Meta ultrapassada
+              </p>
+              <div>
+                <p className="text-xs font-semibold text-text">Justificativa</p>
+                <p className="text-xs text-muted-foreground whitespace-pre-wrap">{entry.justification}</p>
+              </div>
+              {entry.five_whys && entry.five_whys.some((w) => w) && (
+                <div>
+                  <p className="text-xs font-semibold text-text">Análise de causa raiz — 5 Porquês</p>
+                  <ol className="list-decimal list-inside text-xs text-muted-foreground space-y-0.5">
+                    {entry.five_whys.map((why, i) => (
+                      <li key={i}>{why}</li>
+                    ))}
+                  </ol>
+                </div>
+              )}
+              {entry.action_plan && (
+                <div>
+                  <p className="text-xs font-semibold text-text">Plano de ação</p>
+                  <p className="text-xs text-muted-foreground whitespace-pre-wrap">{entry.action_plan}</p>
+                </div>
+              )}
+            </div>
+          )}
+
           {entry.evidence_url && entry.evidence_url.length > 0 && (
             <a
               href={entry.evidence_url[0]}

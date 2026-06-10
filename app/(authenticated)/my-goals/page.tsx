@@ -64,7 +64,7 @@ export default async function MyGoalsPage() {
   const { data: history } = goalIds.length
     ? await supabase
         .from("goal_history")
-        .select("id, goal_id, value, notes, evidence_url, recorded_at")
+        .select("id, goal_id, value, notes, data_source, criteria, formula_used, justification, five_whys, action_plan, evidence_url, recorded_at")
         .in("goal_id", goalIds)
         .order("recorded_at", { ascending: false })
     : { data: [] as (GoalHistoryEntry & { goal_id: string })[] };

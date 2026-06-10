@@ -1,6 +1,7 @@
 "use client";
 
 import React, { useState } from "react";
+import { Target } from "lucide-react";
 import { calcProgress, formatGoalValue, OP_SYMBOL } from "@/lib/utils";
 import GoalEntryDialog from "./goal-entry-dialog";
 import GoalHistoryList from "./goal-history-list";
@@ -89,27 +90,30 @@ function GoalTableSection({
 }) {
   return (
     <div className="bg-white rounded-xl border border-border overflow-hidden">
-      <div className="px-5 py-3 bg-[#364B59]">
-        <h2 className="text-[10px] font-black uppercase tracking-[0.2em] text-white">{title}</h2>
+      <div className="px-6 py-3 bg-[#364B59]/20">
+        <h2 className="flex items-center gap-2 text-base font-semibold text-[#364B59]">
+          <Target className="w-5 h-5" aria-hidden />
+          {title}
+        </h2>
       </div>
 
       <div className="overflow-x-auto">
         <table className="w-full text-sm">
           <thead>
-            <tr className="bg-[#2D3F4A]">
-              <th className="py-2.5 px-4 text-left text-[10px] font-bold uppercase tracking-wider text-slate-300 min-w-[220px]">
+            <tr className="bg-[#364B59]/10">
+              <th className="py-2.5 px-4 text-left text-[10px] font-bold uppercase tracking-wider text-[#364B59]/70 min-w-[220px]">
                 Objetivo Estratégico
               </th>
-              <th className="py-2.5 px-4 text-left text-[10px] font-bold uppercase tracking-wider text-slate-300 w-20">
+              <th className="py-2.5 px-4 text-left text-[10px] font-bold uppercase tracking-wider text-[#364B59]/70 w-20">
                 Subpeso
               </th>
-              <th className="py-2.5 px-4 text-left text-[10px] font-bold uppercase tracking-wider text-slate-300 w-28">
+              <th className="py-2.5 px-4 text-left text-[10px] font-bold uppercase tracking-wider text-[#364B59]/70 w-28">
                 Meta
               </th>
-              <th className="py-2.5 px-4 text-left text-[10px] font-bold uppercase tracking-wider text-slate-300 w-48">
+              <th className="py-2.5 px-4 text-left text-[10px] font-bold uppercase tracking-wider text-[#364B59]/70 w-48">
                 Atingimento (%)
               </th>
-              <th className="py-2.5 px-4 text-left text-[10px] font-bold uppercase tracking-wider text-slate-300 w-40">
+              <th className="py-2.5 px-4 text-left text-[10px] font-bold uppercase tracking-wider text-[#364B59]/70 w-40">
                 Avaliação Técnica
               </th>
             </tr>

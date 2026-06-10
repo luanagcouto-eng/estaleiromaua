@@ -184,7 +184,7 @@ export default function OrgChart({ ceo, nodes, scopeId }: Props) {
             <div className="flex flex-col items-center gap-0">
               <SectionChip label="CEO" />
               <div className="h-3 w-px bg-slate-300" />
-              <div className="w-full max-w-lg">
+              <div className="w-full max-w-2xl">
                 <OrgNode
                   label={ceo.name ?? "CEO"}
                   subtitle={ceo.isPlaceholder ? "Cargo em aberto" : "Estaleiro Mauá"}

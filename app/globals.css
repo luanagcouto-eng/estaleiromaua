@@ -223,6 +223,8 @@ html {
     background: white !important;
     color: #111827 !important;
     font-size: 11px;
+    -webkit-print-color-adjust: exact;
+    print-color-adjust: exact;
   }
 
   .rounded-xl,

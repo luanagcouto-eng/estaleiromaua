@@ -40,6 +40,13 @@ function initials(name: string): string {
   return ((parts[0]?.[0] ?? "") + (parts[parts.length - 1]?.[0] ?? "")).toUpperCase();
 }
 
+function statusInfo(pct: number, hasHistory: boolean) {
+  if (!hasHistory) return { label: "Pendente", bg: "bg-slate-100", text: "text-slate-500" };
+  if (pct >= 90) return { label: "Em conformidade", bg: "bg-emerald-50", text: "text-emerald-700" };
+  if (pct >= 60) return { label: "Em andamento", bg: "bg-orange-50", text: "text-[#F18213]" };
+  return { label: "Em risco", bg: "bg-red-50", text: "text-red-600" };
+}
+
 export default function TeamMemberCard({ member }: { member: TeamMemberData }) {
   const [open, setOpen] = useState(false);
   const pendingGoals = member.goals.filter((g) => !g.has_history);
@@ -101,37 +108,58 @@ export default function TeamMemberCard({ member }: { member: TeamMemberData }) {
           {member.goals.length === 0 ? (
             <p className="pt-3 text-xs text-muted-foreground italic px-1">Nenhuma meta atribuída ainda.</p>
           ) : (
-            <ul className="pt-3 space-y-3">
-              {member.goals.map((g) => {
-                const pct = calcProgress(g.current_value, g.target_value);
-                return (
-                  <li key={g.id} className="rounded-lg border border-border bg-surface px-3 py-2.5">
-                    <div className="flex items-center justify-between gap-2">
-                      <div className="flex items-center gap-2 flex-wrap min-w-0">
-                        <span className="text-sm font-medium text-text truncate">{g.title}</span>
-                        <Badge variant="secondary" className="text-xs shrink-0">{PERIOD_LABELS[g.period] ?? g.period}</Badge>
-                        {!g.has_history && (
-                          <Badge className="text-xs shrink-0 bg-[#FEF0DC] text-[#F18213]">Sem lançamento</Badge>
-                        )}
-                      </div>
-                      <span className={`shrink-0 text-xs font-semibold px-2 py-0.5 rounded-full ${goalTextClass(pct)}`}>
-                        {pct}% {pct >= 90 ? "🏆" : ""}
-                      </span>
-                    </div>
-                    <div className="mt-2 h-2 rounded-full bg-white overflow-hidden border border-border">
-                      <div
-                        className="h-full rounded-full transition-all duration-700"
-                        style={{ width: `${pct}%`, backgroundColor: goalColor(pct) }}
-                      />
-                    </div>
-                    <div className="mt-1.5 flex items-center justify-between text-xs text-muted-foreground">
-                      <span>Atual: <span className="font-medium text-text">{formatGoalValue(g.current_value, g.unit)}</span></span>
-                      <span>Meta: <span className="font-medium text-text">{formatGoalValue(g.target_value, g.unit)}</span></span>
-                    </div>
-                  </li>
-                );
-              })}
-            </ul>
+            <div className="pt-3 overflow-x-auto">
+              <table className="w-full text-sm">
+                <thead>
+                  <tr className="border-b border-border">
+                    <th className="py-2 px-3 text-left text-[10px] font-bold uppercase tracking-wider text-muted-foreground">Meta</th>
+                    <th className="py-2 px-3 text-left text-[10px] font-bold uppercase tracking-wider text-muted-foreground">Período</th>
+                    <th className="py-2 px-3 text-center text-[10px] font-bold uppercase tracking-wider text-muted-foreground">Peso</th>
+                    <th className="py-2 px-3 text-right text-[10px] font-bold uppercase tracking-wider text-muted-foreground">Atual</th>
+                    <th className="py-2 px-3 text-right text-[10px] font-bold uppercase tracking-wider text-muted-foreground">Meta</th>
+                    <th className="py-2 px-3 text-left text-[10px] font-bold uppercase tracking-wider text-muted-foreground w-40">Progresso</th>
+                    <th className="py-2 px-3 text-left text-[10px] font-bold uppercase tracking-wider text-muted-foreground">Status</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {member.goals.map((g) => {
+                    const pct = calcProgress(g.current_value, g.target_value);
+                    const status = statusInfo(pct, g.has_history);
+                    return (
+                      <tr key={g.id} className="border-b border-border last:border-b-0">
+                        <td className="py-2.5 px-3 font-medium text-text">
+                          {g.title} {pct >= 90 && "🏆"}
+                        </td>
+                        <td className="py-2.5 px-3">
+                          <Badge variant="secondary" className="text-xs">{PERIOD_LABELS[g.period] ?? g.period}</Badge>
+                        </td>
+                        <td className="py-2.5 px-3 text-center text-muted-foreground">{g.weight}%</td>
+                        <td className="py-2.5 px-3 text-right tabular-nums font-medium text-text">{formatGoalValue(g.current_value, g.unit)}</td>
+                        <td className="py-2.5 px-3 text-right tabular-nums font-medium text-text">{formatGoalValue(g.target_value, g.unit)}</td>
+                        <td className="py-2.5 px-3">
+                          <div className="flex items-center gap-2">
+                            <div className="flex-1 h-1.5 rounded-full bg-gray-100 overflow-hidden min-w-[60px]">
+                              <div
+                                className="h-full rounded-full transition-all duration-700"
+                                style={{ width: `${Math.min(100, pct)}%`, backgroundColor: goalColor(pct) }}
+                              />
+                            </div>
+                            <span className="text-xs font-bold w-9 text-right" style={{ color: goalColor(pct) }}>
+                              {pct}%
+                            </span>
+                          </div>
+                        </td>
+                        <td className="py-2.5 px-3">
+                          <span className={`text-[10px] font-bold uppercase px-2 py-0.5 rounded-full ${status.bg} ${status.text}`}>
+                            {status.label}
+                          </span>
+                        </td>
+                      </tr>
+                    );
+                  })}
+                </tbody>
+              </table>
+            </div>
           )}
         </div>
       )}

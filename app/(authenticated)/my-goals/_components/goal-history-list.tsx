@@ -1,8 +1,17 @@
 import { formatGoalValue } from "@/lib/utils";
 
+const PERIOD_LABELS: Record<string, string> = {
+  "2026-ANUAL": "Anual (2026)",
+  "2026-Q1": "1º Trimestre (T1)",
+  "2026-Q2": "2º Trimestre (T2)",
+  "2026-Q3": "3º Trimestre (T3)",
+  "2026-Q4": "4º Trimestre (T4)",
+};
+
 export interface GoalHistoryEntry {
   id: string;
   value: number;
+  period: string | null;
   notes: string | null;
   data_source: string | null;
   criteria: string | null;
@@ -33,7 +42,14 @@ export default function GoalHistoryList({ entries, unit }: Props) {
       {entries.map((entry) => (
         <li key={entry.id} className="rounded-lg border border-border bg-surface px-3 py-2 text-sm">
           <div className="flex items-center justify-between gap-2">
-            <span className="font-medium text-text">{formatGoalValue(entry.value, unit)}</span>
+            <div className="flex items-center gap-2">
+              <span className="font-medium text-text">{formatGoalValue(entry.value, unit)}</span>
+              {entry.period && (
+                <span className="text-[10px] font-bold uppercase tracking-wide text-[#F18213] bg-orange-50 border border-orange-200 rounded-full px-2 py-0.5">
+                  {PERIOD_LABELS[entry.period] ?? entry.period}
+                </span>
+              )}
+            </div>
             <span className="text-xs text-muted-foreground whitespace-nowrap">
               {new Date(entry.recorded_at).toLocaleString("pt-BR", {
                 day: "2-digit", month: "short", year: "numeric",

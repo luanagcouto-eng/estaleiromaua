@@ -75,7 +75,7 @@ function SubDeptCard({ dept, selected, onClick }: { dept: OrgChartSubDept; selec
         ${selected ? "ring-2 ring-[#F18213] ring-offset-2 border-border" : "border-border hover:shadow-md hover:-translate-y-0.5"}`}
     >
       <div className="flex items-center gap-2.5">
-        <span className="w-8 h-8 rounded-full bg-[#364B59]/10 border border-[#364B59]/10 flex items-center justify-center shrink-0">
+        <span className="w-8 h-8 rounded-full bg-[#364B59]/30 border border-[#364B59]/10 flex items-center justify-center shrink-0">
           <Users2 className="w-4 h-4 text-[#364B59]/60" aria-hidden />
         </span>
         <div className="min-w-0 flex-1">
@@ -184,7 +184,7 @@ export default function OrgChart({ ceo, nodes, scopeId }: Props) {
             <div className="flex flex-col items-center gap-0">
               <SectionChip label="CEO" />
               <div className="h-3 w-px bg-slate-300" />
-              <div className="w-full max-w-64">
+              <div className="w-full max-w-sm">
                 <OrgNode
                   label={ceo.name ?? "CEO"}
                   subtitle={ceo.isPlaceholder ? "Cargo em aberto" : "Estaleiro Mauá"}

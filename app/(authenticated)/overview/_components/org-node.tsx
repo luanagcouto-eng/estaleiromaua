@@ -46,25 +46,25 @@ export default function OrgNode({
         bg-white`}
       aria-pressed={selected}
     >
-      <span className="relative flex flex-col gap-1 px-4 pt-4 pb-3.5">
+      <span className={`relative flex flex-col ${isCeo ? "gap-1.5 px-6 pt-6 pb-5" : "gap-1 px-4 pt-4 pb-3.5"}`}>
         {/* Avatar circle + role label */}
         <span className="flex items-center gap-2.5 mb-0.5">
-          <span className="w-9 h-9 rounded-full bg-[#364B59]/10 border border-[#364B59]/10 flex items-center justify-center shrink-0">
-            <Icon className="w-5 h-5 text-[#364B59]/60" aria-hidden />
+          <span className={`rounded-full bg-[#364B59]/10 border border-[#364B59]/10 flex items-center justify-center shrink-0 ${isCeo ? "w-12 h-12" : "w-9 h-9"}`}>
+            <Icon className={isCeo ? "w-6 h-6 text-[#364B59]/60" : "w-5 h-5 text-[#364B59]/60"} aria-hidden />
           </span>
-          <span className="text-[10px] font-bold uppercase tracking-widest text-[#364B59]/50">
+          <span className={`font-bold uppercase tracking-widest ${isCeo ? "text-xs text-[#364B59]/50" : "text-[10px] text-[#364B59]"}`}>
             {isCeo ? "CEO" : label}
           </span>
         </span>
 
         {/* Name — only the CEO card needs this (the tag above already shows the directorate name) */}
         {isCeo && (
-          <span className="text-sm font-bold leading-tight text-[#364B59]">{label}</span>
+          <span className="text-lg font-bold leading-tight text-[#364B59]">{label}</span>
         )}
 
         {/* Director / subtitle */}
         <span
-          className={`text-xs truncate ${
+          className={`truncate ${isCeo ? "text-sm" : "text-xs"} ${
             isPlaceholder ? "italic text-[#364B59]/40" : "text-[#364B59]/60"
           }`}
         >
@@ -72,20 +72,20 @@ export default function OrgNode({
         </span>
 
         {/* Progress section */}
-        <div className="mt-3 space-y-1.5">
+        <div className={isCeo ? "mt-4 space-y-2" : "mt-3 space-y-1.5"}>
           <div className="flex items-center justify-between">
-            <span className="text-[10px] font-semibold uppercase tracking-wide text-[#364B59]/40">
+            <span className={`font-semibold uppercase tracking-wide text-[#364B59]/40 ${isCeo ? "text-xs" : "text-[10px]"}`}>
               Progresso
             </span>
             <span
-              className="text-sm font-extrabold tabular-nums"
+              className={`font-extrabold tabular-nums ${isCeo ? "text-xl" : "text-sm"}`}
               style={{ color: fillColor }}
             >
               {pct.toFixed(0)}%
             </span>
           </div>
           {/* Explicit progress bar */}
-          <div className="h-2 rounded-full bg-gray-100 overflow-hidden">
+          <div className={`rounded-full bg-gray-100 overflow-hidden ${isCeo ? "h-3" : "h-2"}`}>
             <div
               className="h-full rounded-full transition-all duration-700"
               style={{ width: `${pct}%`, backgroundColor: fillColor }}

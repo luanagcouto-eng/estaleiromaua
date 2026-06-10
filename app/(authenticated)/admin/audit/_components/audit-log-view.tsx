@@ -94,7 +94,7 @@ export default function AuditLogView({ rows }: { rows: AuditLogRow[] }) {
       <div className="rounded-xl border border-border bg-white overflow-hidden">
         <Table>
           <TableHeader>
-            <TableRow className="bg-surface">
+            <TableRow className="bg-[#364B59]/20">
               <TableHead>Data/Hora</TableHead>
               <TableHead>Usuário</TableHead>
               <TableHead className="text-center">Entidade</TableHead>

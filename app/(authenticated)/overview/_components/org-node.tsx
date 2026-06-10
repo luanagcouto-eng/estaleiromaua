@@ -52,7 +52,7 @@ export default function OrgNode({
             <Icon className="w-5 h-5 text-[#364B59]/60" aria-hidden />
           </span>
           <span className="text-[10px] font-bold uppercase tracking-widest text-[#364B59]/50">
-            {isCeo ? "Presidência" : "Diretoria"}
+            {isCeo ? "CEO" : "Diretoria"}
           </span>
         </span>
 

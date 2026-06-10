@@ -18,7 +18,7 @@ export default async function AdminUsersPage() {
   const [{ data: rawProfiles }, { data: departments }, { data: profileDepts }] = await Promise.all([
     supabase
       .from("profiles")
-      .select("id, name, email, role, department_id, superior_id, is_placeholder")
+      .select("id, name, email, role, department_id, superior_id, is_placeholder, avatar_url")
       .order("name"),
     supabase
       .from("departments")

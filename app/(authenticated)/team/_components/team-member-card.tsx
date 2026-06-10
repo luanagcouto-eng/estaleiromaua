@@ -4,7 +4,7 @@ import { useState } from "react";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { calcProgress, formatGoalValue, goalColor, goalTextClass } from "@/lib/utils";
+import { calcProgress, formatGoalValue, goalColor, goalTextClass, OP_SYMBOL } from "@/lib/utils";
 
 const PERIOD_LABELS: Record<string, string> = {
   "2026-ANUAL": "Anual",
@@ -13,8 +13,6 @@ const PERIOD_LABELS: Record<string, string> = {
   "2026-Q3": "3º Trimestre",
   "2026-Q4": "4º Trimestre",
 };
-
-const OP_SYMBOL: Record<string, string> = { ">=": "≥", ">": ">", "<=": "≤", "<": "<", "=": "=" };
 
 export interface TeamGoalData {
   id: string;

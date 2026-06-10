@@ -11,9 +11,15 @@ import { Form, FormField, FormItem, FormLabel, FormControl, FormMessage } from "
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 
 interface Profile    { id: string; name: string; email: string; }
 interface Department { id: string; name: string; sector: string; }
+
+function initials(name: string): string {
+  const parts = name.trim().split(/\s+/);
+  return ((parts[0]?.[0] ?? "") + (parts[parts.length - 1]?.[0] ?? "")).toUpperCase();
+}
 
 interface Props {
   open: boolean;
@@ -92,8 +98,12 @@ export default function UserCreateDialog({ open, onClose, allProfiles, departmen
       role:           "manager",
       department_ids: [],
       superior_id:    null,
+      avatar_url:     "",
     },
   });
+
+  const watchedName = form.watch("name");
+  const watchedAvatar = form.watch("avatar_url");
 
   async function onSubmit(values: UserCreateValues) {
     setPending(true);
@@ -197,6 +207,24 @@ export default function UserCreateDialog({ open, onClose, allProfiles, departmen
                     ))}
                   </SelectContent>
                 </Select>
+                <FormMessage />
+              </FormItem>
+            )} />
+
+            <FormField control={form.control} name="avatar_url" render={({ field }) => (
+              <FormItem>
+                <FormLabel>Foto de perfil (URL do Google ou outra fonte)</FormLabel>
+                <div className="flex items-center gap-3">
+                  <Avatar className="h-10 w-10 shrink-0">
+                    <AvatarImage src={watchedAvatar || undefined} alt={watchedName} />
+                    <AvatarFallback className="bg-[#364B59] text-white">
+                      {initials(watchedName || "?")}
+                    </AvatarFallback>
+                  </Avatar>
+                  <FormControl>
+                    <Input placeholder="https://..." {...field} value={field.value ?? ""} />
+                  </FormControl>
+                </div>
                 <FormMessage />
               </FormItem>
             )} />

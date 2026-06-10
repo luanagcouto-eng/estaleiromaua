@@ -4,7 +4,7 @@ import { useState, useMemo } from "react";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { formatGoalValue, goalTextClass } from "@/lib/utils";
+import { formatGoalValue, goalTextClass, OP_SYMBOL } from "@/lib/utils";
 
 export interface GoalReportRow {
   id: string;
@@ -14,6 +14,7 @@ export interface GoalReportRow {
   target_value: number;
   current_value: number;
   unit: string;
+  operator: string;
   owner_name: string;
   department_name: string;
   has_history: boolean;
@@ -38,12 +39,12 @@ const FILTERS = [
 ];
 
 const MOCK_ROWS: GoalReportRow[] = [
-  { id: "__m1", title: "Receita Bruta Anual", period: "2026-ANUAL", weight: 40, target_value: 1200000, current_value: 480000, unit: "R$", owner_name: "João da Silva", department_name: "Operações Navais", has_history: true, progress_pct: 40 },
-  { id: "__m2", title: "Cumprimento de Prazo de Entrega", period: "2026-ANUAL", weight: 30, target_value: 95, current_value: 72, unit: "%", owner_name: "Maria Souza", department_name: "Engenharia Naval", has_history: true, progress_pct: 76 },
-  { id: "__m3", title: "NPS — Satisfação do Cliente", period: "2026-Q1", weight: 20, target_value: 80, current_value: 65, unit: "pontos", owner_name: "Carlos Lima", department_name: "Qualidade", has_history: false, progress_pct: 81 },
-  { id: "__m4", title: "Horas de Capacitação", period: "2026-Q2", weight: 10, target_value: 200, current_value: 45, unit: "horas", owner_name: "Ana Pereira", department_name: "Recursos Humanos", has_history: false, progress_pct: 23 },
-  { id: "__m5", title: "Índice de Retrabalho", period: "2026-ANUAL", weight: 30, target_value: 5, current_value: 2, unit: "%", owner_name: "Pedro Alves", department_name: "Produção", has_history: true, progress_pct: 40 },
-  { id: "__m6", title: "Faturamento T2", period: "2026-Q2", weight: 25, target_value: 350000, current_value: 340000, unit: "R$", owner_name: "Fernanda Costa", department_name: "Comercial", has_history: true, progress_pct: 97 },
+  { id: "__m1", title: "Receita Bruta Anual", period: "2026-ANUAL", weight: 40, target_value: 1200000, current_value: 480000, unit: "R$", operator: ">=", owner_name: "João da Silva", department_name: "Operações Navais", has_history: true, progress_pct: 40 },
+  { id: "__m2", title: "Cumprimento de Prazo de Entrega", period: "2026-ANUAL", weight: 30, target_value: 95, current_value: 72, unit: "%", operator: ">=", owner_name: "Maria Souza", department_name: "Engenharia Naval", has_history: true, progress_pct: 76 },
+  { id: "__m3", title: "NPS — Satisfação do Cliente", period: "2026-Q1", weight: 20, target_value: 80, current_value: 65, unit: "pontos", operator: ">=", owner_name: "Carlos Lima", department_name: "Qualidade", has_history: false, progress_pct: 81 },
+  { id: "__m4", title: "Horas de Capacitação", period: "2026-Q2", weight: 10, target_value: 200, current_value: 45, unit: "horas", operator: ">=", owner_name: "Ana Pereira", department_name: "Recursos Humanos", has_history: false, progress_pct: 23 },
+  { id: "__m5", title: "Índice de Retrabalho", period: "2026-ANUAL", weight: 30, target_value: 5, current_value: 2, unit: "%", operator: "<=", owner_name: "Pedro Alves", department_name: "Produção", has_history: true, progress_pct: 40 },
+  { id: "__m6", title: "Faturamento T2", period: "2026-Q2", weight: 25, target_value: 350000, current_value: 340000, unit: "R$", operator: ">=", owner_name: "Fernanda Costa", department_name: "Comercial", has_history: true, progress_pct: 97 },
 ];
 
 function exportCSV(rows: GoalReportRow[]) {
@@ -209,6 +210,7 @@ export default function ReportsView({ rows }: { rows: GoalReportRow[] }) {
                     </span>
                   </TableCell>
                   <TableCell className="text-right text-sm font-mono">
+                    <span className="text-muted-foreground mr-0.5 font-bold">{OP_SYMBOL[r.operator] ?? r.operator}</span>
                     {formatGoalValue(r.target_value, r.unit)}
                   </TableCell>
                   <TableCell className="text-right text-sm font-mono">

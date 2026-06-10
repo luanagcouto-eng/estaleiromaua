@@ -11,6 +11,7 @@ import { Form, FormField, FormItem, FormLabel, FormControl, FormMessage } from "
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 
 interface Profile    { id: string; name: string; email: string; }
 interface Department { id: string; name: string; sector: string; }
@@ -20,8 +21,14 @@ interface UserRow extends Profile {
   department_id:   string | null;
   department_ids?: string[];
   superior_id:     string | null;
+  avatar_url?:     string | null;
   department:      Department | null;
   superior:        Profile | null;
+}
+
+function initials(name: string): string {
+  const parts = name.trim().split(/\s+/);
+  return ((parts[0]?.[0] ?? "") + (parts[parts.length - 1]?.[0] ?? "")).toUpperCase();
 }
 
 interface Props {
@@ -96,6 +103,7 @@ export default function UserEditDialog({ open, onClose, user, allProfiles, depar
       role:           "manager",
       department_ids: [],
       superior_id:    null,
+      avatar_url:     "",
     },
   });
 
@@ -106,6 +114,7 @@ export default function UserEditDialog({ open, onClose, user, allProfiles, depar
         role:           user.role as UserUpdateValues["role"],
         department_ids: user.department_ids ?? (user.department_id ? [user.department_id] : []),
         superior_id:    user.superior_id,
+        avatar_url:     user.avatar_url ?? "",
       });
     }
   }, [user, open, form]);
@@ -191,6 +200,24 @@ export default function UserEditDialog({ open, onClose, user, allProfiles, depar
                     ))}
                   </SelectContent>
                 </Select>
+                <FormMessage />
+              </FormItem>
+            )} />
+
+            <FormField control={form.control} name="avatar_url" render={({ field }) => (
+              <FormItem>
+                <FormLabel>Foto de perfil (URL do Google ou outra fonte)</FormLabel>
+                <div className="flex items-center gap-3">
+                  <Avatar className="h-10 w-10 shrink-0">
+                    <AvatarImage src={field.value || undefined} alt={user?.name ?? ""} />
+                    <AvatarFallback className="bg-[#364B59] text-white">
+                      {initials(user?.name ?? "")}
+                    </AvatarFallback>
+                  </Avatar>
+                  <FormControl>
+                    <Input placeholder="https://..." {...field} value={field.value ?? ""} />
+                  </FormControl>
+                </div>
                 <FormMessage />
               </FormItem>
             )} />

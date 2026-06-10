@@ -3,7 +3,7 @@
 import { Building2, Users2, Target, TrendingUp } from "lucide-react";
 import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetDescription } from "@/components/ui/sheet";
 import { Badge } from "@/components/ui/badge";
-import { goalTextClass, goalColor, formatGoalValue } from "@/lib/utils";
+import { goalTextClass, goalColor, formatGoalValue, OP_SYMBOL } from "@/lib/utils";
 
 const PERIOD_LABELS: Record<string, string> = {
   "2026-ANUAL": "Anual",
@@ -41,6 +41,7 @@ export interface NodeDetailGoal {
   current_value: number;
   target_value: number;
   unit: string;
+  operator: string;
 }
 
 export interface NodeDetail {
@@ -167,7 +168,8 @@ export default function NodeDetailSheet({ node, onClose }: Props) {
                         <div className="flex items-center justify-between gap-2 text-xs text-muted-foreground">
                           <span>
                             Atual: <span className="font-semibold text-text">{formatGoalValue(goal.current_value, goal.unit)}</span>
-                            {" "}/ Meta: <span className="font-semibold text-text">{formatGoalValue(goal.target_value, goal.unit)}</span>
+                            {" "}/ Meta: <span className="font-mono font-bold text-muted-foreground">{OP_SYMBOL[goal.operator] ?? goal.operator}</span>{" "}
+                            <span className="font-semibold text-text">{formatGoalValue(goal.target_value, goal.unit)}</span>
                           </span>
                           <Badge className={`text-[10px] px-2 py-0.5 shrink-0 ${goalTextClass(goal.progress)}`}>
                             {goal.progress}%

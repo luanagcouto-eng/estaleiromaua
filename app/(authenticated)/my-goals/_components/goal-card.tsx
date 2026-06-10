@@ -3,12 +3,10 @@
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { calcProgress, formatGoalValue } from "@/lib/utils";
+import { calcProgress, formatGoalValue, OP_SYMBOL } from "@/lib/utils";
 import ProgressRing from "@/components/ui/progress-ring";
 import GoalEntryDialog from "./goal-entry-dialog";
 import GoalHistoryList, { type GoalHistoryEntry } from "./goal-history-list";
-
-const OP_SYMBOL: Record<string, string> = { ">=": "≥", ">": ">", "<=": "≤", "<": "<", "=": "=" };
 
 export interface GoalCardData {
   id: string;
@@ -99,6 +97,7 @@ export default function GoalCard({ goal }: { goal: GoalCardData }) {
         goalTitle={goal.title}
         unit={goal.unit}
         targetValue={goal.target_value}
+        operator={goal.operator}
         goalPeriod={goal.period}
       />
     </div>

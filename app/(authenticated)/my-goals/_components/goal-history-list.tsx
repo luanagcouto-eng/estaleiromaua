@@ -35,6 +35,7 @@ export interface GoalHistoryGoalContext {
   title: string;
   unit: string;
   target_value: number;
+  operator: string;
   period: string;
 }
 
@@ -187,6 +188,7 @@ export default function GoalHistoryList({ entries, goal }: Props) {
           goalTitle={goal.title}
           unit={goal.unit}
           targetValue={goal.target_value}
+          operator={goal.operator}
           goalPeriod={goal.period}
           entry={editingEntry}
         />

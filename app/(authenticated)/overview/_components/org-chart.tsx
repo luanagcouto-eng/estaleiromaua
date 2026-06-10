@@ -14,6 +14,7 @@ export interface GoalItem {
   current_value: number;
   target_value: number;
   unit: string;
+  operator: string;
 }
 
 export interface OrgChartSector {

@@ -79,7 +79,7 @@ export default async function OverviewPage() {
     supabase.from("org_chart_progress").select("*"),
     supabase.from("company_progress").select("*"),
     supabase.from("profiles").select("id, name, department_id, role"),
-    supabase.from("goals").select("id, title, period, target_value, current_value, unit, department_id").like("period", "2026%"),
+    supabase.from("goals").select("id, title, period, target_value, current_value, unit, operator, department_id").like("period", "2026%"),
     supabase.from("goal_history").select("id, goal_id, period, action_plan, recorded_at").not("action_plan", "is", null),
   ]);
 
@@ -114,6 +114,7 @@ export default async function OverviewPage() {
       current_value: Number(g.current_value),
       target_value: Number(g.target_value),
       unit: g.unit,
+      operator: g.operator,
     });
     goalsByDept.set(g.department_id, list);
   }
@@ -207,6 +208,7 @@ export default async function OverviewPage() {
       currentValue: Number(goal.current_value),
       targetValue: Number(goal.target_value),
       unit: goal.unit,
+      operator: goal.operator,
     });
   }
 

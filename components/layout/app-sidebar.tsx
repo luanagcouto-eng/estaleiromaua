@@ -57,16 +57,29 @@ const IconOrg = () => (
   </svg>
 );
 
+const IconFlag = () => (
+  <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.8}
+      d="M5 3v18M5 4h11l-1.5 3L16 10H5" />
+  </svg>
+);
+
 // Permissões por role:
-// CEO:      Visão Geral · Minha Equipe · Relatórios · Metas > Atualização
-// Diretor:  Visão Geral · Minha Equipe · Relatórios · Metas > Atualização
-// Gestor:   Visão Geral · Metas > Atualização
+// CEO:      Visão Geral · Minhas Metas · Minha Equipe · Relatórios · Metas > Atualização
+// Diretor:  Visão Geral · Minhas Metas · Minha Equipe · Relatórios · Metas > Atualização
+// Gestor:   Visão Geral · Minhas Metas · Metas > Atualização
 // Admin:    todas as páginas
 const NAV_ITEMS: NavItem[] = [
   {
     label: "Visão Geral",
     href: "/overview",
     icon: <IconOrg />,
+    roles: ["ceo", "director", "manager", "admin"],
+  },
+  {
+    label: "Minhas Metas",
+    href: "/my-targets",
+    icon: <IconFlag />,
     roles: ["ceo", "director", "manager", "admin"],
   },
   {

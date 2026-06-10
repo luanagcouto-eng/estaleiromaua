@@ -8,13 +8,13 @@ export async function updateUserProfile(id: string, raw: unknown) {
   const parsed = userUpdateSchema.safeParse(raw);
   if (!parsed.success) return { error: parsed.error.flatten().fieldErrors };
 
-  const { department_ids = [], ...rest } = parsed.data;
+  const { department_ids = [], avatar_url, ...rest } = parsed.data;
   const department_id = department_ids.length > 0 ? department_ids[0] : null;
 
   const supabase = await createClient();
   const { error } = await supabase
     .from("profiles")
-    .update({ ...rest, department_id })
+    .update({ ...rest, department_id, avatar_url: avatar_url || null })
     .eq("id", id);
 
   if (error) return { error: { _root: [error.message] } };
@@ -35,13 +35,13 @@ export async function createUserProfile(raw: unknown) {
   const parsed = userCreateSchema.safeParse(raw);
   if (!parsed.success) return { error: parsed.error.flatten().fieldErrors };
 
-  const { department_ids = [], ...rest } = parsed.data;
+  const { department_ids = [], avatar_url, ...rest } = parsed.data;
   const department_id = department_ids.length > 0 ? department_ids[0] : null;
 
   const supabase = await createClient();
   const { data: newProfile, error } = await supabase
     .from("profiles")
-    .insert({ ...rest, department_id, is_placeholder: true })
+    .insert({ ...rest, department_id, avatar_url: avatar_url || null, is_placeholder: true })
     .select("id")
     .single();
 

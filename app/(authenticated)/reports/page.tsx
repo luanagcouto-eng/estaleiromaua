@@ -13,6 +13,7 @@ interface GoalRow {
   target_value: number;
   current_value: number;
   unit: string;
+  operator: string;
   owner: { name: string } | null;
   department: { name: string } | null;
 }
@@ -31,7 +32,7 @@ export default async function ReportsPage() {
   const [{ data: rawGoals }, { data: history }] = await Promise.all([
     supabase
       .from("goals")
-      .select("id, title, period, weight, target_value, current_value, unit, owner:profiles!owner_id(name), department:departments!department_id(name)")
+      .select("id, title, period, weight, target_value, current_value, unit, operator, owner:profiles!owner_id(name), department:departments!department_id(name)")
       .like("period", "2026%")
       .order("department_id")
       .order("weight", { ascending: false }),
@@ -54,6 +55,7 @@ export default async function ReportsPage() {
     target_value: Number(g.target_value),
     current_value: Number(g.current_value),
     unit: g.unit,
+    operator: g.operator,
     owner_name: g.owner?.name ?? "—",
     department_name: g.department?.name ?? "—",
     has_history: goalsWithHistory.has(g.id),

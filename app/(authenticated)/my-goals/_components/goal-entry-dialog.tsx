@@ -13,7 +13,7 @@ import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Button } from "@/components/ui/button";
 import { Select, SelectContent, SelectItem, SelectTrigger } from "@/components/ui/select";
-import { formatGoalValue } from "@/lib/utils";
+import { formatGoalValue, OP_SYMBOL } from "@/lib/utils";
 
 const PERIOD_LABELS: Record<string, string> = {
   "2026-ANUAL": "Anual (2026)",
@@ -45,6 +45,7 @@ interface Props {
   goalTitle: string;
   unit: string;
   targetValue: number;
+  operator: string;
   goalPeriod: string;
   entry?: EditableGoalEntry | null;
 }
@@ -83,7 +84,7 @@ function entryToFormValues(entry: EditableGoalEntry, goalPeriod: string): GoalEn
   };
 }
 
-export default function GoalEntryDialog({ open, onClose, goalId, goalTitle, unit, targetValue, goalPeriod, entry }: Props) {
+export default function GoalEntryDialog({ open, onClose, goalId, goalTitle, unit, targetValue, operator, goalPeriod, entry }: Props) {
   const [pending, setPending] = useState(false);
   const [uploading, setUploading] = useState(false);
   const [fileName, setFileName] = useState<string | null>(null);
@@ -175,7 +176,9 @@ export default function GoalEntryDialog({ open, onClose, goalId, goalTitle, unit
         </DialogHeader>
 
         <p className="text-sm text-muted-foreground -mt-2">
-          {goalTitle} · meta: <span className="font-medium text-text">{formatGoalValue(targetValue, unit)}</span>
+          {goalTitle} · meta:{" "}
+          <span className="font-mono font-bold">{OP_SYMBOL[operator] ?? operator}</span>{" "}
+          <span className="font-medium text-text">{formatGoalValue(targetValue, unit)}</span>
         </p>
 
         <Form {...form}>

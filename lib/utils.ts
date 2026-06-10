@@ -19,6 +19,9 @@ export function goalTextClass(pct: number): string {
   return "text-[#7C2737] bg-[#DFA1AA]";                  // vermelho
 }
 
+/** Símbolo do operador definido na criação da meta (>=, <=, etc.) */
+export const OP_SYMBOL: Record<string, string> = { ">=": "≥", ">": ">", "<=": "≤", "<": "<", "=": "=" };
+
 /** Formata valor de meta conforme unidade */
 export function formatGoalValue(value: number, unit: string): string {
   if (unit === "R$") {

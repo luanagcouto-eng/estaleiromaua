@@ -2,7 +2,7 @@
 
 import { ClipboardList } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
-import { goalTextClass, goalColor, formatGoalValue } from "@/lib/utils";
+import { goalTextClass, goalColor, formatGoalValue, OP_SYMBOL } from "@/lib/utils";
 
 const PERIOD_LABELS: Record<string, string> = {
   "2026-ANUAL": "Anual",
@@ -23,6 +23,7 @@ export interface ActionPlanItem {
   currentValue: number;
   targetValue: number;
   unit: string;
+  operator: string;
 }
 
 interface Props {
@@ -62,7 +63,8 @@ export default function ActionPlansSection({ actionPlans, scopeId }: Props) {
               </div>
               <p className="text-xs text-muted-foreground">
                 Atual: <span className="font-semibold text-text">{formatGoalValue(p.currentValue, p.unit)}</span>
-                {" "}/ Meta: <span className="font-semibold text-text">{formatGoalValue(p.targetValue, p.unit)}</span>
+                {" "}/ Meta: <span className="font-mono font-bold text-muted-foreground">{OP_SYMBOL[p.operator] ?? p.operator}</span>{" "}
+                <span className="font-semibold text-text">{formatGoalValue(p.targetValue, p.unit)}</span>
               </p>
               <div className="h-1.5 rounded-full bg-gray-100 overflow-hidden">
                 <div

@@ -1,15 +1,13 @@
 "use client";
 
 import React, { useState } from "react";
-import { calcProgress, formatGoalValue } from "@/lib/utils";
+import { calcProgress, formatGoalValue, OP_SYMBOL } from "@/lib/utils";
 import GoalEntryDialog from "./goal-entry-dialog";
 import GoalHistoryList from "./goal-history-list";
 import type { GoalCardData } from "./goal-card";
 import { Input } from "@/components/ui/input";
 
 // ─── helpers ─────────────────────────────────────────────────────────────────
-
-const OP_SYMBOL: Record<string, string> = { ">=": "≥", ">": ">", "<=": "≤", "<": "<", "=": "=" };
 
 function progressColor(pct: number) {
   if (pct >= 90) return "#22c55e";
@@ -306,6 +304,7 @@ export default function GoalsExecutiveTable({ goals }: { goals: GoalCardData[] }
           goalTitle={entryGoal.title}
           unit={entryGoal.unit}
           targetValue={entryGoal.target_value}
+          operator={entryGoal.operator}
           goalPeriod={entryGoal.period}
         />
       )}

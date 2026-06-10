@@ -5,6 +5,7 @@ import { Trash2 } from "lucide-react";
 import { toast } from "sonner";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Button } from "@/components/ui/button";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
 import UserEditDialog   from "./user-edit-dialog";
 import UserCreateDialog from "./user-create-dialog";
@@ -18,8 +19,14 @@ interface UserRow extends Profile {
   department_ids?: string[];
   superior_id:     string | null;
   is_placeholder?: boolean;
+  avatar_url?:     string | null;
   department:      Department | null;
   superior:        Profile | null;
+}
+
+function initials(name: string): string {
+  const parts = name.trim().split(/\s+/);
+  return ((parts[0]?.[0] ?? "") + (parts[parts.length - 1]?.[0] ?? "")).toUpperCase();
 }
 
 const ROLE_BADGES: Record<string, string> = {
@@ -99,7 +106,17 @@ export default function UsersTable({ users, departments, allProfiles }: Props) {
             ) : (
               users.map((u) => (
                 <TableRow key={u.id} className="hover:bg-surface/50">
-                  <TableCell className="font-medium">{u.name}</TableCell>
+                  <TableCell className="font-medium">
+                    <div className="flex items-center gap-2">
+                      <Avatar className="h-7 w-7 shrink-0">
+                        <AvatarImage src={u.avatar_url ?? undefined} alt={u.name} />
+                        <AvatarFallback className="text-[10px] bg-[#364B59] text-white">
+                          {initials(u.name)}
+                        </AvatarFallback>
+                      </Avatar>
+                      {u.name}
+                    </div>
+                  </TableCell>
                   <TableCell className="text-sm text-muted-foreground">{u.email}</TableCell>
                   <TableCell className="text-center">
                     <span className={`text-xs font-semibold px-2 py-0.5 rounded-full ${ROLE_BADGES[u.role] ?? "bg-gray-100"}`}>

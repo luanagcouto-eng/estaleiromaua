@@ -3,7 +3,7 @@
 import { useMemo, useState } from "react";
 import { toast } from "sonner";
 import { deleteGoal } from "@/lib/actions/goals";
-import { formatGoalValue, calcProgress, goalTextClass } from "@/lib/utils";
+import { formatGoalValue, calcProgress, goalTextClass, OP_SYMBOL } from "@/lib/utils";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -13,7 +13,6 @@ import type { GoalFormValues } from "@/lib/schemas/goal";
 
 interface Profile   { id: string; name: string; email: string; }
 interface Department { id: string; name: string; sector: string; parent_id: string | null; }
-const OP_SYMBOL: Record<string, string> = { ">=": "≥", ">": ">", "<=": "≤", "<": "<", "=": "=" };
 
 interface GoalRow {
   id: string; title: string; description: string | null;

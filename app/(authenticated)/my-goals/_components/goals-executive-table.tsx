@@ -189,7 +189,7 @@ function GoalTableSection({
                   {isExpanded && (
                     <tr className="bg-slate-50/80">
                       <td colSpan={5} className="px-8 py-4 border-t border-slate-100">
-                        <div className="space-y-3 max-w-2xl">
+                        <div className="space-y-3">
                           <p className="text-[10px] font-black uppercase tracking-widest text-slate-400">
                             Histórico de lançamentos
                           </p>

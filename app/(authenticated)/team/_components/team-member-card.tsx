@@ -14,6 +14,8 @@ const PERIOD_LABELS: Record<string, string> = {
   "2026-Q4": "4º Trimestre",
 };
 
+const OP_SYMBOL: Record<string, string> = { ">=": "≥", ">": ">", "<=": "≤", "<": "<", "=": "=" };
+
 export interface TeamGoalData {
   id: string;
   title: string;
@@ -22,6 +24,7 @@ export interface TeamGoalData {
   target_value: number;
   current_value: number;
   unit: string;
+  operator: string;
   has_history: boolean;
 }
 
@@ -135,7 +138,10 @@ export default function TeamMemberCard({ member }: { member: TeamMemberData }) {
                         </td>
                         <td className="py-2.5 px-3 text-center text-muted-foreground">{g.weight}%</td>
                         <td className="py-2.5 px-3 text-right tabular-nums font-medium text-text">{formatGoalValue(g.current_value, g.unit)}</td>
-                        <td className="py-2.5 px-3 text-right tabular-nums font-medium text-text">{formatGoalValue(g.target_value, g.unit)}</td>
+                        <td className="py-2.5 px-3 text-right tabular-nums font-medium text-text">
+                          <span className="font-mono font-bold text-muted-foreground mr-1">{OP_SYMBOL[g.operator] ?? g.operator}</span>
+                          {formatGoalValue(g.target_value, g.unit)}
+                        </td>
                         <td className="py-2.5 px-3">
                           <div className="flex items-center gap-2">
                             <div className="flex-1 h-1.5 rounded-full bg-gray-100 overflow-hidden min-w-[60px]">

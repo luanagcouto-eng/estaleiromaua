@@ -22,6 +22,7 @@ interface GoalRow {
   target_value: number;
   current_value: number;
   unit: string;
+  operator: string;
   owner_id: string;
 }
 
@@ -60,7 +61,7 @@ export default async function TeamPage() {
     memberIds.length
       ? supabase
           .from("goals")
-          .select("id, title, period, weight, target_value, current_value, unit, owner_id")
+          .select("id, title, period, weight, target_value, current_value, unit, operator, owner_id")
           .in("owner_id", memberIds)
           .like("period", "2026%")
           .order("period")
@@ -102,6 +103,7 @@ export default async function TeamPage() {
       target_value: g.target_value,
       current_value: g.current_value,
       unit: g.unit,
+      operator: g.operator,
       has_history: goalsWithHistory.has(g.id),
     }));
 

@@ -175,7 +175,7 @@ export default function OrgChart({ ceo, nodes, scopeId }: Props) {
 
   return (
     <div className="overflow-x-auto pb-4 bg-white">
-      <div className="min-w-[920px] flex flex-col items-center px-6 pt-2 gap-0 bg-white">
+      <div className={`flex flex-col items-center px-6 pt-2 gap-0 bg-white ${scopedNode ? "w-full" : "min-w-[920px]"}`}>
 
         {!scopedNode && (
           <>

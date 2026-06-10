@@ -230,7 +230,7 @@ export default function GoalsTable({ goals, profiles, departments }: Props) {
       <div className={`rounded-xl border border-border bg-white overflow-hidden${isMock ? " opacity-50 pointer-events-none select-none" : ""}`}>
         <Table>
           <TableHeader>
-            <TableRow className="bg-surface">
+            <TableRow className="bg-[#364B59]/20">
               <TableHead
                 className="cursor-pointer select-none hover:text-[#364B59]"
                 onClick={() => !isMock && toggleSort("title")}

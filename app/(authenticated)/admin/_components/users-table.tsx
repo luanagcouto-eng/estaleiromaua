@@ -86,7 +86,7 @@ export default function UsersTable({ users, departments, allProfiles }: Props) {
       <div className="rounded-xl border border-border bg-white overflow-hidden">
         <Table>
           <TableHeader>
-            <TableRow className="bg-surface">
+            <TableRow className="bg-[#364B59]/20">
               <TableHead>Nome</TableHead>
               <TableHead>E-mail</TableHead>
               <TableHead className="text-center">Role</TableHead>

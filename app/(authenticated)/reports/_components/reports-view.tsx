@@ -175,7 +175,7 @@ export default function ReportsView({ rows }: { rows: GoalReportRow[] }) {
       <div className={`rounded-xl border border-border bg-white overflow-hidden${isMock ? " opacity-50 pointer-events-none select-none" : ""}`}>
         <Table>
           <TableHeader>
-            <TableRow className="bg-surface">
+            <TableRow className="bg-[#364B59]/20">
               <TableHead>Título</TableHead>
               <TableHead>Responsável</TableHead>
               <TableHead>Departamento</TableHead>

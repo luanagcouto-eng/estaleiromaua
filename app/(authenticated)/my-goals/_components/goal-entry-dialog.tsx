@@ -5,7 +5,7 @@ import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { toast } from "sonner";
 import { buildGoalEntrySchema, GOAL_PERIODS, type GoalEntryFormValues } from "@/lib/schemas/goal-entry";
-import { createGoalEntry } from "@/lib/actions/goal-history";
+import { createGoalEntry, updateGoalEntry } from "@/lib/actions/goal-history";
 import { createClient } from "@/lib/supabase/client";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
 import { Form, FormField, FormItem, FormLabel, FormControl, FormMessage, FormDescription } from "@/components/ui/form";
@@ -25,6 +25,19 @@ const PERIOD_LABELS: Record<string, string> = {
 
 const FIVE_WHYS_INDEXES = [0, 1, 2, 3, 4] as const;
 
+export interface EditableGoalEntry {
+  id: string;
+  value: number;
+  period: string | null;
+  data_source: string | null;
+  criteria: string | null;
+  formula_used: string | null;
+  evidence_url: string[] | null;
+  justification: string | null;
+  five_whys: string[] | null;
+  action_plan: string | null;
+}
+
 interface Props {
   open: boolean;
   onClose: () => void;
@@ -33,6 +46,7 @@ interface Props {
   unit: string;
   targetValue: number;
   goalPeriod: string;
+  entry?: EditableGoalEntry | null;
 }
 
 const DEFAULTS: GoalEntryFormValues = {
@@ -49,7 +63,27 @@ const DEFAULTS: GoalEntryFormValues = {
 const MAX_FILE_MB = 10;
 const FILE_ACCEPT = "image/*,application/pdf,.csv,.xlsx,text/csv,application/vnd.ms-excel,application/vnd.openxmlformats-officedocument.spreadsheetml.sheet";
 
-export default function GoalEntryDialog({ open, onClose, goalId, goalTitle, unit, targetValue, goalPeriod }: Props) {
+function entryToFormValues(entry: EditableGoalEntry, goalPeriod: string): GoalEntryFormValues {
+  const period = (GOAL_PERIODS as readonly string[]).includes(entry.period ?? "")
+    ? (entry.period as typeof GOAL_PERIODS[number])
+    : (GOAL_PERIODS as readonly string[]).includes(goalPeriod)
+      ? (goalPeriod as typeof GOAL_PERIODS[number])
+      : "2026-Q2";
+
+  return {
+    period,
+    value: entry.value,
+    data_source: entry.data_source ?? "",
+    criteria: entry.criteria ?? "",
+    formula_used: entry.formula_used ?? "",
+    evidence_url: entry.evidence_url?.[0] ?? "",
+    justification: entry.justification ?? "",
+    five_whys: entry.five_whys && entry.five_whys.length === 5 ? entry.five_whys : ["", "", "", "", ""],
+    action_plan: entry.action_plan ?? "",
+  };
+}
+
+export default function GoalEntryDialog({ open, onClose, goalId, goalTitle, unit, targetValue, goalPeriod, entry }: Props) {
   const [pending, setPending] = useState(false);
   const [uploading, setUploading] = useState(false);
   const [fileName, setFileName] = useState<string | null>(null);
@@ -64,10 +98,14 @@ export default function GoalEntryDialog({ open, onClose, goalId, goalTitle, unit
 
   useEffect(() => {
     if (open) {
-      form.reset({ ...DEFAULTS, period: (GOAL_PERIODS as readonly string[]).includes(goalPeriod) ? goalPeriod as typeof GOAL_PERIODS[number] : "2026-Q2" });
+      form.reset(
+        entry
+          ? entryToFormValues(entry, goalPeriod)
+          : { ...DEFAULTS, period: (GOAL_PERIODS as readonly string[]).includes(goalPeriod) ? goalPeriod as typeof GOAL_PERIODS[number] : "2026-Q2" }
+      );
       setFileName(null);
     }
-  }, [open, form, goalPeriod]);
+  }, [open, form, goalPeriod, entry]);
 
   const enteredValue = form.watch("value");
   const exceedsTarget = Number.isFinite(enteredValue) && Number(enteredValue) > targetValue;
@@ -116,14 +154,16 @@ export default function GoalEntryDialog({ open, onClose, goalId, goalTitle, unit
 
   async function onSubmit(values: GoalEntryFormValues) {
     setPending(true);
-    const result = await createGoalEntry(goalId, values);
+    const result = entry
+      ? await updateGoalEntry(entry.id, values)
+      : await createGoalEntry(goalId, values);
     setPending(false);
 
     if (result?.error) {
       toast.error("Erro ao registrar lançamento. Verifique os campos.");
       return;
     }
-    toast.success("Resultado lançado com sucesso!");
+    toast.success(entry ? "Lançamento atualizado com sucesso!" : "Resultado lançado com sucesso!");
     onClose();
   }
 
@@ -131,7 +171,7 @@ export default function GoalEntryDialog({ open, onClose, goalId, goalTitle, unit
     <Dialog open={open} onOpenChange={onClose}>
       <DialogContent className="max-w-2xl sm:max-w-3xl max-h-[90vh] overflow-y-auto">
         <DialogHeader>
-          <DialogTitle className="text-[#364B59]">Lançar resultado</DialogTitle>
+          <DialogTitle className="text-[#364B59]">{entry ? "Editar lançamento" : "Lançar resultado"}</DialogTitle>
         </DialogHeader>
 
         <p className="text-sm text-muted-foreground -mt-2">
@@ -301,7 +341,7 @@ export default function GoalEntryDialog({ open, onClose, goalId, goalTitle, unit
               <Button type="button" variant="outline" onClick={onClose}>Cancelar</Button>
               <Button type="submit" disabled={pending || uploading}
                 className="bg-[#364B59] hover:bg-[#2D3F4A] text-white">
-                {pending ? "Enviando..." : "Lançar resultado"}
+                {pending ? "Enviando..." : entry ? "Salvar alterações" : "Lançar resultado"}
               </Button>
             </DialogFooter>
 

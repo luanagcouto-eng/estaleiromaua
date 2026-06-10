@@ -191,7 +191,7 @@ function GoalTableSection({
                           <p className="text-[10px] font-black uppercase tracking-widest text-slate-400">
                             Histórico de lançamentos
                           </p>
-                          <GoalHistoryList entries={goal.history} unit={goal.unit} />
+                          <GoalHistoryList entries={goal.history} goal={goal} />
                           <button
                             type="button"
                             onClick={(e) => { e.stopPropagation(); onLaunch(goal); }}

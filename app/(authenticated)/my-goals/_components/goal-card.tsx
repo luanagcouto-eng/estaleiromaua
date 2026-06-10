@@ -87,7 +87,7 @@ export default function GoalCard({ goal }: { goal: GoalCardData }) {
       {historyOpen && (
         <div className="pt-1 border-t border-border">
           <div className="pt-3">
-            <GoalHistoryList entries={goal.history} unit={goal.unit} />
+            <GoalHistoryList entries={goal.history} goal={goal} />
           </div>
         </div>
       )}

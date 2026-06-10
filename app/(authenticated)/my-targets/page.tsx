@@ -3,8 +3,8 @@ import { redirect } from "next/navigation";
 import { calcProgress } from "@/lib/utils";
 import type { GoalCardData } from "../my-goals/_components/goal-card";
 import type { GoalHistoryEntry } from "../my-goals/_components/goal-history-list";
-import GoalsExecutiveTable from "../my-goals/_components/goals-executive-table";
-import GoalAlertsPanel, { type GoalAlert } from "@/components/alerts/goal-alerts-panel";
+import MyTargetsTable from "./_components/my-targets-table";
+import ActionPlansSection, { type ActionPlanItem } from "../overview/_components/action-plans-section";
 
 export const metadata = { title: "Minhas Metas — Metas Mauá 2026" };
 
@@ -68,27 +68,28 @@ export default async function MyTargetsPage() {
     history: historyByGoal.get(g.id) ?? [],
   }));
 
-  // Alertas
-  const alerts: GoalAlert[] = [];
-  const currentMonth = new Date().getMonth() + 1;
-  const currentQuarter =
-    currentMonth <= 3 ? "2026-Q1" :
-    currentMonth <= 6 ? "2026-Q2" :
-    currentMonth <= 9 ? "2026-Q3" : "2026-Q4";
-
-  const goalsWithHistory = new Set((history ?? []).map((e) => e.goal_id));
-
+  // Planos de ação criados — última entrada com action_plan por meta, para metas ainda não atingidas
+  const actionPlans: ActionPlanItem[] = [];
   for (const g of rows) {
-    const hasHistory = goalsWithHistory.has(g.id);
-    const pct = calcProgress(Number(g.current_value), Number(g.target_value));
+    const entry = (historyByGoal.get(g.id) ?? []).find((e) => e.action_plan?.trim());
+    if (!entry?.action_plan) continue;
 
-    if (!hasHistory && g.period !== currentQuarter) {
-      alerts.push({ type: "no-history", title: g.title, period: g.period });
-    } else if (!hasHistory && g.period === currentQuarter) {
-      alerts.push({ type: "quarter-pending", title: g.title, period: g.period });
-    } else if (g.period === "2026-ANUAL" && pct < 50) {
-      alerts.push({ type: "at-risk", title: g.title, period: g.period, progress: pct });
-    }
+    const progress = calcProgress(Number(g.current_value), Number(g.target_value));
+    if (progress >= 100) continue;
+
+    actionPlans.push({
+      id: entry.id,
+      goalId: g.id,
+      goalTitle: g.title,
+      directorateId: null,
+      period: entry.period,
+      actionPlan: entry.action_plan,
+      progress,
+      currentValue: Number(g.current_value),
+      targetValue: Number(g.target_value),
+      unit: g.unit,
+      operator: g.operator,
+    });
   }
 
   return (
@@ -101,14 +102,17 @@ export default async function MyTargetsPage() {
         </p>
       </div>
 
-      <GoalAlertsPanel alerts={alerts} />
-
       {goalCards.length === 0 ? (
         <div className="bg-white rounded-xl border border-border p-10 text-center text-muted-foreground">
           <p className="text-sm">Nenhuma meta atribuída a você ainda. Procure seu gestor ou o time de Admin.</p>
         </div>
       ) : (
-        <GoalsExecutiveTable goals={goalCards} />
+        <>
+          <MyTargetsTable goals={goalCards} />
+          <div className="bg-white rounded-xl border border-border">
+            <ActionPlansSection actionPlans={actionPlans} scopeId="all" />
+          </div>
+        </>
       )}
     </div>
   );

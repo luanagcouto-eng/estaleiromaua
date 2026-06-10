@@ -185,7 +185,7 @@ export default function GoalsTable({ goals, profiles, departments }: Props) {
             className="h-8 text-sm w-[200px] bg-white"
           />
           <Select value={filterOwner} onValueChange={(v) => setFilterOwner(v ?? "all")}>
-            <SelectTrigger className="h-8 text-sm w-[190px]">
+            <SelectTrigger className="h-8 text-sm w-[190px] bg-white">
               <SelectValue placeholder="Todos os responsáveis">
                 {(value: string) =>
                   value === "all" ? "Todos os responsáveis" : labelFromOptions(value, uniqueOwners, "Todos os responsáveis")

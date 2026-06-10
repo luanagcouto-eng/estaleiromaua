@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { Network } from "lucide-react";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { labelFromOptions } from "@/lib/utils";
 import OrgChart, { type OrgChartNodeData } from "./org-chart";
@@ -32,8 +33,13 @@ export default function OrgChartSection({
 
   return (
     <div className="bg-white">
-      {canCustomize && (
-        <div className="px-6 flex justify-end mb-4">
+      <div className="px-6 flex items-center justify-between mb-4">
+        <h3 className="flex items-center gap-1.5 text-sm font-semibold text-[#364B59]">
+          <Network className="w-4 h-4" aria-hidden />
+          Organograma
+        </h3>
+
+        {canCustomize && (
           <Select value={scopeId} onValueChange={(v) => setScopeId(v ?? "all")}>
             <SelectTrigger size="sm" className="bg-white">
               <SelectValue placeholder="Visão geral">
@@ -49,8 +55,8 @@ export default function OrgChartSection({
               ))}
             </SelectContent>
           </Select>
-        </div>
-      )}
+        )}
+      </div>
 
       <OrgChart ceo={ceo} nodes={nodes} scopeId={scopeId} />
 

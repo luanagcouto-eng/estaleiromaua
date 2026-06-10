@@ -1,11 +1,10 @@
 "use client";
 
 import { useState } from "react";
-import { Users2 } from "lucide-react";
+import { Users2, ChevronRight } from "lucide-react";
 import { goalColor } from "@/lib/utils";
 import OrgNode from "./org-node";
 import NodeDetailSheet, { type NodeDetail } from "./node-detail-sheet";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 
 export interface GoalItem {
   id: string;
@@ -21,13 +20,18 @@ export interface OrgChartSector {
   id: string;
   name: string;
   responsible: string | null;
+  progress: number;
 }
 
 export interface OrgChartSubDept {
   id: string;
   name: string;
+  director: string | null;
+  isPlaceholder: boolean;
   progress: number;
-  responsible: string | null;
+  goalsCount: number;
+  goalsCompleted: number;
+  goals: GoalItem[];
   sectors: OrgChartSector[];
 }
 
@@ -43,17 +47,10 @@ export interface OrgChartNodeData {
   goals: GoalItem[];
 }
 
-interface DirectorateOption {
-  id: string;
-  name: string;
-}
-
 interface Props {
   ceo: { name: string | null; isPlaceholder: boolean; progress: number; goalsCount: number; goalsCompleted: number };
   nodes: OrgChartNodeData[];
-  directorateOptions: DirectorateOption[];
-  canCustomize: boolean;
-  defaultScopeId: string | null;
+  scopeId: string;
 }
 
 function SectionChip({ label }: { label: string }) {
@@ -64,20 +61,26 @@ function SectionChip({ label }: { label: string }) {
   );
 }
 
-function SubDeptCard({ dept }: { dept: OrgChartSubDept }) {
+function SubDeptCard({ dept, selected, onClick }: { dept: OrgChartSubDept; selected?: boolean; onClick?: () => void }) {
   const pct = Math.max(0, Math.min(100, dept.progress));
   const fillColor = goalColor(pct);
 
   return (
-    <div className="rounded-xl border border-border bg-white p-3.5 flex flex-col gap-2.5 shadow-sm">
+    <button
+      type="button"
+      onClick={onClick}
+      aria-pressed={selected}
+      className={`group w-full text-left rounded-xl border bg-white p-3.5 flex flex-col gap-2.5 shadow-sm transition-all
+        ${selected ? "ring-2 ring-[#F18213] ring-offset-2 border-border" : "border-border hover:shadow-md hover:-translate-y-0.5"}`}
+    >
       <div className="flex items-center gap-2.5">
         <span className="w-8 h-8 rounded-full bg-[#364B59]/10 border border-[#364B59]/10 flex items-center justify-center shrink-0">
           <Users2 className="w-4 h-4 text-[#364B59]/60" aria-hidden />
         </span>
         <div className="min-w-0 flex-1">
           <p className="text-sm font-bold text-[#364B59] leading-tight truncate">{dept.name}</p>
-          <p className={`text-xs truncate ${dept.responsible ? "text-[#364B59]/60" : "italic text-[#364B59]/40"}`}>
-            {dept.responsible ?? "Em aberto"}
+          <p className={`text-xs truncate ${dept.director ? "text-[#364B59]/60" : "italic text-[#364B59]/40"}`}>
+            {dept.director ?? "Em aberto"}
           </p>
         </div>
         <span className="text-xs font-extrabold tabular-nums shrink-0" style={{ color: fillColor }}>
@@ -103,51 +106,76 @@ function SubDeptCard({ dept }: { dept: OrgChartSubDept }) {
           ))}
         </div>
       )}
-    </div>
+      <span className="pt-2 mt-0.5 border-t border-[#364B59]/10 flex items-center justify-between text-[11px] font-semibold text-[#364B59]/50 group-hover:text-[#364B59] transition-colors">
+        Ver detalhes
+        <ChevronRight className="w-3.5 h-3.5" />
+      </span>
+    </button>
   );
 }
 
-export default function OrgChart({ ceo, nodes, directorateOptions, canCustomize, defaultScopeId }: Props) {
+export default function OrgChart({ ceo, nodes, scopeId }: Props) {
   const [selectedId, setSelectedId] = useState<string | null>(null);
-  const [scopeId, setScopeId] = useState<string>(defaultScopeId ?? "all");
+  const [prevScopeId, setPrevScopeId] = useState(scopeId);
 
-  const selectedNode = nodes.find((n) => n.id === selectedId) ?? null;
+  if (scopeId !== prevScopeId) {
+    setPrevScopeId(scopeId);
+    setSelectedId(null);
+  }
+
   const scopedNode = scopeId !== "all" ? nodes.find((n) => n.id === scopeId) ?? null : null;
 
-  const detail: NodeDetail | null = selectedNode
-    ? {
-        id: selectedNode.id,
-        name: selectedNode.name,
-        director: selectedNode.director,
-        isPlaceholder: selectedNode.isPlaceholder,
-        progress: selectedNode.progress,
-        goalsCount: selectedNode.goalsCount,
-        goalsCompleted: selectedNode.goalsCompleted,
-        subDepartments: selectedNode.subDepartments,
-        goals: selectedNode.goals,
-      }
-    : null;
+  const detail: NodeDetail | null = (() => {
+    if (!selectedId) return null;
+
+    const top = nodes.find((n) => n.id === selectedId);
+    if (top) {
+      return {
+        id: top.id,
+        name: top.name,
+        director: top.director,
+        isPlaceholder: top.isPlaceholder,
+        progress: top.progress,
+        goalsCount: top.goalsCount,
+        goalsCompleted: top.goalsCompleted,
+        subDepartments: top.subDepartments.map((s) => ({
+          id: s.id,
+          name: s.name,
+          progress: s.progress,
+          responsible: s.director,
+          sectors: s.sectors.map((sec) => ({ id: sec.id, name: sec.name, responsible: sec.responsible })),
+        })),
+        goals: top.goals,
+      };
+    }
+
+    const sub = scopedNode?.subDepartments.find((s) => s.id === selectedId);
+    if (sub) {
+      return {
+        id: sub.id,
+        name: sub.name,
+        director: sub.director,
+        isPlaceholder: sub.isPlaceholder,
+        progress: sub.progress,
+        goalsCount: sub.goalsCount,
+        goalsCompleted: sub.goalsCompleted,
+        subDepartments: sub.sectors.map((sec) => ({
+          id: sec.id,
+          name: sec.name,
+          progress: sec.progress,
+          responsible: sec.responsible,
+          sectors: [],
+        })),
+        goals: sub.goals,
+      };
+    }
+
+    return null;
+  })();
 
   return (
     <div className="overflow-x-auto pb-4 bg-white">
       <div className="min-w-[920px] flex flex-col items-center px-6 pt-2 gap-0 bg-white">
-
-        {/* Controle de customização (Admin/Diretor) */}
-        {canCustomize && (
-          <div className="w-full flex justify-end mb-4">
-            <Select value={scopeId} onValueChange={(v) => { setScopeId(v ?? "all"); setSelectedId(null); }}>
-              <SelectTrigger size="sm" className="bg-white">
-                <SelectValue placeholder="Visão geral" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="all">Visão geral (todas as diretorias)</SelectItem>
-                {directorateOptions.map((d) => (
-                  <SelectItem key={d.id} value={d.id}>{d.name}</SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-          </div>
-        )}
 
         {!scopedNode && (
           <>
@@ -206,9 +234,9 @@ export default function OrgChart({ ceo, nodes, directorateOptions, canCustomize,
 
         {scopedNode && (
           <>
-            {/* ── Nível 1: Diretor ── */}
+            {/* ── Diretoria ── */}
             <div className="flex flex-col items-center gap-0">
-              <SectionChip label="Nível 1 · Diretor" />
+              <SectionChip label="Diretoria" />
               <div className="h-3 w-px bg-slate-300" />
               <div className="w-64">
                 <OrgNode
@@ -226,19 +254,23 @@ export default function OrgChart({ ceo, nodes, directorateOptions, canCustomize,
             {/* Conector → seção Gerências */}
             <div className="flex flex-col items-center gap-0">
               <div className="h-4 w-px bg-slate-400" />
-              <SectionChip label="Nível 2 · Gerências" />
+              <SectionChip label="Gerências" />
               <div className="h-4 w-px bg-slate-400" />
             </div>
 
-            {/* ── Nível 2: Gerências ── */}
+            {/* ── Gerências ── */}
             {scopedNode.subDepartments.length > 0 ? (
               <div className="relative w-full">
                 <div className="absolute top-0 left-[10%] right-[10%] h-px bg-slate-400" />
-                <div className="grid grid-cols-3 gap-4 pt-8">
+                <div className="flex flex-row gap-4 pt-8">
                   {scopedNode.subDepartments.map((dept) => (
-                    <div key={dept.id} className="relative">
+                    <div key={dept.id} className="relative flex-1 min-w-0">
                       <div className="absolute -top-8 left-1/2 -translate-x-1/2 h-8 w-px bg-slate-400" />
-                      <SubDeptCard dept={dept} />
+                      <SubDeptCard
+                        dept={dept}
+                        selected={selectedId === dept.id}
+                        onClick={() => setSelectedId(dept.id)}
+                      />
                     </div>
                   ))}
                 </div>
@@ -248,7 +280,7 @@ export default function OrgChart({ ceo, nodes, directorateOptions, canCustomize,
             )}
 
             <p className="mt-6 text-[10px] text-slate-400 text-center">
-              Clique na diretoria para ver metas detalhadas · Selecione &ldquo;Visão geral&rdquo; para ver toda a empresa
+              Clique em uma gerência para ver metas detalhadas · Selecione &ldquo;Visão geral&rdquo; para ver toda a empresa
             </p>
           </>
         )}

@@ -2,7 +2,9 @@ import { createClient } from "@/lib/supabase/server";
 import { redirect } from "next/navigation";
 import { calcProgress } from "@/lib/utils";
 import { Users, Target, TrendingUp, Flag, Info } from "lucide-react";
-import OrgChart, { type OrgChartNodeData, type GoalItem } from "./_components/org-chart";
+import { type OrgChartNodeData, type GoalItem } from "./_components/org-chart";
+import OrgChartSection from "./_components/org-chart-section";
+import { type ActionPlanItem } from "./_components/action-plans-section";
 import OrgChartFooter from "./_components/org-chart-footer";
 import type { ReactNode } from "react";
 
@@ -73,11 +75,12 @@ export default async function OverviewPage() {
   const role = profile?.role;
   if (role !== "ceo" && role !== "admin" && role !== "director") redirect("/dashboard");
 
-  const [{ data: orgRows }, { data: companyRows }, { data: allProfiles }, { data: goalRows }] = await Promise.all([
+  const [{ data: orgRows }, { data: companyRows }, { data: allProfiles }, { data: goalRows }, { data: actionPlanRows }] = await Promise.all([
     supabase.from("org_chart_progress").select("*"),
     supabase.from("company_progress").select("*"),
     supabase.from("profiles").select("id, name, department_id, role"),
     supabase.from("goals").select("id, title, period, target_value, current_value, unit, department_id").like("period", "2026%"),
+    supabase.from("goal_history").select("id, goal_id, period, action_plan, recorded_at").not("action_plan", "is", null),
   ]);
 
   const rows = (orgRows ?? []) as OrgChartProgressRow[];
@@ -141,17 +144,25 @@ export default async function OverviewPage() {
       goalsCount: Number(dept.goals_count),
       goalsCompleted: Number(dept.goals_completed),
       goals: goalsByDept.get(dept.department_id) ?? [],
-      subDepartments: children.map((c) => ({
-        id: c.department_id,
-        name: c.department_name,
-        progress: Number(c.progress_pct),
-        responsible: responsibleByDept.get(c.department_id) ?? null,
-        sectors: (childrenByParent.get(c.department_id) ?? []).map((s) => ({
-          id: s.department_id,
-          name: s.department_name,
-          responsible: responsibleByDept.get(s.department_id) ?? null,
-        })),
-      })),
+      subDepartments: children.map((c) => {
+        const subDirector = responsibleByDept.get(c.department_id) ?? null;
+        return {
+          id: c.department_id,
+          name: c.department_name,
+          director: subDirector,
+          isPlaceholder: !subDirector,
+          progress: Number(c.progress_pct),
+          goalsCount: Number(c.goals_count),
+          goalsCompleted: Number(c.goals_completed),
+          goals: goalsByDept.get(c.department_id) ?? [],
+          sectors: (childrenByParent.get(c.department_id) ?? []).map((s) => ({
+            id: s.department_id,
+            name: s.department_name,
+            responsible: responsibleByDept.get(s.department_id) ?? null,
+            progress: Number(s.progress_pct),
+          })),
+        };
+      }),
     };
   });
 
@@ -166,6 +177,38 @@ export default async function OverviewPage() {
   }
   const myDirectorateId = role === "director" ? findDirectorateId(profile?.department_id ?? null) : null;
   const directorateOptions = topLevel.map((d) => ({ id: d.department_id, name: d.department_name }));
+
+  // Planos de ação em andamento: última entrada com action_plan por meta, para metas ainda não atingidas
+  const goalsById = new Map((goalRows ?? []).map((g) => [g.id, g]));
+  const latestActionPlanByGoal = new Map<string, { id: string; period: string | null; action_plan: string; recorded_at: string }>();
+  for (const row of actionPlanRows ?? []) {
+    const plan = row.action_plan?.trim();
+    if (!plan) continue;
+    const existing = latestActionPlanByGoal.get(row.goal_id);
+    if (!existing || new Date(row.recorded_at) > new Date(existing.recorded_at)) {
+      latestActionPlanByGoal.set(row.goal_id, { id: row.id, period: row.period, action_plan: plan, recorded_at: row.recorded_at });
+    }
+  }
+
+  const actionPlans: ActionPlanItem[] = [];
+  for (const [goalId, entry] of latestActionPlanByGoal) {
+    const goal = goalsById.get(goalId);
+    if (!goal) continue;
+    const progress = calcProgress(Number(goal.current_value), Number(goal.target_value));
+    if (progress >= 100) continue;
+    actionPlans.push({
+      id: entry.id,
+      goalId,
+      goalTitle: goal.title,
+      directorateId: findDirectorateId(goal.department_id),
+      period: entry.period,
+      actionPlan: entry.action_plan,
+      progress,
+      currentValue: Number(goal.current_value),
+      targetValue: Number(goal.target_value),
+      unit: goal.unit,
+    });
+  }
 
   const avgProgress = Number(company?.progress_pct ?? 0);
   const progressAccent = avgProgress >= 66 ? "#22c55e" : avgProgress >= 33 ? "#F18213" : "#ef4444";
@@ -213,7 +256,7 @@ export default async function OverviewPage() {
       {/* Org chart + footer in unified white container */}
       <div className="bg-white rounded-xl border border-border overflow-hidden">
         <div className="py-8 bg-white">
-          <OrgChart
+          <OrgChartSection
             ceo={{
               name: ceoProfile?.name ?? null,
               isPlaceholder: !ceoProfile,
@@ -225,6 +268,7 @@ export default async function OverviewPage() {
             directorateOptions={directorateOptions}
             canCustomize={role === "admin" || role === "director"}
             defaultScopeId={myDirectorateId}
+            actionPlans={actionPlans}
           />
         </div>
 

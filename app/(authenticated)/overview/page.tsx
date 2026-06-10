@@ -56,8 +56,8 @@ function KpiCard({
 // ── Legend swatch ─────────────────────────────────────────────────
 function LegendSwatch({ color, label }: { color: string; label: string }) {
   return (
-    <span className="inline-flex items-center gap-1.5">
-      <span className="h-3 w-3 rounded-full border border-border" style={{ backgroundColor: color }} />
+    <span className="inline-flex items-center gap-1">
+      <span className="h-2 w-2 rounded-full border border-border" style={{ backgroundColor: color }} />
       {label}
     </span>
   );
@@ -291,8 +291,8 @@ export default async function OverviewPage() {
           <div className="flex items-start justify-between gap-6 pt-5">
             {/* Legend */}
             <div>
-              <p className="text-xs font-semibold text-[#364B59] mb-2">Legenda de progresso</p>
-              <div className="flex flex-wrap items-center gap-4 text-xs text-muted-foreground">
+              <p className="text-[11px] font-semibold text-[#364B59] mb-1.5">Legenda de progresso</p>
+              <div className="flex flex-wrap items-center gap-3 text-[11px] text-muted-foreground">
                 <LegendSwatch color="#DFA1AA" label="0% – 33%" />
                 <LegendSwatch color="#F9E79F" label="33% – 66%" />
                 <LegendSwatch color="#9AD595" label="66% – 100%" />

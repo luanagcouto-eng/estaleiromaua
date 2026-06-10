@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { Users2, ChevronRight } from "lucide-react";
+import { Users2, ChevronRight, Network } from "lucide-react";
 import { goalColor } from "@/lib/utils";
 import OrgNode from "./org-node";
 import NodeDetailSheet, { type NodeDetail } from "./node-detail-sheet";
@@ -176,6 +176,10 @@ export default function OrgChart({ ceo, nodes, scopeId }: Props) {
 
   return (
     <div className="overflow-x-auto pb-4 bg-white">
+      <h3 className="flex items-center gap-1.5 text-sm font-semibold text-[#364B59] px-6 pt-2 mb-1">
+        <Network className="w-4 h-4" aria-hidden />
+        Organograma
+      </h3>
       <div className="flex flex-col items-center px-6 pt-2 gap-0 bg-white w-full">
 
         {!scopedNode && (
@@ -184,7 +188,7 @@ export default function OrgChart({ ceo, nodes, scopeId }: Props) {
             <div className="flex flex-col items-center gap-0">
               <SectionChip label="CEO" />
               <div className="h-3 w-px bg-slate-300" />
-              <div className="w-full max-w-sm">
+              <div className="w-full max-w-lg">
                 <OrgNode
                   label={ceo.name ?? "CEO"}
                   subtitle={ceo.isPlaceholder ? "Cargo em aberto" : "Estaleiro Mauá"}

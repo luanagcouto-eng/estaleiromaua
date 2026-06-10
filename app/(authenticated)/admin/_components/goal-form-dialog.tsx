@@ -12,6 +12,7 @@ import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Button } from "@/components/ui/button";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { labelFromOptions } from "@/lib/utils";
 import WeightIndicator from "./weight-indicator";
 
 interface Profile { id: string; name: string; email: string; }
@@ -124,7 +125,9 @@ export default function GoalFormDialog({ open, onClose, goal, profiles, departme
                 <Select onValueChange={field.onChange} value={field.value}>
                   <FormControl>
                     <SelectTrigger>
-                      <SelectValue placeholder="Selecione um responsável" />
+                      <SelectValue placeholder="Selecione um responsável">
+                        {(value: string) => labelFromOptions(value, profiles, "Selecione um responsável")}
+                      </SelectValue>
                     </SelectTrigger>
                   </FormControl>
                   <SelectContent>
@@ -143,7 +146,9 @@ export default function GoalFormDialog({ open, onClose, goal, profiles, departme
                 <Select onValueChange={field.onChange} value={field.value}>
                   <FormControl>
                     <SelectTrigger>
-                      <SelectValue placeholder="Selecione departamento ou setor" />
+                      <SelectValue placeholder="Selecione departamento ou setor">
+                        {(value: string) => labelFromOptions(value, departments, "Selecione departamento ou setor")}
+                      </SelectValue>
                     </SelectTrigger>
                   </FormControl>
                   <SelectContent>

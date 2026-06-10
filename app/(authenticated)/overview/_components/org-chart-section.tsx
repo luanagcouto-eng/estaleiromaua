@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { labelFromOptions } from "@/lib/utils";
 import OrgChart, { type OrgChartNodeData } from "./org-chart";
 import ActionPlansSection, { type ActionPlanItem } from "./action-plans-section";
 
@@ -35,7 +36,11 @@ export default function OrgChartSection({
         <div className="px-6 flex justify-end mb-4">
           <Select value={scopeId} onValueChange={(v) => setScopeId(v ?? "all")}>
             <SelectTrigger size="sm" className="bg-white">
-              <SelectValue placeholder="Visão geral" />
+              <SelectValue placeholder="Visão geral">
+                {(value: string) =>
+                  value === "all" ? "Visão geral (todas as diretorias)" : labelFromOptions(value, directorateOptions, "Visão geral")
+                }
+              </SelectValue>
             </SelectTrigger>
             <SelectContent>
               <SelectItem value="all">Visão geral (todas as diretorias)</SelectItem>

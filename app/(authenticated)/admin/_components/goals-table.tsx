@@ -3,7 +3,7 @@
 import { useMemo, useState } from "react";
 import { toast } from "sonner";
 import { deleteGoal } from "@/lib/actions/goals";
-import { formatGoalValue, calcProgress, goalTextClass, OP_SYMBOL } from "@/lib/utils";
+import { formatGoalValue, calcProgress, goalTextClass, OP_SYMBOL, labelFromOptions } from "@/lib/utils";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -186,7 +186,11 @@ export default function GoalsTable({ goals, profiles, departments }: Props) {
           />
           <Select value={filterOwner} onValueChange={(v) => setFilterOwner(v ?? "all")}>
             <SelectTrigger className="h-8 text-sm w-[190px]">
-              <SelectValue placeholder="Todos os responsáveis" />
+              <SelectValue placeholder="Todos os responsáveis">
+                {(value: string) =>
+                  value === "all" ? "Todos os responsáveis" : labelFromOptions(value, uniqueOwners, "Todos os responsáveis")
+                }
+              </SelectValue>
             </SelectTrigger>
             <SelectContent>
               <SelectItem value="all">Todos os responsáveis</SelectItem>

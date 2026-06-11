@@ -19,6 +19,7 @@ export const goalEntryBaseSchema = z.object({
     .string()
     .min(3, "Informe a fórmula utilizada (mínimo 3 caracteres)")
     .max(500, "Máximo 500 caracteres"),
+  notes: z.string().max(1000, "Máximo 1000 caracteres").optional(),
   evidence_url: z
     .string()
     .min(1, "Evidência obrigatória — anexe um arquivo ou cole uma URL")

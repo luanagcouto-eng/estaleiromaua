@@ -43,7 +43,7 @@ export async function createGoalEntry(goalId: string, raw: unknown) {
   if (!user) return { error: { _root: ["Sessão expirada. Faça login novamente."] } };
 
   const {
-    value, period, data_source, criteria, formula_used, evidence_url,
+    value, period, data_source, criteria, formula_used, notes, evidence_url,
     justification, five_whys, action_plan,
   } = parsed.data;
 
@@ -56,6 +56,7 @@ export async function createGoalEntry(goalId: string, raw: unknown) {
     data_source,
     criteria,
     formula_used,
+    notes: notes || null,
     evidence_url: evidence_url ? [evidence_url] : null,
     justification: exceedsTarget ? justification : null,
     five_whys: exceedsTarget ? five_whys : null,
@@ -91,7 +92,7 @@ export async function updateGoalEntry(entryId: string, raw: unknown) {
   if (!parsed.success) return { error: parsed.error.flatten().fieldErrors };
 
   const {
-    value, period, data_source, criteria, formula_used, evidence_url,
+    value, period, data_source, criteria, formula_used, notes, evidence_url,
     justification, five_whys, action_plan,
   } = parsed.data;
 
@@ -105,6 +106,7 @@ export async function updateGoalEntry(entryId: string, raw: unknown) {
       data_source,
       criteria,
       formula_used,
+      notes: notes || null,
       evidence_url: evidence_url ? [evidence_url] : null,
       justification: exceedsTarget ? justification : null,
       five_whys: exceedsTarget ? five_whys : null,

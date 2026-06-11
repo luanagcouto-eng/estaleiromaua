@@ -30,6 +30,7 @@ export interface EditableGoalEntry {
   data_source: string | null;
   criteria: string | null;
   formula_used: string | null;
+  notes: string | null;
   evidence_url: string[] | null;
   justification: string | null;
   five_whys: string[] | null;
@@ -54,6 +55,7 @@ const DEFAULTS: GoalEntryFormValues = {
   data_source: "",
   criteria: "",
   formula_used: "",
+  notes: "",
   evidence_url: "",
   justification: "",
   five_whys: ["", "", "", "", ""],
@@ -75,6 +77,7 @@ function entryToFormValues(entry: EditableGoalEntry, goalPeriod: string): GoalEn
     data_source: entry.data_source ?? "",
     criteria: entry.criteria ?? "",
     formula_used: entry.formula_used ?? "",
+    notes: entry.notes ?? "",
     evidence_url: entry.evidence_url?.[0] ?? "",
     justification: entry.justification ?? "",
     five_whys: entry.five_whys && entry.five_whys.length === 5 ? entry.five_whys : ["", "", "", "", ""],
@@ -243,6 +246,16 @@ export default function GoalEntryDialog({ open, onClose, goalId, goalTitle, unit
                 <FormLabel>Fórmula utilizada</FormLabel>
                 <FormControl>
                   <Textarea rows={2} placeholder="Ex: (data de entrega − data do pedido) / total de pedidos" {...field} />
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )} />
+
+            <FormField control={form.control} name="notes" render={({ field }) => (
+              <FormItem>
+                <FormLabel>Comentários</FormLabel>
+                <FormControl>
+                  <Textarea rows={2} placeholder="Observações adicionais sobre este lançamento (opcional)" {...field} />
                 </FormControl>
                 <FormMessage />
               </FormItem>

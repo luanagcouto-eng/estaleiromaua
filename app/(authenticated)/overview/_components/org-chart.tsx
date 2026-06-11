@@ -126,6 +126,11 @@ export default function OrgChart({ ceo, nodes, scopeId }: Props) {
 
   const scopedNode = scopeId !== "all" ? nodes.find((n) => n.id === scopeId) ?? null : null;
 
+  // Linha horizontal das diretorias deve cobrir só as colunas ocupadas (grid de até 5 colunas em lg)
+  const DIRECTORATE_COLUMNS = 5;
+  const occupiedColumns = Math.min(Math.max(nodes.length, 1), DIRECTORATE_COLUMNS);
+  const directorateLineRight = 100 - ((occupiedColumns - 0.5) / DIRECTORATE_COLUMNS) * 100;
+
   const detail: NodeDetail | null = (() => {
     if (!selectedId) return null;
 
@@ -206,7 +211,10 @@ export default function OrgChart({ ceo, nodes, scopeId }: Props) {
             {/* ── Seção: Diretorias ── */}
             <div className="relative w-full">
               {/* Linha horizontal conectando as diretorias — só faz sentido quando o grid exibe uma única linha */}
-              <div className="hidden lg:block absolute top-0 left-[10%] right-[10%] h-px bg-slate-400" />
+              <div
+                className="hidden lg:block absolute top-0 left-[10%] h-px bg-slate-400"
+                style={{ right: `${directorateLineRight}%` }}
+              />
 
               <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-4 lg:pt-8">
                 {nodes.map((node) => (

@@ -131,8 +131,8 @@ export default function GoalsTable({ goals, profiles, departments }: Props) {
           case "weight":
             aVal = Number(a.weight); bVal = Number(b.weight); break;
           case "progress":
-            aVal = calcProgress(Number(a.current_value), Number(a.target_value));
-            bVal = calcProgress(Number(b.current_value), Number(b.target_value));
+            aVal = calcProgress(Number(a.current_value), Number(a.target_value), a.operator);
+            bVal = calcProgress(Number(b.current_value), Number(b.target_value), b.operator);
             break;
         }
         if (aVal < bVal) return sortDir === "asc" ? -1 : 1;
@@ -286,7 +286,7 @@ export default function GoalsTable({ goals, profiles, departments }: Props) {
               </TableRow>
             ) : (
               processedGoals.map(g => {
-                const pct = calcProgress(Number(g.current_value), Number(g.target_value));
+                const pct = calcProgress(Number(g.current_value), Number(g.target_value), g.operator);
                 const dept = deptMap.get(g.department_id);
                 const parentDept = dept?.parent_id ? deptMap.get(dept.parent_id) : null;
                 const deptDisplay = dept

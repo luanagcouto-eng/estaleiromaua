@@ -74,7 +74,7 @@ export default async function MyTargetsPage() {
     const entry = (historyByGoal.get(g.id) ?? []).find((e) => e.action_plan?.trim());
     if (!entry?.action_plan) continue;
 
-    const progress = calcProgress(Number(g.current_value), Number(g.target_value));
+    const progress = calcProgress(Number(g.current_value), Number(g.target_value), g.operator);
     if (progress >= 100) continue;
 
     actionPlans.push({

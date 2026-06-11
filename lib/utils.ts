@@ -35,9 +35,17 @@ export function formatGoalValue(value: number, unit: string): string {
   return `${value.toLocaleString("pt-BR")} ${unit}`;
 }
 
-/** Calcula o percentual de atingimento de uma meta */
-export function calcProgress(current: number, target: number): number {
+/**
+ * Calcula o percentual de atingimento de uma meta, considerando o operador (>=, <=, etc.).
+ * Para metas "menor ou igual" (≤ / <), usa Atingimento = 1 + (Meta − Realizado) / Meta,
+ * de forma que resultados piores que a meta fiquem abaixo de 100%.
+ */
+export function calcProgress(current: number, target: number, operator?: string): number {
   if (target === 0) return 0;
+  if (operator === "<=" || operator === "<") {
+    const pct = (1 + (target - current) / target) * 100;
+    return Math.min(100, Math.max(0, Math.round(pct)));
+  }
   return Math.min(100, Math.round((current / target) * 100));
 }
 

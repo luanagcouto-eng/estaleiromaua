@@ -101,7 +101,7 @@ export default async function OverviewPage() {
       id: g.id,
       title: g.title,
       period: g.period,
-      progress: calcProgress(Number(g.current_value), Number(g.target_value)),
+      progress: calcProgress(Number(g.current_value), Number(g.target_value), g.operator),
       current_value: Number(g.current_value),
       target_value: Number(g.target_value),
       unit: g.unit,
@@ -197,7 +197,7 @@ export default async function OverviewPage() {
   for (const [goalId, entry] of latestActionPlanByGoal) {
     const goal = goalsById.get(goalId);
     if (!goal) continue;
-    const progress = calcProgress(Number(goal.current_value), Number(goal.target_value));
+    const progress = calcProgress(Number(goal.current_value), Number(goal.target_value), goal.operator);
     if (progress >= 100) continue;
     actionPlans.push({
       id: entry.id,

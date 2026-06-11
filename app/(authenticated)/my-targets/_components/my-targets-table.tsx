@@ -41,7 +41,7 @@ const PERIOD_FILTERS = [
 // ─── KPI Card ─────────────────────────────────────────────────────────────────
 
 function KpiCard({ goal }: { goal: GoalCardData }) {
-  const pct   = calcProgress(goal.current_value, goal.target_value);
+  const pct   = calcProgress(goal.current_value, goal.target_value, goal.operator);
   const color = progressColor(pct);
 
   return (
@@ -94,7 +94,7 @@ function GoalTableSection({ title, goals }: { title: string; goals: GoalCardData
           </thead>
           <tbody>
             {goals.map((goal) => {
-              const pct        = calcProgress(goal.current_value, goal.target_value);
+              const pct        = calcProgress(goal.current_value, goal.target_value, goal.operator);
               const hasHistory = goal.history.length > 0;
               const { label, bg, text } = statusInfo(pct, hasHistory);
               const color      = progressColor(pct);

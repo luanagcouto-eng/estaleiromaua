@@ -95,7 +95,7 @@ export default async function MyGoalsPage() {
 
     for (const g of rows) {
       const hasHistory = goalsWithHistory.has(g.id);
-      const pct = calcProgress(Number(g.current_value), Number(g.target_value));
+      const pct = calcProgress(Number(g.current_value), Number(g.target_value), g.operator);
 
       if (!hasHistory && g.period !== currentQuarter) {
         alerts.push({ type: "no-history", title: g.title, period: g.period });

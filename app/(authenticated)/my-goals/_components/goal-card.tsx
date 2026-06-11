@@ -36,7 +36,7 @@ export default function GoalCard({ goal }: { goal: GoalCardData }) {
   const [entryOpen, setEntryOpen] = useState(false);
   const [historyOpen, setHistoryOpen] = useState(false);
 
-  const pct = calcProgress(goal.current_value, goal.target_value);
+  const pct = calcProgress(goal.current_value, goal.target_value, goal.operator);
 
   return (
     <div className="bg-white rounded-xl border border-border p-5 space-y-4">

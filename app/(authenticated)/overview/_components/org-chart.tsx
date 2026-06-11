@@ -126,10 +126,21 @@ export default function OrgChart({ ceo, nodes, scopeId }: Props) {
 
   const scopedNode = scopeId !== "all" ? nodes.find((n) => n.id === scopeId) ?? null : null;
 
-  // Linha horizontal das diretorias deve cobrir só as colunas ocupadas (grid de até 5 colunas em lg)
-  const DIRECTORATE_COLUMNS = 5;
-  const occupiedColumns = Math.min(Math.max(nodes.length, 1), DIRECTORATE_COLUMNS);
-  const directorateLineRight = 100 - ((occupiedColumns - 0.5) / DIRECTORATE_COLUMNS) * 100;
+  // Grid das diretorias usa exatamente uma coluna por diretoria em telas largas
+  // (até 5), para que os cards cresçam e ocupem toda a largura disponível.
+  const DIRECTORATE_LG_COLS: Record<number, string> = {
+    1: "lg:grid-cols-1",
+    2: "lg:grid-cols-2",
+    3: "lg:grid-cols-3",
+    4: "lg:grid-cols-4",
+    5: "lg:grid-cols-5",
+  };
+  const occupiedColumns = Math.min(Math.max(nodes.length, 1), 5);
+  const directorateLgColsClass = DIRECTORATE_LG_COLS[occupiedColumns];
+
+  // Linha horizontal das diretorias vai do centro do primeiro ao centro do
+  // último card, proporcional ao número de colunas ocupadas.
+  const directorateLinePct = (0.5 / occupiedColumns) * 100;
 
   const detail: NodeDetail | null = (() => {
     if (!selectedId) return null;
@@ -212,11 +223,11 @@ export default function OrgChart({ ceo, nodes, scopeId }: Props) {
             <div className="relative w-full">
               {/* Linha horizontal conectando as diretorias — só faz sentido quando o grid exibe uma única linha */}
               <div
-                className="hidden lg:block absolute top-0 left-[10%] h-px bg-slate-400"
-                style={{ right: `${directorateLineRight}%` }}
+                className="hidden lg:block absolute top-0 h-px bg-slate-400"
+                style={{ left: `${directorateLinePct}%`, right: `${directorateLinePct}%` }}
               />
 
-              <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-4 lg:pt-8">
+              <div className={`grid grid-cols-2 sm:grid-cols-3 ${directorateLgColsClass} gap-4 lg:pt-8`}>
                 {nodes.map((node) => (
                   <div key={node.id} className="relative flex flex-col items-center">
                     {/* Conector vertical descendo da linha horizontal */}

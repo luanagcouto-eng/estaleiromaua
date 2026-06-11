@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import { Users2, ChevronRight } from "lucide-react";
-import { goalColor } from "@/lib/utils";
+import { goalColor, progressBarPct } from "@/lib/utils";
 import OrgNode from "./org-node";
 import NodeDetailSheet, { type NodeDetail } from "./node-detail-sheet";
 
@@ -63,7 +63,7 @@ function SectionChip({ label }: { label: string }) {
 }
 
 function SubDeptCard({ dept, selected, onClick }: { dept: OrgChartSubDept; selected?: boolean; onClick?: () => void }) {
-  const pct = Math.max(0, Math.min(100, dept.progress));
+  const pct = dept.progress;
   const fillColor = goalColor(pct);
 
   return (
@@ -91,7 +91,7 @@ function SubDeptCard({ dept, selected, onClick }: { dept: OrgChartSubDept; selec
       <div className="h-1 rounded-full bg-gray-100 overflow-hidden">
         <div
           className="h-full rounded-full transition-all duration-700"
-          style={{ width: `${pct}%`, backgroundColor: fillColor }}
+          style={{ width: `${progressBarPct(pct)}%`, backgroundColor: fillColor }}
         />
       </div>
       {dept.sectors.length > 0 && (

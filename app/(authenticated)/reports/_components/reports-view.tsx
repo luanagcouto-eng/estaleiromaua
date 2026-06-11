@@ -4,7 +4,7 @@ import { useState, useMemo } from "react";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { formatGoalValue, goalTextClass, OP_SYMBOL } from "@/lib/utils";
+import { formatGoalValue, goalTextClass, progressBarPct, OP_SYMBOL } from "@/lib/utils";
 
 export interface GoalReportRow {
   id: string;
@@ -228,7 +228,7 @@ export default function ReportsView({ rows }: { rows: GoalReportRow[] }) {
                         <div
                           className="h-full rounded-full"
                           style={{
-                            width: `${Math.min(100, r.progress_pct)}%`,
+                            width: `${progressBarPct(r.progress_pct)}%`,
                             backgroundColor: "#F18213",
                           }}
                         />

@@ -4,7 +4,7 @@ import { useState } from "react";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { calcProgress, formatGoalValue, goalColor, goalTextClass, OP_SYMBOL } from "@/lib/utils";
+import { calcProgress, formatGoalValue, goalColor, goalTextClass, progressBarPct, OP_SYMBOL } from "@/lib/utils";
 
 const PERIOD_LABELS: Record<string, string> = {
   "2026-ANUAL": "Anual",
@@ -83,7 +83,7 @@ export default function TeamMemberCard({ member }: { member: TeamMemberData }) {
         <div className="h-2.5 rounded-full bg-surface overflow-hidden border border-border">
           <div
             className="h-full rounded-full transition-all duration-700"
-            style={{ width: `${Math.min(100, member.consolidatedPct)}%`, backgroundColor: "#F18213" }}
+            style={{ width: `${progressBarPct(member.consolidatedPct)}%`, backgroundColor: "#F18213" }}
           />
         </div>
         <p className="mt-1.5 text-xs text-muted-foreground">Progresso consolidado das metas anuais 2026</p>
@@ -145,7 +145,7 @@ export default function TeamMemberCard({ member }: { member: TeamMemberData }) {
                             <div className="flex-1 h-1.5 rounded-full bg-gray-100 overflow-hidden min-w-[60px]">
                               <div
                                 className="h-full rounded-full transition-all duration-700"
-                                style={{ width: `${Math.min(100, pct)}%`, backgroundColor: goalColor(pct) }}
+                                style={{ width: `${progressBarPct(pct)}%`, backgroundColor: goalColor(pct) }}
                               />
                             </div>
                             <span className="text-xs font-bold w-9 text-right" style={{ color: goalColor(pct) }}>

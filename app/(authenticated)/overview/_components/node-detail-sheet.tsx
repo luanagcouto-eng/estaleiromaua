@@ -3,7 +3,7 @@
 import { Building2, Users2, Target, TrendingUp } from "lucide-react";
 import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetDescription } from "@/components/ui/sheet";
 import { Badge } from "@/components/ui/badge";
-import { goalTextClass, goalColor, formatGoalValue, OP_SYMBOL } from "@/lib/utils";
+import { goalTextClass, goalColor, formatGoalValue, progressBarPct, OP_SYMBOL } from "@/lib/utils";
 
 const PERIOD_LABELS: Record<string, string> = {
   "2026-ANUAL": "Anual",
@@ -106,7 +106,7 @@ export default function NodeDetailSheet({ node, onClose }: Props) {
                 <div className="mt-2 h-2.5 rounded-full bg-white overflow-hidden border border-border">
                   <div
                     className="h-full rounded-full transition-all duration-700"
-                    style={{ width: `${Math.max(0, Math.min(100, node.progress))}%`, backgroundColor: "#F18213" }}
+                    style={{ width: `${progressBarPct(node.progress)}%`, backgroundColor: "#F18213" }}
                   />
                 </div>
               </div>
@@ -178,7 +178,7 @@ export default function NodeDetailSheet({ node, onClose }: Props) {
                         <div className="h-1.5 rounded-full bg-gray-100 overflow-hidden">
                           <div
                             className="h-full rounded-full transition-all duration-500"
-                            style={{ width: `${Math.min(100, goal.progress)}%`, backgroundColor: goalColor(goal.progress) }}
+                            style={{ width: `${progressBarPct(goal.progress)}%`, backgroundColor: goalColor(goal.progress) }}
                           />
                         </div>
                       </li>

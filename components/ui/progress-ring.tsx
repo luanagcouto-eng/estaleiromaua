@@ -27,7 +27,7 @@ export default function ProgressRing({ pct, size = 64, stroke = 6, label }: Prog
       className="relative inline-flex flex-col items-center justify-center"
       style={{ width: size, height: size }}
       role="img"
-      aria-label={`Progresso: ${clamped}%`}
+      aria-label={`Progresso: ${pct}%`}
     >
       <svg width={size} height={size} viewBox={`0 0 ${size} ${size}`} fill="none">
         <circle cx={cx} cy={cx} r={radius} stroke="#F1F3F5" strokeWidth={stroke} />
@@ -46,7 +46,7 @@ export default function ProgressRing({ pct, size = 64, stroke = 6, label }: Prog
       </svg>
       <div className="absolute inset-0 flex flex-col items-center justify-center">
         <span className="font-bold leading-none" style={{ fontSize: size * 0.2, color }}>
-          {clamped}%
+          {pct}%
         </span>
         {label && (
           <span className="text-muted-foreground leading-none mt-0.5" style={{ fontSize: size * 0.14 }}>

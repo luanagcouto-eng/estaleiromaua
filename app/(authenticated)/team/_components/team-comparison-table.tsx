@@ -3,7 +3,7 @@
 import { useState } from "react";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
-import { goalTextClass } from "@/lib/utils";
+import { goalTextClass, progressBarPct } from "@/lib/utils";
 import type { TeamMemberData } from "./team-member-card";
 
 function initials(name: string): string {
@@ -110,7 +110,7 @@ export default function TeamComparisonTable({ members }: { members: TeamMemberDa
                   <div className="h-2 rounded-full bg-gray-100 overflow-hidden">
                     <div
                       className="h-full rounded-full transition-all duration-700"
-                      style={{ width: `${Math.min(100, m.consolidatedPct)}%`, backgroundColor: "#F18213" }}
+                      style={{ width: `${progressBarPct(m.consolidatedPct)}%`, backgroundColor: "#F18213" }}
                     />
                   </div>
                 </TableCell>

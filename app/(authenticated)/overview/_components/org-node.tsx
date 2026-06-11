@@ -1,7 +1,7 @@
 "use client";
 
 import { UserCircle2, ChevronRight, Handshake, Cog, HardHat, Banknote, ShieldCheck, Building2 } from "lucide-react";
-import { goalColor } from "@/lib/utils";
+import { goalColor, progressBarPct } from "@/lib/utils";
 
 const DIRECTORATE_ICONS: Record<string, typeof Building2> = {
   "Diretoria Comercial":     Handshake,
@@ -32,7 +32,7 @@ export default function OrgNode({
   selected,
   onClick,
 }: OrgNodeProps) {
-  const pct = Math.max(0, Math.min(100, progress));
+  const pct = progress;
   const fillColor = goalColor(pct);
   const Icon = isCeo ? UserCircle2 : (DIRECTORATE_ICONS[label] ?? Building2);
 
@@ -92,7 +92,7 @@ export default function OrgNode({
           <div className={`rounded-full bg-gray-100 overflow-hidden ${isCeo ? "h-3" : "h-2"}`}>
             <div
               className="h-full rounded-full transition-all duration-700"
-              style={{ width: `${pct}%`, backgroundColor: fillColor }}
+              style={{ width: `${progressBarPct(pct)}%`, backgroundColor: fillColor }}
             />
           </div>
         </div>

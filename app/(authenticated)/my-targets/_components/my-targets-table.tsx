@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { calcProgress, formatGoalValue, OP_SYMBOL } from "@/lib/utils";
+import { calcProgress, formatGoalValue, progressBarPct, OP_SYMBOL } from "@/lib/utils";
 import type { GoalCardData } from "../../my-goals/_components/goal-card";
 import { Input } from "@/components/ui/input";
 
@@ -55,7 +55,7 @@ function KpiCard({ goal }: { goal: GoalCardData }) {
       <div className="mt-3 h-[3px] bg-slate-100 rounded-full overflow-hidden">
         <div
           className="h-full rounded-full transition-all duration-700"
-          style={{ width: `${Math.min(100, pct)}%`, backgroundColor: color }}
+          style={{ width: `${progressBarPct(pct)}%`, backgroundColor: color }}
         />
       </div>
     </div>
@@ -123,7 +123,7 @@ function GoalTableSection({ title, goals }: { title: string; goals: GoalCardData
                       <div className="flex-1 h-1.5 rounded-full bg-slate-100 overflow-hidden min-w-[80px]">
                         <div
                           className="h-full rounded-full transition-all duration-700"
-                          style={{ width: `${Math.min(100, pct)}%`, backgroundColor: color }}
+                          style={{ width: `${progressBarPct(pct)}%`, backgroundColor: color }}
                         />
                       </div>
                       <span className="text-xs font-bold w-9 text-right" style={{ color }}>

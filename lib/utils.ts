@@ -38,15 +38,20 @@ export function formatGoalValue(value: number, unit: string): string {
 /**
  * Calcula o percentual de atingimento de uma meta, considerando o operador (>=, <=, etc.).
  * Para metas "menor ou igual" (≤ / <), usa Atingimento = 1 + (Meta − Realizado) / Meta,
- * de forma que resultados piores que a meta fiquem abaixo de 100%.
+ * de forma que resultados piores que a meta fiquem abaixo de 100%. O valor retornado
+ * não é limitado: pode ser negativo ou maior que 100%.
  */
 export function calcProgress(current: number, target: number, operator?: string): number {
   if (target === 0) return 0;
   if (operator === "<=" || operator === "<") {
-    const pct = (1 + (target - current) / target) * 100;
-    return Math.min(100, Math.max(0, Math.round(pct)));
+    return Math.round((1 + (target - current) / target) * 100);
   }
-  return Math.min(100, Math.round((current / target) * 100));
+  return Math.round((current / target) * 100);
+}
+
+/** Limita um percentual de atingimento a [0, 100] para uso na largura de barras de progresso */
+export function progressBarPct(pct: number): number {
+  return Math.max(0, Math.min(100, pct));
 }
 
 /** Resolve o rótulo de exibição de um Select a partir do id selecionado */

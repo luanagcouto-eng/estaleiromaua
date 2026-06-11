@@ -2,7 +2,7 @@
 
 import { ClipboardList } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
-import { goalTextClass, goalColor, formatGoalValue, OP_SYMBOL } from "@/lib/utils";
+import { goalTextClass, goalColor, formatGoalValue, progressBarPct, OP_SYMBOL } from "@/lib/utils";
 
 const PERIOD_LABELS: Record<string, string> = {
   "2026-ANUAL": "Anual",
@@ -72,7 +72,7 @@ export default function ActionPlansSection({ actionPlans, scopeId }: Props) {
               <div className="h-1.5 rounded-full bg-gray-100 overflow-hidden">
                 <div
                   className="h-full rounded-full"
-                  style={{ width: `${Math.min(100, p.progress)}%`, backgroundColor: goalColor(p.progress) }}
+                  style={{ width: `${progressBarPct(p.progress)}%`, backgroundColor: goalColor(p.progress) }}
                 />
               </div>
               <div className="pt-1">

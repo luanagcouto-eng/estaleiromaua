@@ -20,7 +20,9 @@ export interface GoalCardData {
   operator: string;
   sub_weight: number | null;
   owner_id?: string;
+  department_id?: string | null;
   ownerName?: string;
+  sector?: string | null;
   history: GoalHistoryEntry[];
 }
 
@@ -52,7 +54,7 @@ export default function GoalCard({ goal }: { goal: GoalCardData }) {
               </div>
               {goal.description && <p className="mt-1 text-sm text-muted-foreground">{goal.description}</p>}
             </div>
-            {pct >= 90 && <span className="text-lg shrink-0">🏆</span>}
+            {pct >= 90 && pct < 100 && <span className="text-lg shrink-0">🏆</span>}
           </div>
           <div className="mt-2 flex items-center gap-4 text-xs text-muted-foreground">
             <span>Atual: <span className="font-medium text-text">{formatGoalValue(goal.current_value, goal.unit)}</span></span>

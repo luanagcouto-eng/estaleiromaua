@@ -20,6 +20,7 @@ interface GoalRow {
   operator: string;
   sub_weight: number | null;
   owner_id: string;
+  department_id: string | null;
 }
 
 export default async function MyGoalsPage() {
@@ -40,7 +41,7 @@ export default async function MyGoalsPage() {
   // Goals — sem join para evitar duplicação de linhas
   let goalsQuery = supabase
     .from("goals")
-    .select("id, title, description, period, weight, sub_weight, target_value, current_value, unit, operator, owner_id")
+    .select("id, title, description, period, weight, sub_weight, target_value, current_value, unit, operator, owner_id, department_id")
     .like("period", "2026%")
     .order("period")
     .order("weight", { ascending: false });
@@ -76,9 +77,18 @@ export default async function MyGoalsPage() {
     historyByGoal.set(entry.goal_id, list);
   }
 
+  // Setor do departamento de cada meta (exibido ao lado do título)
+  const sectorByDept = new Map<string, string>();
+  const deptIds = [...new Set(rows.map((g) => g.department_id).filter((id): id is string => !!id))];
+  if (deptIds.length) {
+    const { data: depts } = await supabase.from("departments").select("id, sector").in("id", deptIds);
+    for (const d of depts ?? []) sectorByDept.set(d.id, d.sector);
+  }
+
   const goalCards: GoalCardData[] = rows.map((g) => ({
     ...g,
     ownerName: isAdmin ? (ownerNameMap.get(g.owner_id) ?? undefined) : undefined,
+    sector: g.department_id ? sectorByDept.get(g.department_id) ?? null : null,
     history: historyByGoal.get(g.id) ?? [],
   }));
 

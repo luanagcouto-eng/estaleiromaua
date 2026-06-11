@@ -75,7 +75,7 @@ export default function TeamMemberCard({ member }: { member: TeamMemberData }) {
           </div>
         </div>
         <span className={`shrink-0 text-xs font-semibold px-2 py-0.5 rounded-full ${goalTextClass(member.consolidatedPct)}`}>
-          {member.consolidatedPct}% {member.consolidatedPct >= 90 ? "🏆" : ""}
+          {member.consolidatedPct}% {member.consolidatedPct >= 90 && member.consolidatedPct < 100 ? "🏆" : ""}
         </span>
       </div>
 
@@ -129,7 +129,7 @@ export default function TeamMemberCard({ member }: { member: TeamMemberData }) {
                     return (
                       <tr key={g.id} className="border-b border-border last:border-b-0">
                         <td className="py-2.5 px-3 font-medium text-text">
-                          {g.title} {pct >= 90 && "🏆"}
+                          {g.title} {pct >= 90 && pct < 100 && "🏆"}
                         </td>
                         <td className="py-2.5 px-3">
                           <Badge variant="secondary" className="text-xs">{PERIOD_LABELS[g.period] ?? g.period}</Badge>

@@ -222,7 +222,7 @@ export default function ReportsView({ rows }: { rows: GoalReportRow[] }) {
                   <TableCell className="text-center">
                     <div className="flex flex-col items-center gap-1">
                       <span className={`text-xs font-semibold px-2 py-0.5 rounded-full ${goalTextClass(r.progress_pct)}`}>
-                        {r.progress_pct}%{r.progress_pct >= 90 ? " 🏆" : ""}
+                        {r.progress_pct}%{r.progress_pct >= 90 && r.progress_pct < 100 ? " 🏆" : ""}
                       </span>
                       <div className="w-16 h-1.5 rounded-full bg-gray-100 overflow-hidden">
                         <div

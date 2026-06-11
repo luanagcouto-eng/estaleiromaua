@@ -146,7 +146,14 @@ function GoalTableSection({
                           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M9 5l7 7-7 7" />
                         </svg>
                         <div>
-                          <p className="font-semibold text-[#364B59]">{goal.title}</p>
+                          <div className="flex items-center gap-2 flex-wrap">
+                            <p className="font-semibold text-[#364B59]">{goal.title}</p>
+                            {goal.sector && (
+                              <span className="text-[10px] font-bold uppercase tracking-wider text-[#364B59]/60 bg-[#364B59]/8 px-1.5 py-0.5 rounded-full">
+                                {goal.sector}
+                              </span>
+                            )}
+                          </div>
                           {goal.ownerName && (
                             <p className="text-[11px] text-[#F18213] font-semibold mt-0.5">{goal.ownerName}</p>
                           )}

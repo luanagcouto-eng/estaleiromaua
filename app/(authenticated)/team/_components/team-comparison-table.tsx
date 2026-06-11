@@ -103,7 +103,7 @@ export default function TeamComparisonTable({ members }: { members: TeamMemberDa
                 </TableCell>
                 <TableCell className="text-center">
                   <span className={`text-sm font-bold px-2 py-0.5 rounded-full ${goalTextClass(m.consolidatedPct)}`}>
-                    {m.consolidatedPct}%{m.consolidatedPct >= 90 ? " 🏆" : ""}
+                    {m.consolidatedPct}%{m.consolidatedPct >= 90 && m.consolidatedPct < 100 ? " 🏆" : ""}
                   </span>
                 </TableCell>
                 <TableCell className="w-32">

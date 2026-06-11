@@ -56,7 +56,7 @@ interface Props {
 
 function SectionChip({ label }: { label: string }) {
   return (
-    <span className="text-[9px] font-black uppercase tracking-[0.18em] text-slate-400 bg-white border border-slate-200 px-2.5 py-1 rounded-full shadow-sm">
+    <span className="text-[10px] font-black uppercase tracking-[0.18em] text-slate-500 bg-white border border-slate-200 px-2.5 py-1 rounded-full shadow-sm">
       {label}
     </span>
   );
@@ -75,16 +75,16 @@ function SubDeptCard({ dept, selected, onClick }: { dept: OrgChartSubDept; selec
         ${selected ? "ring-2 ring-[#F18213] ring-offset-2 border-border" : "border-border hover:shadow-md hover:-translate-y-0.5"}`}
     >
       <div className="flex items-center gap-2">
-        <span className="w-7 h-7 rounded-full bg-[#364B59]/30 border border-[#364B59]/10 flex items-center justify-center shrink-0">
-          <Users2 className="w-3.5 h-3.5 text-[#364B59]/60" aria-hidden />
+        <span className="w-7 h-7 rounded-full bg-[#364B59]/10 border border-[#364B59]/15 flex items-center justify-center shrink-0">
+          <Users2 className="w-3.5 h-3.5 text-[#364B59]/75" aria-hidden />
         </span>
         <div className="min-w-0 flex-1">
           <p className="text-xs font-bold text-[#364B59] leading-tight truncate">{dept.name}</p>
-          <p className={`text-[10px] truncate ${dept.director ? "font-semibold text-[#364B59]" : "italic text-[#364B59]/40"}`}>
+          <p className={`text-[11px] truncate ${dept.director ? "font-semibold text-[#364B59]" : "italic text-[#364B59]/65"}`}>
             {dept.director ?? "Em aberto"}
           </p>
         </div>
-        <span className="text-[11px] font-extrabold tabular-nums shrink-0" style={{ color: fillColor }}>
+        <span className="text-[12px] font-extrabold tabular-nums shrink-0" style={{ color: fillColor }}>
           {pct.toFixed(0)}%
         </span>
       </div>
@@ -100,14 +100,14 @@ function SubDeptCard({ dept, selected, onClick }: { dept: OrgChartSubDept; selec
             <span
               key={s.id}
               title={s.responsible ? `Responsável: ${s.responsible}` : "Cargo em aberto"}
-              className="text-[9px] bg-[#364B59]/5 border border-[#364B59]/10 px-1.5 py-0.5 rounded-full text-[#364B59]/60 truncate max-w-full"
+              className="text-[10px] bg-[#364B59]/8 border border-[#364B59]/15 px-1.5 py-0.5 rounded-full text-[#364B59]/75 truncate max-w-full"
             >
               {s.name}
             </span>
           ))}
         </div>
       )}
-      <span className="pt-1.5 border-t border-[#364B59]/10 flex items-center justify-between text-[10px] font-semibold text-[#364B59]/50 group-hover:text-[#364B59] transition-colors">
+      <span className="pt-1.5 border-t border-[#364B59]/15 flex items-center justify-between text-[11px] font-semibold text-[#364B59]/70 group-hover:text-[#364B59] transition-colors">
         Ver detalhes
         <ChevronRight className="w-3 h-3" />
       </span>
@@ -273,7 +273,7 @@ export default function OrgChart({ ceo, nodes, scopeId }: Props) {
               <p className="mt-4 text-xs text-slate-400 italic">Nenhuma área subordinada cadastrada.</p>
             )}
 
-            <p className="mt-6 text-[10px] text-slate-400 text-center">
+            <p className="mt-6 text-[11px] text-slate-400 text-center">
               Clique em uma gerência para ver metas detalhadas · Selecione &ldquo;Visão geral&rdquo; para ver toda a empresa
             </p>
           </>

@@ -53,7 +53,7 @@ function ValueCell({ label, value }: { label: string; value: Record<string, unkn
         {open ? "Ocultar" : preview}
       </button>
       {open && (
-        <pre className="mt-1 text-[10px] bg-gray-50 border border-border rounded p-2 max-w-xs overflow-auto max-h-32 text-gray-700">
+        <pre className="mt-1 text-[11px] bg-gray-50 border border-border rounded p-2 max-w-xs overflow-auto max-h-32 text-gray-700">
           {JSON.stringify(value, null, 2)}
         </pre>
       )}

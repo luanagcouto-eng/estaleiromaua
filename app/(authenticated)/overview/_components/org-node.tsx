@@ -1,14 +1,13 @@
 "use client";
 
-import { UserCircle2, ChevronRight, Handshake, Cog, HardHat, Banknote, ShieldCheck, Building2 } from "lucide-react";
+import { UserCircle2, ChevronRight, Handshake, Cog, Banknote, ShieldCheck, Building2 } from "lucide-react";
 import { goalColor, progressBarPct } from "@/lib/utils";
 
 const DIRECTORATE_ICONS: Record<string, typeof Building2> = {
-  "Diretoria Comercial":     Handshake,
-  "Diretoria de Operações":  Cog,
-  "Diretoria RH / QSMS":     HardHat,
-  "Gerência Financeiro":     Banknote,
-  "Gerência GGCQ":           ShieldCheck,
+  "Diretoria Comercial /Administrativa": Handshake,
+  "Diretoria de Operações":              Cog,
+  "Gerência Financeiro":                 Banknote,
+  "Gerência GGCQ":                       ShieldCheck,
 };
 
 interface OrgNodeProps {
@@ -49,10 +48,10 @@ export default function OrgNode({
       <span className={`relative flex flex-col ${isCeo ? "gap-1.5 px-6 pt-6 pb-5" : "gap-1 px-4 pt-4 pb-3.5"}`}>
         {/* Avatar circle + role label */}
         <span className="flex items-center gap-2.5 mb-0.5">
-          <span className={`rounded-full bg-[#364B59]/10 border border-[#364B59]/10 flex items-center justify-center shrink-0 ${isCeo ? "w-12 h-12" : "w-9 h-9"}`}>
-            <Icon className={isCeo ? "w-6 h-6 text-[#364B59]/60" : "w-5 h-5 text-[#364B59]/60"} aria-hidden />
+          <span className={`rounded-full bg-[#364B59]/10 border border-[#364B59]/15 flex items-center justify-center shrink-0 ${isCeo ? "w-12 h-12" : "w-9 h-9"}`}>
+            <Icon className={isCeo ? "w-6 h-6 text-[#364B59]/75" : "w-5 h-5 text-[#364B59]/75"} aria-hidden />
           </span>
-          <span className={`font-bold uppercase tracking-widest ${isCeo ? "text-xs text-[#364B59]/50" : "text-[10px] text-[#364B59]"}`}>
+          <span className={`font-bold uppercase tracking-widest ${isCeo ? "text-xs text-[#364B59]/70" : "text-[11px] text-[#364B59]"}`}>
             {isCeo ? "CEO" : label}
           </span>
         </span>
@@ -66,9 +65,9 @@ export default function OrgNode({
         <span
           className={`truncate ${isCeo ? "text-sm" : "text-xs"} ${
             isPlaceholder
-              ? "italic text-[#364B59]/40"
+              ? "italic text-[#364B59]/65"
               : isCeo
-                ? "text-[#364B59]/60"
+                ? "text-[#364B59]/75"
                 : "font-semibold text-[#364B59]"
           }`}
         >
@@ -78,7 +77,7 @@ export default function OrgNode({
         {/* Progress section */}
         <div className={isCeo ? "mt-4 space-y-2" : "mt-3 space-y-1.5"}>
           <div className="flex items-center justify-between">
-            <span className={`font-semibold uppercase tracking-wide text-[#364B59]/40 ${isCeo ? "text-xs" : "text-[10px]"}`}>
+            <span className={`font-semibold uppercase tracking-wide text-[#364B59]/65 ${isCeo ? "text-xs" : "text-[11px]"}`}>
               Progresso
             </span>
             <span
@@ -99,14 +98,14 @@ export default function OrgNode({
 
         {/* Goals count */}
         {goalsCount !== undefined && goalsCount > 0 && (
-          <span className="mt-1 text-[10px] text-[#364B59]/40">
+          <span className="mt-1 text-[11px] text-[#364B59]/65">
             {goalsCount} meta{goalsCount !== 1 ? "s" : ""}
           </span>
         )}
 
         {/* "Ver detalhes" CTA — only for directorate cards */}
         {!isCeo && (
-          <span className="mt-2 pt-2.5 border-t border-[#364B59]/10 flex items-center justify-between text-[11px] font-semibold text-[#364B59]/50 group-hover:text-[#364B59] transition-colors">
+          <span className="mt-2 pt-2.5 border-t border-[#364B59]/15 flex items-center justify-between text-[12px] font-semibold text-[#364B59]/70 group-hover:text-[#364B59] transition-colors">
             Ver detalhes
             <ChevronRight className="w-3.5 h-3.5" />
           </span>

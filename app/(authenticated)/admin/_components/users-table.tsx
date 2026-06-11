@@ -110,7 +110,7 @@ export default function UsersTable({ users, departments, allProfiles }: Props) {
                     <div className="flex items-center gap-2">
                       <Avatar className="h-7 w-7 shrink-0">
                         <AvatarImage src={u.avatar_url ?? undefined} alt={u.name} />
-                        <AvatarFallback className="text-[10px] bg-[#364B59] text-white">
+                        <AvatarFallback className="text-[11px] bg-[#364B59] text-white">
                           {initials(u.name)}
                         </AvatarFallback>
                       </Avatar>
@@ -132,7 +132,7 @@ export default function UsersTable({ users, departments, allProfiles }: Props) {
                     {u.superior?.name ?? <span className="text-muted-foreground">—</span>}
                   </TableCell>
                   <TableCell className="text-center">
-                    <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-emerald-50 text-emerald-700">
+                    <span className="text-[11px] font-bold px-2 py-0.5 rounded-full bg-emerald-50 text-emerald-700">
                       Ativo
                     </span>
                   </TableCell>

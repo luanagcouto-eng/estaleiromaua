@@ -250,7 +250,7 @@ export default function GoalFormDialog({ open, onClose, goal, profiles, departme
                 <FormItem>
                   <FormLabel>
                     Subpeso (%)
-                    <span className="ml-1 text-[10px] font-normal text-muted-foreground">(opcional)</span>
+                    <span className="ml-1 text-[11px] font-normal text-muted-foreground">(opcional)</span>
                   </FormLabel>
                   <FormControl>
                     <Input

@@ -80,7 +80,7 @@ export default function GoalHistoryList({ entries, goal }: Props) {
               <div className="flex items-center gap-2 flex-wrap">
                 <span className="font-medium text-text">{formatGoalValue(entry.value, goal.unit)}</span>
                 {entry.period && (
-                  <span className="text-[10px] font-bold uppercase tracking-wide text-[#F18213] bg-orange-50 border border-orange-200 rounded-full px-2 py-0.5">
+                  <span className="text-[11px] font-bold uppercase tracking-wide text-[#F18213] bg-orange-50 border border-orange-200 rounded-full px-2 py-0.5">
                     {PERIOD_LABELS[entry.period] ?? entry.period}
                   </span>
                 )}
@@ -139,7 +139,7 @@ export default function GoalHistoryList({ entries, goal }: Props) {
 
             {entry.justification && (
               <div className="mt-2 rounded-md border border-amber-300 bg-amber-50 px-2.5 py-2 space-y-1.5">
-                <p className="text-[10px] font-bold uppercase tracking-wide text-amber-700">
+                <p className="text-[11px] font-bold uppercase tracking-wide text-amber-700">
                   ⚠️ Meta ultrapassada
                 </p>
                 <div>

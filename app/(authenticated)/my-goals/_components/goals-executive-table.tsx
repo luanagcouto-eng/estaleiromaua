@@ -57,7 +57,7 @@ function KpiCard({ goal }: { goal: GoalCardData }) {
 
   return (
     <div className="bg-white rounded-xl border border-border p-4 flex flex-col min-w-[148px] flex-shrink-0">
-      <p className="text-[9px] font-bold uppercase tracking-widest text-slate-400 leading-tight line-clamp-2">
+      <p className="text-[10px] font-bold uppercase tracking-widest text-slate-400 leading-tight line-clamp-2">
         {goal.title}
       </p>
       <p className="text-3xl font-black mt-2 leading-none" style={{ color }}>
@@ -101,19 +101,19 @@ function GoalTableSection({
         <table className="w-full text-sm">
           <thead>
             <tr className="bg-[#364B59]/10">
-              <th className="py-2.5 px-4 text-left text-[10px] font-bold uppercase tracking-wider text-[#364B59]/70 min-w-[220px]">
+              <th className="py-2.5 px-4 text-left text-[11px] font-bold uppercase tracking-wider text-[#364B59]/70 min-w-[220px]">
                 Objetivo Estratégico
               </th>
-              <th className="py-2.5 px-4 text-left text-[10px] font-bold uppercase tracking-wider text-[#364B59]/70 w-20">
+              <th className="py-2.5 px-4 text-left text-[11px] font-bold uppercase tracking-wider text-[#364B59]/70 w-20">
                 Subpeso
               </th>
-              <th className="py-2.5 px-4 text-left text-[10px] font-bold uppercase tracking-wider text-[#364B59]/70 w-28">
+              <th className="py-2.5 px-4 text-left text-[11px] font-bold uppercase tracking-wider text-[#364B59]/70 w-28">
                 Meta
               </th>
-              <th className="py-2.5 px-4 text-left text-[10px] font-bold uppercase tracking-wider text-[#364B59]/70 w-48">
+              <th className="py-2.5 px-4 text-left text-[11px] font-bold uppercase tracking-wider text-[#364B59]/70 w-48">
                 Atingimento (%)
               </th>
-              <th className="py-2.5 px-4 text-left text-[10px] font-bold uppercase tracking-wider text-[#364B59]/70 w-40">
+              <th className="py-2.5 px-4 text-left text-[11px] font-bold uppercase tracking-wider text-[#364B59]/70 w-40">
                 Avaliação Técnica
               </th>
             </tr>
@@ -148,7 +148,7 @@ function GoalTableSection({
                         <div>
                           <p className="font-semibold text-[#364B59]">{goal.title}</p>
                           {goal.ownerName && (
-                            <p className="text-[10px] text-[#F18213] font-semibold mt-0.5">{goal.ownerName}</p>
+                            <p className="text-[11px] text-[#F18213] font-semibold mt-0.5">{goal.ownerName}</p>
                           )}
                           {goal.description && (
                             <p className="text-xs text-slate-400 mt-0.5 line-clamp-1 max-w-sm">
@@ -179,7 +179,7 @@ function GoalTableSection({
                       </div>
                     </td>
                     <td className="py-3 px-4">
-                      <span className={`text-[10px] font-bold uppercase px-2.5 py-1 rounded-full ${bg} ${text}`}>
+                      <span className={`text-[11px] font-bold uppercase px-2.5 py-1 rounded-full ${bg} ${text}`}>
                         {label}
                       </span>
                     </td>
@@ -190,7 +190,7 @@ function GoalTableSection({
                     <tr className="bg-slate-50/80">
                       <td colSpan={5} className="px-8 py-4 border-t border-slate-100">
                         <div className="space-y-3">
-                          <p className="text-[10px] font-black uppercase tracking-widest text-slate-400">
+                          <p className="text-[11px] font-black uppercase tracking-widest text-slate-400">
                             Histórico de lançamentos
                           </p>
                           <GoalHistoryList entries={goal.history} goal={goal} />

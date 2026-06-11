@@ -57,11 +57,11 @@ export default function ActionPlansSection({ actionPlans, scopeId }: Props) {
                 <span className="text-sm font-medium text-[#364B59] leading-snug">{p.goalTitle}</span>
                 <div className="flex items-center gap-1.5 shrink-0">
                   {p.period && (
-                    <span className="text-[10px] bg-gray-100 px-1.5 py-0.5 rounded-full text-muted-foreground">
+                    <span className="text-[11px] bg-gray-100 px-1.5 py-0.5 rounded-full text-muted-foreground">
                       {PERIOD_LABELS[p.period] ?? p.period}
                     </span>
                   )}
-                  <Badge className={`text-[10px] px-2 py-0.5 ${goalTextClass(p.progress)}`}>{p.progress}%</Badge>
+                  <Badge className={`text-[11px] px-2 py-0.5 ${goalTextClass(p.progress)}`}>{p.progress}%</Badge>
                 </div>
               </div>
               <p className="text-xs text-muted-foreground">

@@ -46,7 +46,7 @@ function KpiCard({ goal }: { goal: GoalCardData }) {
 
   return (
     <div className="bg-white rounded-xl border border-border p-4 flex flex-col min-w-[148px] flex-shrink-0">
-      <p className="text-[9px] font-bold uppercase tracking-widest text-slate-400 leading-tight line-clamp-2">
+      <p className="text-[10px] font-bold uppercase tracking-widest text-slate-400 leading-tight line-clamp-2">
         {goal.title}
       </p>
       <p className="text-3xl font-black mt-2 leading-none" style={{ color }}>
@@ -68,26 +68,26 @@ function GoalTableSection({ title, goals }: { title: string; goals: GoalCardData
   return (
     <div className="bg-white rounded-xl border border-border overflow-hidden">
       <div className="px-5 py-3 bg-[#364B59]">
-        <h2 className="text-[10px] font-black uppercase tracking-[0.2em] text-white">{title}</h2>
+        <h2 className="text-[11px] font-black uppercase tracking-[0.2em] text-white">{title}</h2>
       </div>
 
       <div className="overflow-x-auto">
         <table className="w-full text-sm">
           <thead>
             <tr className="bg-[#2D3F4A]">
-              <th className="py-2.5 px-4 text-left text-[10px] font-bold uppercase tracking-wider text-slate-300 min-w-[220px]">
+              <th className="py-2.5 px-4 text-left text-[11px] font-bold uppercase tracking-wider text-slate-300 min-w-[220px]">
                 Objetivo Estratégico
               </th>
-              <th className="py-2.5 px-4 text-left text-[10px] font-bold uppercase tracking-wider text-slate-300 w-20">
+              <th className="py-2.5 px-4 text-left text-[11px] font-bold uppercase tracking-wider text-slate-300 w-20">
                 Subpeso
               </th>
-              <th className="py-2.5 px-4 text-left text-[10px] font-bold uppercase tracking-wider text-slate-300 w-28">
+              <th className="py-2.5 px-4 text-left text-[11px] font-bold uppercase tracking-wider text-slate-300 w-28">
                 Meta
               </th>
-              <th className="py-2.5 px-4 text-left text-[10px] font-bold uppercase tracking-wider text-slate-300 w-48">
+              <th className="py-2.5 px-4 text-left text-[11px] font-bold uppercase tracking-wider text-slate-300 w-48">
                 Atingimento (%)
               </th>
-              <th className="py-2.5 px-4 text-left text-[10px] font-bold uppercase tracking-wider text-slate-300 w-40">
+              <th className="py-2.5 px-4 text-left text-[11px] font-bold uppercase tracking-wider text-slate-300 w-40">
                 Avaliação Técnica
               </th>
             </tr>
@@ -132,7 +132,7 @@ function GoalTableSection({ title, goals }: { title: string; goals: GoalCardData
                     </div>
                   </td>
                   <td className="py-3 px-4">
-                    <span className={`text-[10px] font-bold uppercase px-2.5 py-1 rounded-full ${bg} ${text}`}>
+                    <span className={`text-[11px] font-bold uppercase px-2.5 py-1 rounded-full ${bg} ${text}`}>
                       {label}
                     </span>
                   </td>

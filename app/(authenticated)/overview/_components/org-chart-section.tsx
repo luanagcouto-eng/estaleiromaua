@@ -74,8 +74,8 @@ export default function OrgChartSection({
       <div className="border-t border-border px-8 pt-5 pb-6">
         <div className="flex items-start justify-between gap-6">
           <div>
-            <p className="text-[11px] font-semibold text-[#364B59] mb-1.5">Legenda de progresso</p>
-            <div className="flex flex-wrap items-center gap-3 text-[11px] text-muted-foreground">
+            <p className="text-[12px] font-semibold text-[#364B59] mb-1.5">Legenda de progresso</p>
+            <div className="flex flex-wrap items-center gap-3 text-[12px] text-muted-foreground">
               <LegendSwatch color="#DFA1AA" label="0% – 33%" />
               <LegendSwatch color="#F9E79F" label="33% – 66%" />
               <LegendSwatch color="#9AD595" label="66% – 100%" />

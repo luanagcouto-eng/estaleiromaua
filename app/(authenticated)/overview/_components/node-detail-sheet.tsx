@@ -137,7 +137,7 @@ export default function NodeDetailSheet({ node, onClose }: Props) {
                               <span
                                 key={s.id}
                                 title={s.responsible ? `Responsável: ${s.responsible}` : "Cargo em aberto"}
-                                className="text-[10px] bg-[#364B59]/5 border border-[#364B59]/10 px-2 py-0.5 rounded-full text-[#364B59]/60"
+                                className="text-[11px] bg-[#364B59]/5 border border-[#364B59]/10 px-2 py-0.5 rounded-full text-[#364B59]/60"
                               >
                                 {s.name}
                               </span>
@@ -161,7 +161,7 @@ export default function NodeDetailSheet({ node, onClose }: Props) {
                       <li key={goal.id} className="rounded-lg border border-border px-3 py-2.5 space-y-1.5">
                         <div className="flex items-start justify-between gap-2">
                           <span className="text-sm text-[#364B59] font-medium leading-snug">{goal.title}</span>
-                          <span className="text-[10px] bg-gray-100 px-1.5 py-0.5 rounded-full text-muted-foreground shrink-0">
+                          <span className="text-[11px] bg-gray-100 px-1.5 py-0.5 rounded-full text-muted-foreground shrink-0">
                             {PERIOD_LABELS[goal.period] ?? goal.period}
                           </span>
                         </div>
@@ -171,7 +171,7 @@ export default function NodeDetailSheet({ node, onClose }: Props) {
                             {" "}/ Meta: <span className="font-mono font-bold text-muted-foreground">{OP_SYMBOL[goal.operator] ?? goal.operator}</span>{" "}
                             <span className="font-semibold text-text">{formatGoalValue(goal.target_value, goal.unit)}</span>
                           </span>
-                          <Badge className={`text-[10px] px-2 py-0.5 shrink-0 ${goalTextClass(goal.progress)}`}>
+                          <Badge className={`text-[11px] px-2 py-0.5 shrink-0 ${goalTextClass(goal.progress)}`}>
                             {goal.progress}%
                           </Badge>
                         </div>

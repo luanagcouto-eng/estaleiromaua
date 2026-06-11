@@ -113,13 +113,13 @@ export default function TeamMemberCard({ member }: { member: TeamMemberData }) {
               <table className="w-full text-sm">
                 <thead>
                   <tr className="border-b border-border">
-                    <th className="py-2 px-3 text-left text-[10px] font-bold uppercase tracking-wider text-muted-foreground">Meta</th>
-                    <th className="py-2 px-3 text-left text-[10px] font-bold uppercase tracking-wider text-muted-foreground">Período</th>
-                    <th className="py-2 px-3 text-center text-[10px] font-bold uppercase tracking-wider text-muted-foreground">Peso</th>
-                    <th className="py-2 px-3 text-right text-[10px] font-bold uppercase tracking-wider text-muted-foreground">Atual</th>
-                    <th className="py-2 px-3 text-right text-[10px] font-bold uppercase tracking-wider text-muted-foreground">Meta</th>
-                    <th className="py-2 px-3 text-left text-[10px] font-bold uppercase tracking-wider text-muted-foreground w-40">Progresso</th>
-                    <th className="py-2 px-3 text-left text-[10px] font-bold uppercase tracking-wider text-muted-foreground">Status</th>
+                    <th className="py-2 px-3 text-left text-[11px] font-bold uppercase tracking-wider text-muted-foreground">Meta</th>
+                    <th className="py-2 px-3 text-left text-[11px] font-bold uppercase tracking-wider text-muted-foreground">Período</th>
+                    <th className="py-2 px-3 text-center text-[11px] font-bold uppercase tracking-wider text-muted-foreground">Peso</th>
+                    <th className="py-2 px-3 text-right text-[11px] font-bold uppercase tracking-wider text-muted-foreground">Atual</th>
+                    <th className="py-2 px-3 text-right text-[11px] font-bold uppercase tracking-wider text-muted-foreground">Meta</th>
+                    <th className="py-2 px-3 text-left text-[11px] font-bold uppercase tracking-wider text-muted-foreground w-40">Progresso</th>
+                    <th className="py-2 px-3 text-left text-[11px] font-bold uppercase tracking-wider text-muted-foreground">Status</th>
                   </tr>
                 </thead>
                 <tbody>
@@ -154,7 +154,7 @@ export default function TeamMemberCard({ member }: { member: TeamMemberData }) {
                           </div>
                         </td>
                         <td className="py-2.5 px-3">
-                          <span className={`text-[10px] font-bold uppercase px-2 py-0.5 rounded-full ${status.bg} ${status.text}`}>
+                          <span className={`text-[11px] font-bold uppercase px-2 py-0.5 rounded-full ${status.bg} ${status.text}`}>
                             {status.label}
                           </span>
                         </td>

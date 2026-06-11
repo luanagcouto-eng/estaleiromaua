@@ -77,7 +77,7 @@ export default function OrgChartSection({
             <p className="text-[12px] font-semibold text-[#364B59] mb-1.5">Legenda de progresso</p>
             <div className="flex flex-wrap items-center gap-3 text-[12px] text-muted-foreground">
               <LegendSwatch color="#DFA1AA" label="0% – 33%" />
-              <LegendSwatch color="#F9E79F" label="33% – 66%" />
+              <LegendSwatch color="#FFC067" label="33% – 66%" />
               <LegendSwatch color="#9AD595" label="66% – 100%" />
             </div>
           </div>

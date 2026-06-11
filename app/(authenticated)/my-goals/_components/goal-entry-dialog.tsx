@@ -23,8 +23,6 @@ const PERIOD_LABELS: Record<string, string> = {
   "2026-Q4": "4º Trimestre (T4)",
 };
 
-const FIVE_WHYS_INDEXES = [0, 1, 2, 3, 4] as const;
-
 export interface EditableGoalEntry {
   id: string;
   value: number;
@@ -265,20 +263,6 @@ export default function GoalEntryDialog({ open, onClose, goalId, goalTitle, unit
                     <FormMessage />
                   </FormItem>
                 )} />
-
-                <div className="space-y-2">
-                  <FormLabel>Análise de causa raiz — Método dos 5 Porquês</FormLabel>
-                  {FIVE_WHYS_INDEXES.map((i) => (
-                    <FormField key={i} control={form.control} name={`five_whys.${i}`} render={({ field }) => (
-                      <FormItem>
-                        <FormControl>
-                          <Input placeholder={`${i + 1}º Porquê`} {...field} value={field.value ?? ""} />
-                        </FormControl>
-                        <FormMessage />
-                      </FormItem>
-                    )} />
-                  ))}
-                </div>
 
                 <FormField control={form.control} name="action_plan" render={({ field }) => (
                   <FormItem>

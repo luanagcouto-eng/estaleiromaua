@@ -32,7 +32,7 @@ export type GoalEntryFormValues = z.infer<typeof goalEntryBaseSchema>;
 
 export const goalEntrySchema = goalEntryBaseSchema;
 
-/** Quando o valor lançado ultrapassa a meta, exige justificativa, os 5 porquês e plano de ação. */
+/** Quando o valor lançado ultrapassa a meta, exige justificativa e plano de ação. */
 export function buildGoalEntrySchema(targetValue: number) {
   return goalEntryBaseSchema.superRefine((data, ctx) => {
     if (data.value > targetValue) {
@@ -49,16 +49,6 @@ export function buildGoalEntrySchema(targetValue: number) {
           path: ["action_plan"],
           message: "Descreva o plano de ação para corrigir o desvio (mínimo 10 caracteres)",
         });
-      }
-      const whys = data.five_whys ?? [];
-      for (let i = 0; i < 5; i++) {
-        if (!whys[i] || whys[i].trim().length < 3) {
-          ctx.addIssue({
-            code: "custom",
-            path: ["five_whys", i],
-            message: `Responda o ${i + 1}º Porquê`,
-          });
-        }
       }
     }
   });

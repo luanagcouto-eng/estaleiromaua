@@ -14,6 +14,11 @@ function initials(name: string): string {
 type SortKey = "name" | "consolidatedPct" | "goals";
 type SortDir = "asc" | "desc";
 
+function SortIcon({ col, sortKey, sortDir }: { col: SortKey; sortKey: SortKey; sortDir: SortDir }) {
+  if (sortKey !== col) return <span className="ml-1 text-muted-foreground opacity-40">↕</span>;
+  return <span className="ml-1">{sortDir === "asc" ? "↑" : "↓"}</span>;
+}
+
 export default function TeamComparisonTable({ members }: { members: TeamMemberData[] }) {
   const [sortKey, setSortKey] = useState<SortKey>("consolidatedPct");
   const [sortDir, setSortDir] = useState<SortDir>("desc");
@@ -36,11 +41,6 @@ export default function TeamComparisonTable({ members }: { members: TeamMemberDa
 
   const best = sorted.reduce((m, c) => (c.consolidatedPct > m.consolidatedPct ? c : m), sorted[0]);
 
-  function SortIcon({ col }: { col: SortKey }) {
-    if (sortKey !== col) return <span className="ml-1 text-muted-foreground opacity-40">↕</span>;
-    return <span className="ml-1">{sortDir === "asc" ? "↑" : "↓"}</span>;
-  }
-
   return (
     <div className="rounded-xl border border-border bg-white overflow-hidden">
       <div className="px-5 py-3 border-b border-border bg-surface flex items-center justify-between">
@@ -56,19 +56,19 @@ export default function TeamComparisonTable({ members }: { members: TeamMemberDa
           <TableRow className="bg-surface/50">
             <TableHead>
               <button type="button" onClick={() => toggleSort("name")} className="flex items-center text-xs font-semibold uppercase tracking-wide">
-                Colaborador<SortIcon col="name" />
+                Colaborador<SortIcon col="name" sortKey={sortKey} sortDir={sortDir} />
               </button>
             </TableHead>
             <TableHead>Departamento</TableHead>
             <TableHead className="text-center">
               <button type="button" onClick={() => toggleSort("goals")} className="flex items-center justify-center text-xs font-semibold uppercase tracking-wide w-full">
-                Metas<SortIcon col="goals" />
+                Metas<SortIcon col="goals" sortKey={sortKey} sortDir={sortDir} />
               </button>
             </TableHead>
             <TableHead className="text-center">Pendentes</TableHead>
             <TableHead className="text-center">
               <button type="button" onClick={() => toggleSort("consolidatedPct")} className="flex items-center justify-center text-xs font-semibold uppercase tracking-wide w-full">
-                Consolidado<SortIcon col="consolidatedPct" />
+                Consolidado<SortIcon col="consolidatedPct" sortKey={sortKey} sortDir={sortDir} />
               </button>
             </TableHead>
             <TableHead>Barra</TableHead>

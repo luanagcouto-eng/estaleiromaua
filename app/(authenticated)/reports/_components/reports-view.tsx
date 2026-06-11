@@ -4,7 +4,7 @@ import { useState, useMemo } from "react";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { formatGoalValue, goalTextClass, progressBarPct, OP_SYMBOL } from "@/lib/utils";
+import { formatGoalValue, goalTextClass, OP_SYMBOL } from "@/lib/utils";
 
 export interface GoalReportRow {
   id: string;
@@ -220,20 +220,9 @@ export default function ReportsView({ rows }: { rows: GoalReportRow[] }) {
                     <span className="text-xs font-semibold text-[#F18213]">{r.weight}%</span>
                   </TableCell>
                   <TableCell className="text-center">
-                    <div className="flex flex-col items-center gap-1">
-                      <span className={`text-xs font-semibold px-2 py-0.5 rounded-full ${goalTextClass(r.progress_pct)}`}>
-                        {r.progress_pct}%{r.progress_pct >= 90 && r.progress_pct < 100 ? " 🏆" : ""}
-                      </span>
-                      <div className="w-16 h-1.5 rounded-full bg-gray-100 overflow-hidden">
-                        <div
-                          className="h-full rounded-full"
-                          style={{
-                            width: `${progressBarPct(r.progress_pct)}%`,
-                            backgroundColor: "#F18213",
-                          }}
-                        />
-                      </div>
-                    </div>
+                    <span className={`text-xs font-semibold px-2 py-0.5 rounded-full ${goalTextClass(r.progress_pct)}`}>
+                      {r.progress_pct}%{r.progress_pct >= 90 && r.progress_pct < 100 ? " 🏆" : ""}
+                    </span>
                   </TableCell>
                   <TableCell className="text-center">
                     {r.has_history ? (

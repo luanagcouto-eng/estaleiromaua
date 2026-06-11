@@ -52,7 +52,7 @@ const CURRENT_QUARTER = (() => {
 // ─── KPI Card ─────────────────────────────────────────────────────────────────
 
 function KpiCard({ goal }: { goal: GoalCardData }) {
-  const pct   = calcProgress(goal.current_value, goal.target_value, goal.operator);
+  const pct   = calcProgress(goal.current_value, goal.target_value, goal.operator, goal.history.length > 0);
   const color = progressColor(pct);
 
   return (
@@ -120,8 +120,8 @@ function GoalTableSection({
           </thead>
           <tbody>
             {goals.map((goal) => {
-              const pct        = calcProgress(goal.current_value, goal.target_value, goal.operator);
               const hasHistory = goal.history.length > 0;
+              const pct        = calcProgress(goal.current_value, goal.target_value, goal.operator, hasHistory);
               const { label, bg, text } = statusInfo(pct, hasHistory);
               const color      = progressColor(pct);
               const isExpanded = expandedId === goal.id;

@@ -65,14 +65,17 @@ export default async function OverviewPage() {
   const role = profile?.role;
   if (role !== "ceo" && role !== "admin" && role !== "director") redirect("/dashboard");
 
-  const [{ data: orgRows }, { data: companyRows }, { data: allProfiles }, { data: goalRows }, { data: actionPlanRows }, { data: profileDepts }] = await Promise.all([
+  const [{ data: orgRows }, { data: companyRows }, { data: allProfiles }, { data: goalRows }, { data: actionPlanRows }, { data: profileDepts }, { data: historyRows }] = await Promise.all([
     supabase.from("org_chart_progress").select("*"),
     supabase.from("company_progress").select("*"),
     supabase.from("profiles").select("id, name, department_id, role"),
     supabase.from("goals").select("id, title, period, target_value, current_value, unit, operator, department_id").like("period", "2026%"),
     supabase.from("goal_history").select("id, goal_id, period, action_plan, recorded_at").not("action_plan", "is", null),
     supabase.from("profile_departments").select("profile_id, department_id"),
+    supabase.from("goal_history").select("goal_id"),
   ]);
+
+  const goalsWithHistory = new Set((historyRows ?? []).map((h) => h.goal_id));
 
   const rows = (orgRows ?? []) as OrgChartProgressRow[];
   const company = (companyRows ?? [])[0] as {
@@ -101,7 +104,7 @@ export default async function OverviewPage() {
       id: g.id,
       title: g.title,
       period: g.period,
-      progress: calcProgress(Number(g.current_value), Number(g.target_value), g.operator),
+      progress: calcProgress(Number(g.current_value), Number(g.target_value), g.operator, goalsWithHistory.has(g.id)),
       current_value: Number(g.current_value),
       target_value: Number(g.target_value),
       unit: g.unit,

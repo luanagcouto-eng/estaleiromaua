@@ -15,7 +15,7 @@ export default async function AdminGoalsPage() {
 
   if (profile?.role !== "admin" && profile?.role !== "ceo") redirect("/dashboard");
 
-  const [{ data: goals }, { data: profiles }, { data: departments }] = await Promise.all([
+  const [{ data: goals }, { data: profiles }, { data: departments }, { data: historyRows }] = await Promise.all([
     supabase
       .from("goals")
       .select("*, owner:profiles(id,name,email), department:departments(id,name,sector)")
@@ -28,7 +28,11 @@ export default async function AdminGoalsPage() {
       .from("departments")
       .select("id, name, sector, parent_id")
       .order("name"),
+    supabase.from("goal_history").select("goal_id"),
   ]);
+
+  const goalsWithHistory = new Set((historyRows ?? []).map((h) => h.goal_id));
+  const goalsWithHasHistory = (goals ?? []).map((g) => ({ ...g, has_history: goalsWithHistory.has(g.id) }));
 
   return (
     <div className="space-y-6">
@@ -37,7 +41,7 @@ export default async function AdminGoalsPage() {
         <p className="text-muted-foreground text-sm mt-1">Crie e edite as metas anuais por gestor — peso total deve somar 100%</p>
       </div>
       <GoalsTable
-        goals={goals ?? []}
+        goals={goalsWithHasHistory}
         profiles={profiles ?? []}
         departments={departments ?? []}
       />

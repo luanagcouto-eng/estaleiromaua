@@ -20,6 +20,7 @@ interface GoalRow {
   current_value: number; unit: string; operator: string;
   owner_id: string; department_id: string;
   owner: Profile | null; department: Pick<Department, "id" | "name" | "sector"> | null;
+  has_history: boolean;
 }
 
 interface Props {
@@ -34,28 +35,28 @@ const MOCK_GOALS: GoalRow[] = [
   {
     id: "__mock_1", title: "Receita Bruta Anual", description: null,
     period: "2026-ANUAL", weight: 40, target_value: 1200000, current_value: 480000, unit: "R$", operator: ">=", sub_weight: null,
-    owner_id: "__mock", department_id: "__mock",
+    owner_id: "__mock", department_id: "__mock", has_history: true,
     owner: { id: "__mock", name: "João da Silva", email: "" },
     department: { id: "__mock", name: "Operações Navais", sector: "" },
   },
   {
     id: "__mock_2", title: "Cumprimento de Prazo de Entrega", description: null,
     period: "2026-ANUAL", weight: 30, target_value: 95, current_value: 72, unit: "%", operator: ">=", sub_weight: null,
-    owner_id: "__mock", department_id: "__mock",
+    owner_id: "__mock", department_id: "__mock", has_history: true,
     owner: { id: "__mock", name: "Maria Souza", email: "" },
     department: { id: "__mock", name: "Engenharia Naval", sector: "" },
   },
   {
     id: "__mock_3", title: "NPS — Satisfação do Cliente", description: null,
     period: "2026-Q1", weight: 20, target_value: 80, current_value: 65, unit: "pontos", operator: ">=", sub_weight: null,
-    owner_id: "__mock", department_id: "__mock",
+    owner_id: "__mock", department_id: "__mock", has_history: true,
     owner: { id: "__mock", name: "Carlos Lima", email: "" },
     department: { id: "__mock", name: "Qualidade", sector: "" },
   },
   {
     id: "__mock_4", title: "Horas de Capacitação", description: null,
     period: "2026-Q2", weight: 10, target_value: 200, current_value: 45, unit: "horas", operator: ">=", sub_weight: null,
-    owner_id: "__mock", department_id: "__mock",
+    owner_id: "__mock", department_id: "__mock", has_history: true,
     owner: { id: "__mock", name: "Ana Pereira", email: "" },
     department: { id: "__mock", name: "Recursos Humanos", sector: "" },
   },
@@ -131,8 +132,8 @@ export default function GoalsTable({ goals, profiles, departments }: Props) {
           case "weight":
             aVal = Number(a.weight); bVal = Number(b.weight); break;
           case "progress":
-            aVal = calcProgress(Number(a.current_value), Number(a.target_value), a.operator);
-            bVal = calcProgress(Number(b.current_value), Number(b.target_value), b.operator);
+            aVal = calcProgress(Number(a.current_value), Number(a.target_value), a.operator, a.has_history);
+            bVal = calcProgress(Number(b.current_value), Number(b.target_value), b.operator, b.has_history);
             break;
         }
         if (aVal < bVal) return sortDir === "asc" ? -1 : 1;
@@ -286,7 +287,7 @@ export default function GoalsTable({ goals, profiles, departments }: Props) {
               </TableRow>
             ) : (
               processedGoals.map(g => {
-                const pct = calcProgress(Number(g.current_value), Number(g.target_value), g.operator);
+                const pct = calcProgress(Number(g.current_value), Number(g.target_value), g.operator, g.has_history);
                 const dept = deptMap.get(g.department_id);
                 const parentDept = dept?.parent_id ? deptMap.get(dept.parent_id) : null;
                 const deptDisplay = dept

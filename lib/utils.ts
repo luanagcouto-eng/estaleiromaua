@@ -36,13 +36,16 @@ export function formatGoalValue(value: number, unit: string): string {
 }
 
 /**
- * Calcula o percentual de atingimento de uma meta, considerando o operador (>=, <=, etc.).
+ * Calcula o percentual de atingimento de uma meta, considerando o operador (>=, <=, etc.)
+ * e se já houve algum lançamento (goal_history). Sem lançamento, retorna 0% — caso
+ * contrário, current_value=0 (padrão do banco) produziria 200% para metas <=/<,
+ * passando a impressão de uma meta cumprida sem nenhum resultado reportado.
  * Para metas "menor ou igual" (≤ / <), usa Atingimento = 1 + (Meta − Realizado) / Meta,
  * de forma que resultados piores que a meta fiquem abaixo de 100%. O valor retornado
  * não é limitado: pode ser negativo ou maior que 100%.
  */
-export function calcProgress(current: number, target: number, operator?: string): number {
-  if (target === 0) return 0;
+export function calcProgress(current: number, target: number, operator?: string, hasHistory: boolean = true): number {
+  if (!hasHistory || target === 0) return 0;
   if (operator === "<=" || operator === "<") {
     return Math.round((1 + (target - current) / target) * 100);
   }

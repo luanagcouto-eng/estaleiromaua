@@ -59,7 +59,7 @@ export default async function ReportsPage() {
     owner_name: g.owner?.name ?? "—",
     department_name: g.department?.name ?? "—",
     has_history: goalsWithHistory.has(g.id),
-    progress_pct: calcProgress(Number(g.current_value), Number(g.target_value), g.operator),
+    progress_pct: calcProgress(Number(g.current_value), Number(g.target_value), g.operator, goalsWithHistory.has(g.id)),
   }));
 
   return (

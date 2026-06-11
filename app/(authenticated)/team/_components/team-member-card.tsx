@@ -124,7 +124,7 @@ export default function TeamMemberCard({ member }: { member: TeamMemberData }) {
                 </thead>
                 <tbody>
                   {member.goals.map((g) => {
-                    const pct = calcProgress(g.current_value, g.target_value, g.operator);
+                    const pct = calcProgress(g.current_value, g.target_value, g.operator, g.has_history);
                     const status = statusInfo(pct, g.has_history);
                     return (
                       <tr key={g.id} className="border-b border-border last:border-b-0">

@@ -2,7 +2,7 @@
 
 import React, { useState } from "react";
 import { Target } from "lucide-react";
-import { calcProgress, formatGoalValue, progressBarPct, OP_SYMBOL } from "@/lib/utils";
+import { calcProgress, formatGoalValue, progressBarPct, rateInfo, OP_SYMBOL } from "@/lib/utils";
 import GoalEntryDialog from "./goal-entry-dialog";
 import GoalHistoryList from "./goal-history-list";
 import type { GoalCardData } from "./goal-card";
@@ -14,13 +14,6 @@ function progressColor(pct: number) {
   if (pct >= 90) return "#22c55e";
   if (pct >= 60) return "#F18213";
   return "#ef4444";
-}
-
-function statusInfo(pct: number, hasHistory: boolean) {
-  if (!hasHistory)  return { label: "PENDENTE",         bg: "bg-slate-100",   text: "text-slate-500"  };
-  if (pct >= 90)    return { label: "EM CONFORMIDADE",  bg: "bg-emerald-50",  text: "text-emerald-700" };
-  if (pct >= 60)    return { label: "EM ANDAMENTO",     bg: "bg-orange-50",   text: "text-[#F18213]"  };
-  return              { label: "EM RISCO",              bg: "bg-red-50",      text: "text-red-600"    };
 }
 
 const PERIOD_LABELS: Record<string, string> = {
@@ -114,7 +107,7 @@ function GoalTableSection({
                 Atingimento (%)
               </th>
               <th className="py-2.5 px-4 text-left text-[11px] font-bold uppercase tracking-wider text-[#364B59]/70 w-40">
-                Avaliação Técnica
+                Rate
               </th>
             </tr>
           </thead>
@@ -122,7 +115,7 @@ function GoalTableSection({
             {goals.map((goal) => {
               const hasHistory = goal.history.length > 0;
               const pct        = calcProgress(goal.current_value, goal.target_value, goal.operator, hasHistory);
-              const { label, bg, text } = statusInfo(pct, hasHistory);
+              const { label, bg, text } = rateInfo(pct, hasHistory);
               const color      = progressColor(pct);
               const isExpanded = expandedId === goal.id;
 

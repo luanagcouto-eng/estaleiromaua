@@ -57,6 +57,15 @@ export function progressBarPct(pct: number): number {
   return Math.max(0, Math.min(100, pct));
 }
 
+/** Retorna o rótulo e as classes de cor do RATE de atingimento de uma meta */
+export function rateInfo(pct: number, hasHistory: boolean): { label: string; bg: string; text: string } {
+  if (!hasHistory) return { label: "Pendente", bg: "bg-slate-100", text: "text-slate-500" };
+  if (pct <= 99) return { label: "Rate 1 - Mínimo", bg: "bg-red-50", text: "text-red-600" };
+  if (pct === 100) return { label: "Rate 2 - Meta", bg: "bg-emerald-50", text: "text-emerald-700" };
+  if (pct < 110) return { label: "Rate 5 - Superação", bg: "bg-blue-50", text: "text-blue-700" };
+  return { label: "Rate 6 - 120%", bg: "bg-amber-50", text: "text-amber-700" };
+}
+
 /** Resolve o rótulo de exibição de um Select a partir do id selecionado */
 export function labelFromOptions(
   value: string | undefined,

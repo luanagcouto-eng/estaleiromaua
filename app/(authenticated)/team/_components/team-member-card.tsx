@@ -4,7 +4,7 @@ import { useState } from "react";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { calcProgress, formatGoalValue, goalColor, goalTextClass, progressBarPct, OP_SYMBOL } from "@/lib/utils";
+import { calcProgress, formatGoalValue, goalColor, goalTextClass, progressBarPct, rateInfo, OP_SYMBOL } from "@/lib/utils";
 
 const PERIOD_LABELS: Record<string, string> = {
   "2026-ANUAL": "Anual",
@@ -39,13 +39,6 @@ export interface TeamMemberData {
 function initials(name: string): string {
   const parts = name.trim().split(/\s+/);
   return ((parts[0]?.[0] ?? "") + (parts[parts.length - 1]?.[0] ?? "")).toUpperCase();
-}
-
-function statusInfo(pct: number, hasHistory: boolean) {
-  if (!hasHistory) return { label: "Pendente", bg: "bg-slate-100", text: "text-slate-500" };
-  if (pct >= 90) return { label: "Em conformidade", bg: "bg-emerald-50", text: "text-emerald-700" };
-  if (pct >= 60) return { label: "Em andamento", bg: "bg-orange-50", text: "text-[#F18213]" };
-  return { label: "Em risco", bg: "bg-red-50", text: "text-red-600" };
 }
 
 export default function TeamMemberCard({ member }: { member: TeamMemberData }) {
@@ -119,13 +112,13 @@ export default function TeamMemberCard({ member }: { member: TeamMemberData }) {
                     <th className="py-2 px-3 text-right text-[11px] font-bold uppercase tracking-wider text-muted-foreground">Atual</th>
                     <th className="py-2 px-3 text-right text-[11px] font-bold uppercase tracking-wider text-muted-foreground">Meta</th>
                     <th className="py-2 px-3 text-left text-[11px] font-bold uppercase tracking-wider text-muted-foreground w-40">Progresso</th>
-                    <th className="py-2 px-3 text-left text-[11px] font-bold uppercase tracking-wider text-muted-foreground">Status</th>
+                    <th className="py-2 px-3 text-left text-[11px] font-bold uppercase tracking-wider text-muted-foreground">Rate</th>
                   </tr>
                 </thead>
                 <tbody>
                   {member.goals.map((g) => {
                     const pct = calcProgress(g.current_value, g.target_value, g.operator, g.has_history);
-                    const status = statusInfo(pct, g.has_history);
+                    const status = rateInfo(pct, g.has_history);
                     return (
                       <tr key={g.id} className="border-b border-border last:border-b-0">
                         <td className="py-2.5 px-3 font-medium text-text">

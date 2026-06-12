@@ -123,9 +123,9 @@ export default function NodeDetailSheet({ node, onClose }: Props) {
                         <div className="flex items-center justify-between gap-2">
                           <div className="min-w-0">
                             <p className="text-text font-medium truncate">{sub.name}</p>
-                            <p className={`text-xs truncate ${sub.responsible ? "text-muted-foreground" : "italic text-muted-foreground/60"}`}>
-                              {sub.responsible ?? "Cargo em aberto"}
-                            </p>
+                            {sub.responsible && (
+                              <p className="text-xs truncate text-muted-foreground">{sub.responsible}</p>
+                            )}
                           </div>
                           <Badge variant="secondary" className={`shrink-0 ${goalTextClass(sub.progress)}`}>
                             {sub.progress.toFixed(0)}%
